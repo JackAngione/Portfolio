@@ -12,8 +12,9 @@ app.get('/search', async (req, res) => {
     const searchQuery = req.query.searchQuery;
     console.log(searchQuery);
     if (searchQuery) {
-        res.send(`You searched for: ${searchQuery}`);
-        await searchTutorials(searchQuery);
+       // res.send(`You searched for: ${searchQuery}`);
+        let searchResults = await searchTutorials(searchQuery);
+        res.send(searchResults)
     } else {
         res.send('No search query provided');
     }

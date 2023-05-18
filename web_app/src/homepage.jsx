@@ -5,6 +5,8 @@ import axios from 'axios'
 function Homepage() {
   const serverAddress = "http://127.0.0.1:3000"
   const [searchText, updatesearchText] = useState("")
+  //SEARCH RESULTS ARE AN ARRAY OF MONGODB DOCUMENTS IN JSON FORMAT
+  const [searchresults, setSearchResults] = useState([])
     const handleSearchChange = (event) =>
     {
         updatesearchText(event.target.value);
@@ -18,7 +20,6 @@ function Homepage() {
   };
     function searchDatabase(searchQuery)
     {
-      console.log("searching database...")
       let encodedSearch = encodeURIComponent(searchQuery)
 
       axios.get(serverAddress+"/search", {
@@ -27,9 +28,28 @@ function Homepage() {
         }
       })
           .then(function (response) {
-            console.log(response);
+            setSearchResults(response.data)
+            console.log(searchresults)
           })
     }
+  function DispalySearchResults()
+  {
+    return (<ul id="searchResultList">
+          {
+            searchresults.map((result, index) =>
+              <li key={index}>
+                <a href={result.link} target="_blank" rel="noopener noreferrer"> {result.title}
+                  {
+                    result.description
+                  }</a>
+
+
+              </li>
+            )
+          }
+        </ul>
+    )
+  }
 
 
   return (
@@ -41,6 +61,10 @@ function Homepage() {
             onChange = {handleSearchChange}
             onKeyDown={handleKeyPress}
         />
+      {searchresults.length != 0 &&
+        <DispalySearchResults/>
+      }
+
 
     </>
   )
