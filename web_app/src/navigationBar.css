@@ -1,0 +1,14 @@
+#navigation
+{
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    flex-wrap:wrap;
+    justify-content: center;
+}
+#navigation li a
+{
+    padding: 10px;
+
+}
+
