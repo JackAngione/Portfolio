@@ -6,3 +6,4 @@ Let's say im looking for a tutorial on music production, but there are hundreds 
 
 ## TODO
 "upload page": submit a [title, source link, description, and keywords] to a tutorial and upload it to the database
+edit an indexed tutorial: be able to edit the title, description, source, keywords to a document in the database.
