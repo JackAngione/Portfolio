@@ -14,4 +14,12 @@ async function searchTutorials(searchQuery) {
     console.log(JSON.stringify(documents))
     return JSON.stringify(documents)
 }
-module.exports = {searchTutorials}
+
+async function uploadTutorial(tutorialInfo)
+{
+    const collection = client.db("KNOWLEDGE").collection("tutorials")
+    await collection.insertOne(tutorialInfo)
+    console.log("INSERTED!")
+}
+
+module.exports = {searchTutorials, uploadTutorial}

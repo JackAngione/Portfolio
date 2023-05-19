@@ -32,18 +32,16 @@ function Homepage() {
             console.log(searchresults)
           })
     }
-  function DispalySearchResults()
+  function DisplaySearchResults()
   {
     return (<ul id="searchResultList">
           {
             searchresults.map((result, index) =>
               <li key={index}>
-                <a href={result.link} target="_blank" rel="noopener noreferrer"> {result.title}
-                  {
-                    result.description
-                  }</a>
-
-
+                <a href={result.link} target="_blank" rel="noopener noreferrer">
+                  {result.title}
+                  {result.description}
+                </a>
               </li>
             )
           }
@@ -62,7 +60,7 @@ function Homepage() {
             onKeyDown={handleKeyPress}
         />
       {searchresults.length != 0 &&
-        <DispalySearchResults/>
+        <DisplaySearchResults/>
       }
 
 
