@@ -22,7 +22,7 @@ function Homepage() {
     {
       let encodedSearch = encodeURIComponent(searchQuery)
 
-      axios.get(serverAddress+"/search", {
+      axios.get(serverAddress+"/api/search", {
         params: {
           searchQuery: encodedSearch,
         }
@@ -38,7 +38,7 @@ function Homepage() {
           {
             searchresults.map((result, index) =>
               <li key={index}>
-                <a href={result.link} target="_blank" rel="noopener noreferrer">
+                <a href={result.source} target="_blank" rel="noopener noreferrer">
                   {result.title}
                   {result.description}
                 </a>
