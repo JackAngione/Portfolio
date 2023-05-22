@@ -14,7 +14,15 @@ async function searchTutorials(searchQuery) {
     console.log(JSON.stringify(documents))
     return JSON.stringify(documents)
 }
-
+//retries a list of all categories from the database
+async function getAllCategories()
+{
+    const collection = client.db("KNOWLEDGE").collection("categories")
+    const categories = collection.find({}).toArray()
+    console.log(categories)
+    return categories
+}
+//uploads a tutorial to the database
 async function uploadTutorial(tutorialInfo)
 {
     const collection = client.db("KNOWLEDGE").collection("tutorials")
@@ -22,4 +30,4 @@ async function uploadTutorial(tutorialInfo)
     console.log("INSERTED!")
 }
 
-module.exports = {searchTutorials, uploadTutorial}
+module.exports = {searchTutorials, uploadTutorial, getAllCategories}
