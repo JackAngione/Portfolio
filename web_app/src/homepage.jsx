@@ -25,22 +25,23 @@ function Homepage() {
         let tempChosen = []
         for(let i=0; i<event.length;i++)
         {
-            tempChosen[i] = event[i].value
+            tempChosen[i] = event[i].label
         }
         setChosenCategory(tempChosen)
         console.log("TEMPCHOSEN: " + tempChosen)
         console.log("chosen: " + chosenCategories)
-
     };
   const handleSearchChange = (event) =>
   {
       updateSearchText(event.target.value);
   }
   const handleKeyPress = (event) => {
-      event.preventDefault();
+
       if (event.key === 'Enter') {
+          event.preventDefault();
       searchDatabase(searchText)
     }
+      //
   };
   function getCategories()
   {
@@ -57,22 +58,32 @@ function Homepage() {
             console.log(categoryTitles)
         })
   }
+  //send search query to database and get results
     function searchDatabase(searchQuery)
     {
-      let encodedSearch = encodeURIComponent(searchQuery)
-
-      axios.get(serverAddress+"/api/search", {
-        params: {
-          searchQuery: encodedSearch,
+        //user is trying to make a search with no categories and no query
+        if(searchQuery ==="" && chosenCategories.length===0)
+        {
+            console.log("INVALID SEARCH!!!yyyooouuuu")
         }
-      })
-          .then(function (response) {
-            setSearchResults(response.data)
-            console.log(searchresults)
-          })
+        else
+        {
+            let encodedSearch = encodeURIComponent(searchQuery)
+            axios.get(serverAddress+"/api/search", {
+                params: {
+                    searchQuery: encodedSearch,
+                    categories: chosenCategories
+                }
+            })
+                .then(function (response) {
+                    setSearchResults(response.data)
+                    console.log(searchresults)
+                })
+        }
+
     }
     //TEST TO SHOW CATEGORIES
-    function DispalyCategories()
+    function DisplayCategories()
     {
         return (
             <>
@@ -95,8 +106,6 @@ function Homepage() {
                     }
                 </ul>}
             </>
-
-
         )
     }
     //SHOW THE SEARCH RESULTS
@@ -124,7 +133,7 @@ function Homepage() {
             isMulti
             onChange={(event) => handleCategoryChoice(1, event)}
             options={categoryTitles}/>
-    <p></p>
+
     <input
         type= "text"
         value = {searchText}
@@ -135,9 +144,10 @@ function Homepage() {
         searchresults.length !== 0 &&
         <DisplaySearchResults/>
     }
-    {
+    {/*
         //FORDEBUGGING
-        <DispalyCategories/>
+        <DisplayCategories/>
+       */
     }
 
     </>

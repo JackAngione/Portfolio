@@ -1,16 +1,38 @@
 const {connectionString} = require("./mongoDBconnection")
 const { MongoClient } = require('mongodb');
 
-
-
 const client = new MongoClient(connectionString)
 
-
-async function searchTutorials(searchQuery) {
+//SEARCHES THE DATABASE BASED ON A USER'S QUERY
+async function searchTutorials(searchQuery, categories) {
     const collection = client.db("KNOWLEDGE").collection("tutorials")
     const regex = new RegExp(decodeURIComponent(searchQuery), 'i')
-    const findString = { $or: [{title: regex}, {description: regex}, {keywords: regex}, {source: regex}]}
+    let findString = ""
+    //EMPTY SEARCH, JUST RETURN ALL MATCHING DOCUMENTS IN CATEGORIES
+    if(searchQuery === "")
+    {
+        console.log("NOSEARCH!!!")
+        findString = {category: {$in: categories}}
+    }
+    else
+    {
+        //IF USER DIDNT FILTER BY CATEGORIES
+        if(categories === undefined)
+        {
+
+            findString = {$or: [{title: regex}, {description: regex}, {keywords: regex}, {source: regex}]}
+        }
+        //SEARCH FILTERING BY CATEGORY
+        else
+        {
+            console.log("Category: " + categories[0])
+            findString = { $and: [{category: {$in: categories}}, {$or: [{title: regex}, {description: regex}, {keywords: regex}, {source: regex}]}]}
+        }
+    }
+
+
     const documents = await collection.find(findString).toArray()
+    //PRINT RESULTING DOCUMENTS
     console.log(JSON.stringify(documents))
     return JSON.stringify(documents)
 }

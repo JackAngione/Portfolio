@@ -9,22 +9,20 @@ app.use(express.json());
 //get a list of all categories
 app.get('/api/categories', async (req, res) => {
     console.log("category request made")
-    let allCategories = await db.getAllCategories();
+    let allCategories = await db.getAllCategories()
     res.send(allCategories)
 })
 //search for a tutorial
 app.get('/api/search', async (req, res) => {
-    console.log("search request made")
 
+    const chosenCategories = req.query.categories
     const searchQuery = req.query.searchQuery;
-    console.log(searchQuery);
-    if (searchQuery) {
-       // res.send(`You searched for: ${searchQuery}`);
-        let searchResults = await db.searchTutorials(searchQuery);
-        res.send(searchResults)
-    } else {
-        res.send('No search query provided');
-    }
+    console.log("search request made, query: "+ searchQuery)
+
+   // res.send(`You searched for: ${searchQuery}`);
+    let searchResults = await db.searchTutorials(searchQuery, chosenCategories);
+    res.send(searchResults)
+
 })
 
 //upload a tutorial
