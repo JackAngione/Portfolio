@@ -1,15 +1,17 @@
 import {useEffect, useState} from 'react'
 import './homepage.css'
 import axios from 'axios'
-
+import Select from 'react-select'
 function Homepage() {
     const serverAddress = "http://127.0.0.1:3000"
     //THE USER'S SEARCH QUERY
     const [searchText, updateSearchText] = useState("")
-    //LIST OF ALL CATEGORIES DERIVED FROM DATABASE
+    //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (in json format)
     const [categories, setCategories] = useState([])
+    //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (just the titles)
+    const [categoryTitles, setcategoryTitles] = useState([])
     //WHICH CATEGORIES THE USER IS FILTERING BY
-    const [chosenCategories, setChosenCategory] = useState("")
+    const [chosenCategories, setChosenCategory] = useState([])
     //SEARCH RESULTS ARE AN ARRAY OF MONGODB DOCUMENTS IN JSON FORMAT
     const [searchresults, setSearchResults] = useState([])
 
@@ -18,8 +20,17 @@ function Homepage() {
     useEffect(() =>{
         getCategories()
     }, [])
-    const handleCategory = (event) => {
-        setChosenCategory(event.target.value);
+    const handleCategoryChoice = (index, event) => {
+        //event is an array of all the categories chosen
+        let tempChosen = []
+        for(let i=0; i<event.length;i++)
+        {
+            tempChosen[i] = event[i].value
+        }
+        setChosenCategory(tempChosen)
+        console.log("TEMPCHOSEN: " + tempChosen)
+        console.log("chosen: " + chosenCategories)
+
     };
   const handleSearchChange = (event) =>
   {
@@ -29,15 +40,21 @@ function Homepage() {
       event.preventDefault();
       if (event.key === 'Enter') {
       searchDatabase(searchText)
-
     }
   };
   function getCategories()
   {
     axios.get(serverAddress+"/api/categories")
         .then(function (response) {
+            let tempCategoryTitle = []
             setCategories(response.data)
-            console.log(categories)
+            for(let i =0; i<response.data.length; i++)
+            {
+                tempCategoryTitle[i] =
+                    {value: response.data[i].title.toLowerCase(), label: response.data[i].title, selected: false}
+            }
+            setcategoryTitles(tempCategoryTitle)
+            console.log(categoryTitles)
         })
   }
     function searchDatabase(searchQuery)
@@ -58,15 +75,28 @@ function Homepage() {
     function DispalyCategories()
     {
         return (
-            <ul id="searchResultList">
-                {
-                    categories.map((result, index) =>
-                        <li key={index}>
-                            {JSON.stringify(result)}
-                        </li>
-                    )
-                }
-            </ul>
+            <>
+                <ul id="">
+                    {
+                        categories.map((result, index) =>
+                            <li key={index}>
+                                {JSON.stringify(result)}
+                            </li>
+                        )
+                    }
+                </ul>
+                {<ul id="">
+                    {
+                        chosenCategories.map((result, index) =>
+                            <li key={index}>
+                                {result}
+                            </li>
+                        )
+                    }
+                </ul>}
+            </>
+
+
         )
     }
     //SHOW THE SEARCH RESULTS
@@ -89,26 +119,11 @@ function Homepage() {
   return (
     <>
     <h1>HOME</h1>
-    {<label>Category:
-    <select
-        name="category"
-        value={chosenCategories || ""}
-        onChange={handleCategory}
-        placeholder="Source"
-    >
-        {categories.map((result) =>
-            <option
-                key={JSON.stringify(result.title).replace(/\"/g, "")}
-                value={JSON.stringify(result.title).replace(/\"/g, "")}
-            >
-                {/*actually displayed text*/}
-                {JSON.stringify(result.title).replace(/\"/g, "")}
-            </option>
 
-        )}
-
-    </select>
-    </label>}
+        <Select
+            isMulti
+            onChange={(event) => handleCategoryChoice(1, event)}
+            options={categoryTitles}/>
     <p></p>
     <input
         type= "text"
