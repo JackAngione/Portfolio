@@ -32,7 +32,7 @@ function Upload() {
 
     //SHOULD ONLY RUN ON SUBMIT
     useEffect(() => {
-        console.log(submitFlag)
+        //console.log(submitFlag)
         if(submitFlag === true)
         {
             axios.post(serverAddress + "/api/upload", inputs)
@@ -62,18 +62,16 @@ function Upload() {
     //SEND the form to database
     function submitUpload(e) {
         e.preventDefault()
-        console.log(inputs)
         let finalArray = []
         for(let i=0;i<reactKeywords.length;i++)
         {
             finalArray.push(reactKeywords[i].value)
         }
-        console.log("FINAL ARRAY!!!: " + finalArray)
         setInputs(prevState => ({...prevState, keywords: finalArray}))
         setSubmitFlag(true)
     }
 
-    //DISPLAY REACT SELECT KEYWORDS
+    //DEBUGGING---DISPLAY REACT SELECT KEYWORDS
     function DisplayKeywords()
     {
         return (
@@ -148,7 +146,7 @@ function Upload() {
                     onChange={(newValue) => setReactKeywords(newValue)}
                     onInputChange={(newValue) => setInputValue(newValue)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Enter keywords to be used here"
+                    placeholder="Enter Keywords Here"
                     value={reactKeywords}
                 />
                 <input type="submit" />

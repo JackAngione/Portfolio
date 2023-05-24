@@ -1,11 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import Homepage from './homepage.jsx'
-import Upload from "./upload.jsx";
+import Homepage from './routes/homepage.jsx'
+import Upload from "./routes/upload.jsx";
 import './main.css'
-import ErrorPage from "./error-page.jsx";
-import NavigationBar from "./navigationBar.jsx";
+import ErrorPage from "./routes/error-page.jsx";
+import NavigationBar from "./routes/navigationBar.jsx";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import Category from "./routes/category.jsx";
 
 const router = createBrowserRouter([
     {
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
             {
                 path: "upload",
                 element: <Upload/>
+            },
+            {
+                path: "category",
+                element: <Category/>
             }
         ],
     },
