@@ -1,32 +1,35 @@
 import {useEffect, useState} from 'react'
 import './upload.css'
 import axios from 'axios'
+import CreatableSelect from "react-select/creatable";
 
 function Upload() {
     const serverAddress = "http://127.0.0.1:3000"
     let [submitFlag, setSubmitFlag]= useState(false)
-    let [keywordString, setKeywordString] = useState("")
+
+    //REACT SELECT KEYWORDS
+    const [inputValue, setInputValue] = useState("")
+    const [reactKeywords, setReactKeywords] = useState([])
+    const components = {
+        DropdownIndicator: null,
+    };
+    //
+    //the JSON to be uploaded to database
     let [inputs, setInputs] = useState({
         title: "",
         description: "",
         source: "",
         category: "",
-        //delimiter for keywords is semicolon
         keywords: []
     })
-
+    //Set the title, desc, source to what the user types in
     const handleChange = (event) =>
     {
         const name = event.target.name;
         const value = event.target.value;
         setInputs(values => ({...values, [name]: value}))
     }
-    const handleKeywords = (event) =>
-    {
 
-        const value = event.target.value;
-        setKeywordString(value)
-    }
     //SHOULD ONLY RUN ON SUBMIT
     useEffect(() => {
         console.log(submitFlag)
@@ -38,39 +41,54 @@ function Upload() {
                 })
         }
     }, [inputs.keywords, submitFlag])
-    function finalizeKeywords()
-    {
-       let finalArray = keywordString.split(";")
-       console.log("pre final ARRAY" + finalArray)
-       for(let i =0; i < finalArray.length; i++)
-       {
-           finalArray[i] = finalArray[i].trim()
-           console.log("after trim: " + finalArray[i])
-           if(finalArray[i].length === 0)
-           {
-               finalArray.splice(i, 1)
-               console.log("spliced array: " + finalArray)
-               i = i-1
-           }
 
-           /*else
-           {
-               finalArray[i] = finalArray[i].replace(/^\s+/, "");
-           }*/
-       }
-        console.log("FINAL array: " + finalArray)
 
+    const createOption = (label) => ({
+        label,
+        value: label,
+    });
+    const handleKeyDown = (event) => {
+        if (!inputValue) return;
+        switch (event.key) {
+            case 'Enter':
+            case 'Tab':
+                setReactKeywords((prev) => [...prev, createOption(inputValue)]);
+                setInputValue('');
+                event.preventDefault();
+        }
+    };
+    //
+
+    //SEND the form to database
+    function submitUpload(e) {
+        e.preventDefault()
+        console.log(inputs)
+        let finalArray = []
+        for(let i=0;i<reactKeywords.length;i++)
+        {
+            finalArray.push(reactKeywords[i].value)
+        }
+        console.log("FINAL ARRAY!!!: " + finalArray)
         setInputs(prevState => ({...prevState, keywords: finalArray}))
         setSubmitFlag(true)
     }
 
-    function submitUpload(e) {
-        e.preventDefault()
-        console.log(inputs)
-        finalizeKeywords()
-
-
-
+    //DISPLAY REACT SELECT KEYWORDS
+    function DisplayKeywords()
+    {
+        return (
+            <>
+                <ul id="">
+                    {
+                        reactKeywords.map((result, index) =>
+                            <li key={index}>
+                                {JSON.stringify(result)}
+                            </li>
+                        )
+                    }
+                </ul>
+                </>
+                )
     }
 
     return (
@@ -87,6 +105,7 @@ function Upload() {
                         placeholder="Title"
                     />
                 </label>
+
                 <label>Enter Description:
                     <input
                         type="text"
@@ -106,6 +125,7 @@ function Upload() {
                         placeholder="Source"
                     />
                 </label>
+
                 <label>Enter Category:
                     <select
                         name="category"
@@ -118,26 +138,22 @@ function Upload() {
                         <option value="coding">Coding</option>
                     </select>
                 </label>
-                <label>Enter tags:
-                    <input
-                        type="text"
-                        name="keywords"
-                        value={keywordString || ""}
-                        onChange={handleKeywords}
-                        placeholder="Keywords"
-                    />
-                </label>
 
+                <CreatableSelect
+                    components={components}
+                    inputValue={inputValue}
+                    isClearable
+                    isMulti
+                    menuIsOpen={false}
+                    onChange={(newValue) => setReactKeywords(newValue)}
+                    onInputChange={(newValue) => setInputValue(newValue)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Enter keywords to be used here"
+                    value={reactKeywords}
+                />
                 <input type="submit" />
             </form>
-            {inputs.title}
-            {inputs.description}
-            {inputs.source}
-            {
-                keywordString
-            }
         </>
     )
 }
-
 export default Upload

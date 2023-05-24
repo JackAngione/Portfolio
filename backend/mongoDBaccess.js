@@ -7,8 +7,9 @@ const client = new MongoClient(connectionString)
 async function searchTutorials(searchQuery, categories) {
     const collection = client.db("KNOWLEDGE").collection("tutorials")
     const regex = new RegExp(decodeURIComponent(searchQuery), 'i')
-    let findString = ""
+    let findString
     //EMPTY SEARCH, JUST RETURN ALL MATCHING DOCUMENTS IN CATEGORIES
+    //a search with no query or categories is blocked on the client side
     if(searchQuery === "")
     {
         console.log("NOSEARCH!!!")
@@ -31,7 +32,6 @@ async function searchTutorials(searchQuery, categories) {
     }
 
 
-    const documents = await collection.find(findString).toArray()
     //PRINT RESULTING DOCUMENTS
     console.log(JSON.stringify(documents))
     return JSON.stringify(documents)
