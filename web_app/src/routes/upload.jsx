@@ -2,9 +2,9 @@ import {useEffect, useState} from 'react'
 import './upload.css'
 import axios from 'axios'
 import CreatableSelect from "react-select/creatable";
+import {serverAddress} from "./serverInfo.jsx";
 
 function Upload() {
-    const serverAddress = "http://127.0.0.1:3000"
     let [submitFlag, setSubmitFlag]= useState(false)
 
     //REACT SELECT KEYWORDS

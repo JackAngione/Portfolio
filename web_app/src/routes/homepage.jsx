@@ -2,14 +2,14 @@ import {useEffect, useState} from 'react'
 import './homepage.css'
 import axios from 'axios'
 import Select from 'react-select'
+import {serverAddress} from "./serverInfo.jsx";
 function Homepage() {
-    const serverAddress = "http://127.0.0.1:3000"
     //THE USER'S SEARCH QUERY
     const [searchText, updateSearchText] = useState("")
     //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (in json format)
     const [categories, setCategories] = useState([])
     //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (just the titles)
-    const [categoryTitles, setcategoryTitles] = useState([])
+    const [categoryTitles, setCategoryTitles] = useState([])
     //WHICH CATEGORIES THE USER IS FILTERING BY
     const [chosenCategories, setChosenCategory] = useState([])
     //SEARCH RESULTS ARE AN ARRAY OF MONGODB DOCUMENTS IN JSON FORMAT
@@ -20,7 +20,7 @@ function Homepage() {
     useEffect(() =>{
         getCategories()
     }, [])
-    const handleCategoryChoice = (index, event) => {
+    const handleCategoryChoice = (event) => {
         //event is an array of all the categories chosen
         let tempChosen = []
         for(let i=0; i<event.length;i++)
@@ -54,7 +54,7 @@ function Homepage() {
                 tempCategoryTitle[i] =
                     {value: response.data[i].title.toLowerCase(), label: response.data[i].title, selected: false}
             }
-            setcategoryTitles(tempCategoryTitle)
+            setCategoryTitles(tempCategoryTitle)
             console.log(categoryTitles)
         })
   }
@@ -131,8 +131,9 @@ function Homepage() {
 
         <Select
             isMulti
-            onChange={(event) => handleCategoryChoice(1, event)}
-            options={categoryTitles}/>
+            onChange={(event) => handleCategoryChoice(event)}
+            options={categoryTitles}
+        />
 
     <input
         type= "text"

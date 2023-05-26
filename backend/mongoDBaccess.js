@@ -3,6 +3,13 @@ const { MongoClient } = require('mongodb');
 
 const client = new MongoClient(connectionString)
 
+//INSERT CATEGORY INTO DATABASE
+async function createCategory(category)
+{
+    const collection = client.db("KNOWLEDGE").collection("categories")
+    await collection.insertOne(category)
+}
+
 //SEARCHES THE DATABASE BASED ON A USER'S QUERY
 async function searchTutorials(searchQuery, categories) {
     const collection = client.db("KNOWLEDGE").collection("tutorials")
@@ -30,7 +37,7 @@ async function searchTutorials(searchQuery, categories) {
             findString = { $and: [{category: {$in: categories}}, {$or: [{title: regex}, {description: regex}, {keywords: regex}, {source: regex}]}]}
         }
     }
-
+    const documents = await collection.find(findString).toArray()
 
     //PRINT RESULTING DOCUMENTS
     console.log(JSON.stringify(documents))
@@ -52,4 +59,4 @@ async function uploadTutorial(tutorialInfo)
     console.log("INSERTED!")
 }
 
-module.exports = {searchTutorials, uploadTutorial, getAllCategories}
+module.exports = {searchTutorials, uploadTutorial, getAllCategories, createCategory}

@@ -6,12 +6,14 @@ const port = 3000
 const app = express()
 app.use(cors());
 app.use(express.json());
+
 //get a list of all categories
 app.get('/api/categories', async (req, res) => {
     console.log("category request made")
     let allCategories = await db.getAllCategories()
     res.send(allCategories)
 })
+
 //search for a tutorial
 app.get('/api/search', async (req, res) => {
 
@@ -32,6 +34,12 @@ app.post("/api/upload", async(req, res) => {
     let uploadTutorial = await db.uploadTutorial(req.body)
 })
 
+//create Category
+app.post("/api/createCategory", async(req, res) => {
+    let categoryData = req.body
+    console.log("received upload: " + JSON.stringify(categoryData))
+    let createdCategory = await db.createCategory(categoryData)
+})
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
