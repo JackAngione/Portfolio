@@ -39,6 +39,12 @@ app.post("/api/createCategory", async(req, res) => {
     let categoryData = req.body
     console.log("received upload: " + JSON.stringify(categoryData))
     let createdCategory = await db.createCategory(categoryData)
+
+})
+//edit a  Category
+app.post("/api/editCategory", async(req, res) => {
+    let categoryData = req.body
+    await db.editCategory(categoryData)
 })
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

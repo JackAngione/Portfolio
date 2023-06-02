@@ -16,7 +16,7 @@ function Category() {
         //REACT SELECT KEYWORDS
         const [inputValue, setInputValue] = useState("")
         const [subCategories, setSubCategories] = useState([])
-    //---------------------
+
     //EDIT CATEGORY---------------------------
         //WHICH CATEGORY IS BEING EDITED
         const [categoryToEdit, setCategoryToEdit] = useState()
@@ -25,11 +25,11 @@ function Category() {
         //edited subcategories
         const [editSubCategories, setEditSubCategories] = useState([])
         const [editInputValue, setEditInputValue] = useState("")
+        const [finalEditSubCategories, setFinalEditSubCategories] = useState([])
+        //ready to submit?
         const [submitEditCategory, setSubmitEditCategory] = useState(false)
 
-    const components = {
-        DropdownIndicator: null,
-    };
+    const components = {DropdownIndicator: null,};
     //GET CATEGORIES LIST FROM DATABASE
     useEffect(() =>{
         console.log("get categories use effect running!!!")
@@ -80,20 +80,23 @@ function Category() {
                 .then(({response}) => {
                     //console.log(response.data)
                 })
+            setSubmitCreateCategory(false)
         }
     }, [subCategories, submitCreateCategory])
     //
     //SUBMIT CATEGORY EDIT TO DATABASE
     useEffect(() => {
-        if(submitCreateCategory === true)
+        if(submitEditCategory === true)
         {
-            const categoryFinal = {"title": categoryTitle, "subCategories": subCategories}
-            axios.post(serverAddress + "/api/createCategory", categoryFinal)
+            const editCategoryFinal = {"oldTitle": categoryToEdit, "title": categoryTitleEdit, "subCategories": finalEditSubCategories}
+            console.log("EDITING CATEGORIES" + JSON.stringify(editCategoryFinal.subCategories))
+            axios.post(serverAddress + "/api/editCategory", editCategoryFinal)
                 .then(({response}) => {
                     //console.log(response.data)
                 })
+            setSubmitEditCategory(false)
         }
-    }, [editSubCategories, submitEditCategory])
+    }, [finalEditSubCategories, submitEditCategory])
     //
     //WHEN CATEGORY TO EDIT IS CHANGED, UPDATE THE SUBCATEGORIES TO EDIT
     useEffect(() => {
@@ -117,6 +120,7 @@ function Category() {
     //FINALIZE CREATE CATEGORY and trigger http push
     function submitCreateForm(e)
     {
+
         let finalSubCategories = []
         for(let i=0;i<subCategories.length;i++)
         {
@@ -128,17 +132,15 @@ function Category() {
 
     //SUBMIT CATEGORY EDIT TO DATABASE
     function submitEditForm(e) {
+     
         let finalEditSubCategories = []
-        for(let i=0;i<subCategories.length;i++)
+        for(let i=0;i<editSubCategories.length;i++)
         {
-            finalEditSubCategories.push(subCategories[i].value)
+            finalEditSubCategories.push(editSubCategories[i].value)
         }
-        setEditSubCategories(finalEditSubCategories)
+        setFinalEditSubCategories(finalEditSubCategories)
         setSubmitEditCategory(true)
-    }
-    function setEditCategory(e)
-    {
-        setCategoryToEdit(e.label)
+
     }
     //DEBUGGING---DISPLAY REACT SELECT KEYWORDS
     function DisplayKeywords()
@@ -160,16 +162,15 @@ function Category() {
 
     return (
         <>
-            <h1>Category</h1>
             <form onSubmit={submitCreateForm} id="categoryForm">
-
+                <h2>Create Category</h2>
                 <label>New Category Title:
                     <input
                         type="text"
                         name="title"
                         value={categoryTitle|| ""}
                         onChange={(newValue) => setCategoryTitle(newValue.target.value)}
-                        placeholder="edit category title"
+                        placeholder="Enter Category Title"
                     />
                 </label>
 
@@ -192,6 +193,7 @@ function Category() {
             <p id="spacer"></p>
 
             <form onSubmit={submitEditForm} id="editForm">
+                <h2>Edit Existing Category</h2>
                 <Select
                     defaultValue={categoryTitles[0]}
                     isSearchable={true}

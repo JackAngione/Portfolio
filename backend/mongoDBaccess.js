@@ -4,12 +4,18 @@ const { MongoClient } = require('mongodb');
 const client = new MongoClient(connectionString)
 
 //INSERT CATEGORY INTO DATABASE
-async function createCategory(category)
+async function createCategory(newCategory)
 {
     const collection = client.db("KNOWLEDGE").collection("categories")
-    await collection.insertOne(category)
+    await collection.insertOne(newCategory)
 }
+async function editCategory(category)
+{
+    const collection = client.db("KNOWLEDGE").collection("categories")
+    const updateJSON = { title: category.title, subCategories: category.subCategories}
+    await collection.replaceOne({title: category.oldTitle}, updateJSON);
 
+}
 //SEARCHES THE DATABASE BASED ON A USER'S QUERY
 async function searchTutorials(searchQuery, categories) {
     const collection = client.db("KNOWLEDGE").collection("tutorials")
@@ -59,4 +65,4 @@ async function uploadTutorial(tutorialInfo)
     console.log("INSERTED!")
 }
 
-module.exports = {searchTutorials, uploadTutorial, getAllCategories, createCategory}
+module.exports = {searchTutorials, uploadTutorial, getAllCategories, createCategory, editCategory}
