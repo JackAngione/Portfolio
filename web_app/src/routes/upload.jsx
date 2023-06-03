@@ -3,8 +3,14 @@ import './upload.css'
 import axios from 'axios'
 import CreatableSelect from "react-select/creatable";
 import {serverAddress} from "./serverInfo.jsx";
+import Select from "react-select";
 
 function Upload() {
+    //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (in json format)
+    const [categories, setCategories] = useState([])
+    //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (just the titles)
+    const [categoryTitles, setCategoryTitles] = useState([])
+
     let [submitFlag, setSubmitFlag]= useState(false)
 
     //REACT SELECT KEYWORDS
@@ -22,6 +28,22 @@ function Upload() {
         category: "",
         keywords: []
     })
+
+    //GET CATEGORIES LIST FROM DATABASE
+    useEffect(() =>{
+        console.log("get categories use effect running!!!")
+        axios.get(serverAddress+"/api/categories")
+            .then(function (response) {
+                setCategories(response.data)
+                let tempCategoryTitle = []
+                for(let i =0; i<response.data.length; i++)
+                {
+                    tempCategoryTitle[i] =
+                        {value: response.data[i].title, label: response.data[i].title, selected: false}
+                }
+                setCategoryTitles([{label: "None", value: "None"}, ...tempCategoryTitle])
+            })
+    }, [])
     //Set the title, desc, source to what the user types in
     const handleChange = (event) =>
     {
@@ -32,7 +54,7 @@ function Upload() {
 
     //SHOULD ONLY RUN ON SUBMIT
     useEffect(() => {
-        //console.log(submitFlag)
+
         if(submitFlag === true)
         {
             axios.post(serverAddress + "/api/upload", inputs)
@@ -61,7 +83,6 @@ function Upload() {
 
     //SEND the form to database
     function submitUpload(e) {
-        e.preventDefault()
         let finalArray = []
         for(let i=0;i<reactKeywords.length;i++)
         {
@@ -125,16 +146,15 @@ function Upload() {
                 </label>
 
                 <label>Enter Category:
-                    <select
-                        name="category"
-                        value={inputs.category || ""}
-                        onChange={handleChange}
-                        placeholder="Source"
-                    >
-                        <option value="">None</option>
-                        <option value="music">Music</option>
-                        <option value="coding">Coding</option>
-                    </select>
+                    <Select
+                        defaultValue={categoryTitles[0]}
+                        isSearchable={true}
+                        name="color"
+                        options={categoryTitles}
+                        onChange={(event) => {
+                            setInputs(values => ({...values, ["category"]: event.label}))
+                        }}
+                    />
                 </label>
 
                 <CreatableSelect
