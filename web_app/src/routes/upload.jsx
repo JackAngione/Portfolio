@@ -10,7 +10,7 @@ function Upload() {
     const [categories, setCategories] = useState([])
     //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (just the titles)
     const [categoryTitles, setCategoryTitles] = useState([])
-
+    const [subCategoryTitles, setSubCategoryTitles] = useState([])
     let [submitFlag, setSubmitFlag]= useState(false)
 
     //REACT SELECT KEYWORDS
@@ -21,13 +21,13 @@ function Upload() {
     };
     //
     //the JSON to be uploaded to database
-    let [inputs, setInputs] = useState({
-        title: "",
-        description: "",
-        source: "",
-        category: "",
-        keywords: []
-    })
+    let [inputKeywords, setInputKeywords] = useState([])
+    let [inputTitle, setInputTitle] = useState("")
+    let [inputDesc, setInputDesc] = useState("")
+    let [inputSource, setInputSource] = useState("")
+    let [inputCategory, setInputCategory] = useState("")
+    let [inputSubCategories, setInputSubCategories] = useState([])
+
 
     //GET CATEGORIES LIST FROM DATABASE
     useEffect(() =>{
@@ -44,25 +44,39 @@ function Upload() {
                 setCategoryTitles([{label: "None", value: "None"}, ...tempCategoryTitle])
             })
     }, [])
+    //update subcategory options when a category is selected
+    useEffect(() => {
+        let tempSubCategoryTitle = []
+        for(let i = 0; i < categories.length; i++)
+        {
+            console.log("FINDINGSUBCAT: " + categories[i].title)
+            if(categories[i].title == inputCategory)
+            {
+                for(let j=0; j < categories[i].subCategories.length; j++)
+                {
+                    tempSubCategoryTitle[j] =
+                        {value: categories[i].subCategories[j], label: categories[i].subCategories[j], selected: false}
+                }
+                console.log("SUBCAT FOUND: " + categories[i].subCategories)
+                setSubCategoryTitles(tempSubCategoryTitle)
+            }
+        }
+    }, [inputCategory])
     //Set the title, desc, source to what the user types in
-    const handleChange = (event) =>
-    {
-        const name = event.target.name;
-        const value = event.target.value;
-        setInputs(values => ({...values, [name]: value}))
-    }
+
 
     //SHOULD ONLY RUN ON SUBMIT
     useEffect(() => {
 
         if(submitFlag === true)
         {
+            let inputs = {"title": inputTitle, "description": inputDesc, "source": inputSource, "category": inputCategory, "subCategories": inputSubCategories, "keywords": inputKeywords}
             axios.post(serverAddress + "/api/upload", inputs)
                 .then(({response}) => {
                     //console.log(response.data)
                 })
         }
-    }, [inputs.keywords, submitFlag])
+    }, [inputKeywords, submitFlag])
 
 
     const createOption = (label) => ({
@@ -88,7 +102,7 @@ function Upload() {
         {
             finalArray.push(reactKeywords[i].value)
         }
-        setInputs(prevState => ({...prevState, keywords: finalArray}))
+        setInputKeywords(finalArray)
         setSubmitFlag(true)
     }
 
@@ -98,15 +112,14 @@ function Upload() {
         return (
             <>
                 <ul id="">
-                    {
-                        reactKeywords.map((result, index) =>
-                            <li key={index}>
-                                {JSON.stringify(result)}
-                            </li>
-                        )
-                    }
+
+                    {inputTitle}
+                    {inputDesc}
+                    {inputSubCategories}
+                    {subCategoryTitles}
+                    {inputCategory}
                 </ul>
-                </>
+            </>
                 )
     }
 
@@ -119,8 +132,8 @@ function Upload() {
                     <input
                         type="text"
                         name="title"
-                        value={inputs.title || ""}
-                        onChange={handleChange}
+                        value={inputTitle || ""}
+                        onChange={(e) => {setInputTitle(e.target.value)}}
                         placeholder="Title"
                     />
                 </label>
@@ -129,8 +142,8 @@ function Upload() {
                     <input
                         type="text"
                         name="description"
-                        value={inputs.description || ""}
-                        onChange={handleChange}
+                        value={inputDesc || ""}
+                        onChange={(e) => {setInputDesc(e.target.value)}}
                         placeholder="Description"
                     />
                 </label>
@@ -139,20 +152,39 @@ function Upload() {
                     <input
                         type="text"
                         name="source"
-                        value={inputs.source || ""}
-                        onChange={handleChange}
+                        value={inputSource || ""}
+                        onChange={(e) => {setInputSource(e.target.value)}}
                         placeholder="Source"
                     />
                 </label>
 
-                <label>Enter Category:
+                <label>Select Category:
                     <Select
                         defaultValue={categoryTitles[0]}
                         isSearchable={true}
                         name="color"
                         options={categoryTitles}
+                        onChange={(e) => {
+                            setInputCategory(e.label)
+                        }}
+                    />
+                </label>
+
+                <label>Select Sub-Category(optional):
+                    <Select
+                        defaultValue={subCategoryTitles[0]}
+                        isMulti
+                        isSearchable={false}
+                        name="color"
+                        options={subCategoryTitles}
                         onChange={(event) => {
-                            setInputs(values => ({...values, ["category"]: event.label}))
+                            let tempInputSubCats =[]
+                            for(let i= 0; i<event.length; i++)
+                            {
+                                tempInputSubCats[i] = event[i].label
+                            }
+                            setInputSubCategories(tempInputSubCats)
+
                         }}
                     />
                 </label>
@@ -163,14 +195,17 @@ function Upload() {
                     isClearable
                     isMulti
                     menuIsOpen={false}
-                    onChange={(newValue) => setReactKeywords(newValue)}
+                    onChange={(newValue) => setInputKeywords(newValue)}
                     onInputChange={(newValue) => setInputValue(newValue)}
                     onKeyDown={handleKeyDown}
                     placeholder="Enter Keywords Here"
                     value={reactKeywords}
                 />
+
+
                 <input type="submit" />
             </form>
+
         </>
     )
 }

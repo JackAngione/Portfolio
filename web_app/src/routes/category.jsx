@@ -4,6 +4,7 @@ import axios from 'axios'
 import CreatableSelect from "react-select/creatable";
 import {serverAddress} from "./serverInfo.jsx";
 import Select from "react-select";
+
 function Category() {
     //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (in json format)
     const [categories, setCategories] = useState([])
