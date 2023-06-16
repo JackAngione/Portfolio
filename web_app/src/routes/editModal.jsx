@@ -45,6 +45,7 @@ function EditModal(props) {
                 .then(({response}) => {
                     //console.log(response.data)
                 })
+            props.onClose()
         }
     }, [inputKeywords, submitFlag])
 
@@ -109,6 +110,7 @@ function EditModal(props) {
 
     //SEND the form to database
     function submitUpload(e) {
+
         //convert keywords from select to standard array format
         let finalEditKeywords = []
         for(let i=0;i<reactKeywords.length;i++)
@@ -118,7 +120,7 @@ function EditModal(props) {
         setInputKeywords(finalEditKeywords)
 
         setSubmitFlag(true)
-        props.onClose()
+
     }
 
     function DisplayEdited()
@@ -220,7 +222,6 @@ if(!props.open)
                                     let defaultSubCategories = []
                                     if(props.tutorialData.subCategories.length > 0)
                                     {
-
                                         for(let i = 0; i< props.tutorialData.subCategories.length; i++)
                                         {
                                             tempSubCategories[i] = props.tutorialData.subCategories[i]

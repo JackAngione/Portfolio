@@ -123,9 +123,10 @@ function EditTutorial() {
                             <a href="#" onClick={() =>{
                                 setTutorialToEdit(result)
                                 setOpenModal(!openModal)
-                            }
+                                }
 
-                            } rel="noopener noreferrer">
+                            }
+                               rel="noopener noreferrer">
                                 {result.title}
                                 {result.description}
                             </a >

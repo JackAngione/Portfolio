@@ -11,4 +11,8 @@
   list-style: none;
 }
 
-
+#singleSearchResult
+{
+  display: flex;
+  padding: 20px;
+}

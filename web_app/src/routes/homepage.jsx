@@ -3,6 +3,7 @@ import './homepage.css'
 import axios from 'axios'
 import Select from 'react-select'
 import {serverAddress} from "./serverInfo.jsx";
+import EditModal from "./editModal.jsx";
 function Homepage() {
     //THE USER'S SEARCH QUERY
     const [searchText, updateSearchText] = useState("")
@@ -15,7 +16,9 @@ function Homepage() {
     //SEARCH RESULTS ARE AN ARRAY OF MONGODB DOCUMENTS IN JSON FORMAT
     const [searchresults, setSearchResults] = useState([])
 
-
+    //MODAL EDITOR
+    const [openModal, setOpenModal] = useState(false)
+    const [tutorialToEdit, setTutorialToEdit] = useState()
     //GET ALL CATEGORIES ON PAGE LOAD
     useEffect(() =>{
         getCategories()
@@ -111,18 +114,36 @@ function Homepage() {
     //SHOW THE SEARCH RESULTS
   function DisplaySearchResults()
   {
-    return (<ul id="searchResultList">
+    return (
+        <>
+
+        <ul id="searchResultList">
           {
             searchresults.map((result, index) =>
               <li key={index}>
+                  <div id="singleSearchResult">
                 <a href={result.source} target="_blank" rel="noopener noreferrer">
-                  {result.title}
-                  {result.description}
+
+                        {result.title}
+                        {result.description}
+
+
+
                 </a>
+                      <button onClick={() =>{
+                          setTutorialToEdit(result)
+                          setOpenModal(!openModal)
+                      }
+
+                      }>EDIT</button>
+                      <button>Delete</button>
+                  </div>
               </li>
             )
           }
         </ul>
+      <EditModal open = {openModal} categories = {categories} tutorialData = {tutorialToEdit} onClose={()=> setOpenModal(!openModal)}/>
+        </>
     )
   }
   return (
