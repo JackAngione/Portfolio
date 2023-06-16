@@ -9,6 +9,7 @@ async function createCategory(newCategory)
     const collection = client.db("KNOWLEDGE").collection("categories")
     await collection.insertOne(newCategory)
 }
+//edit category
 async function editCategory(category)
 {
     const collection = client.db("KNOWLEDGE").collection("categories")
@@ -64,5 +65,20 @@ async function uploadTutorial(tutorialInfo)
     await collection.insertOne(tutorialInfo)
     console.log("INSERTED!")
 }
+//edit a tutorial
+async function editTutorial(newTutorial)
+{
+    console.log("TUTORIAL EDIT INFORMATION: " + newTutorial)
+    const collection = client.db("KNOWLEDGE").collection("tutorials")
+    const updateJSON = {
+        title: newTutorial.title,
+        description: newTutorial.description,
+        source: newTutorial.source,
+        category: newTutorial.category,
+        subCategories: newTutorial.subCategories,
+        keywords: newTutorial.keywords
+    }
+    await collection.replaceOne({title: newTutorial.oldTitle, source: newTutorial.oldSource}, updateJSON);
 
-module.exports = {searchTutorials, uploadTutorial, getAllCategories, createCategory, editCategory}
+}
+module.exports = {searchTutorials, uploadTutorial, editTutorial, getAllCategories, createCategory, editCategory}

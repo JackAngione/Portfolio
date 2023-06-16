@@ -7,6 +7,7 @@ import ErrorPage from "./routes/error-page.jsx";
 import NavigationBar from "./routes/navigationBar.jsx";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import Category from "./routes/category.jsx";
+import EditTutorial from "./routes/editTutorial.jsx";
 
 const router = createBrowserRouter([
     {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
             {
                 path: "upload",
                 element: <Upload/>
+            },
+            {
+                path: "editTutorial",
+                element: <EditTutorial/>
             },
             {
                 path: "category",

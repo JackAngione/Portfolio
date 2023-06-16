@@ -11,22 +11,20 @@ function Upload() {
     //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (just the titles)
     const [categoryTitles, setCategoryTitles] = useState([])
     const [subCategoryTitles, setSubCategoryTitles] = useState([])
-    let [submitFlag, setSubmitFlag]= useState(false)
+    const [submitFlag, setSubmitFlag]= useState(false)
 
     //REACT SELECT KEYWORDS
     const [inputValue, setInputValue] = useState("")
     const [reactKeywords, setReactKeywords] = useState([])
-    const components = {
-        DropdownIndicator: null,
-    };
+    const components = { DropdownIndicator: null, };
     //
     //the JSON to be uploaded to database
-    let [inputKeywords, setInputKeywords] = useState([])
-    let [inputTitle, setInputTitle] = useState("")
-    let [inputDesc, setInputDesc] = useState("")
-    let [inputSource, setInputSource] = useState("")
-    let [inputCategory, setInputCategory] = useState("")
-    let [inputSubCategories, setInputSubCategories] = useState([])
+    const [inputKeywords, setInputKeywords] = useState([])
+    const [inputTitle, setInputTitle] = useState("")
+    const [inputDesc, setInputDesc] = useState("")
+    const [inputSource, setInputSource] = useState("")
+    const [inputCategory, setInputCategory] = useState("")
+    const [inputSubCategories, setInputSubCategories] = useState([])
 
 
     //GET CATEGORIES LIST FROM DATABASE
@@ -50,7 +48,7 @@ function Upload() {
         for(let i = 0; i < categories.length; i++)
         {
             console.log("FINDINGSUBCAT: " + categories[i].title)
-            if(categories[i].title == inputCategory)
+            if(categories[i].title === inputCategory)
             {
                 for(let j=0; j < categories[i].subCategories.length; j++)
                 {
@@ -59,6 +57,7 @@ function Upload() {
                 }
                 console.log("SUBCAT FOUND: " + categories[i].subCategories)
                 setSubCategoryTitles(tempSubCategoryTitle)
+                break;
             }
         }
     }, [inputCategory])
@@ -195,7 +194,7 @@ function Upload() {
                     isClearable
                     isMulti
                     menuIsOpen={false}
-                    onChange={(newValue) => setInputKeywords(newValue)}
+                    onChange={(newValue) => setReactKeywords(newValue)}
                     onInputChange={(newValue) => setInputValue(newValue)}
                     onKeyDown={handleKeyDown}
                     placeholder="Enter Keywords Here"

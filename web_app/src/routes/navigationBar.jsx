@@ -16,6 +16,10 @@ export default function NavigationBar() {
                 </li>
                 <li>
                     |
+                    <a href={`/editTutorial`}>Edit Tutorial</a>
+                </li>
+                <li>
+                    |
                     <a href={`/category`}>Category</a>
                 </li>
             </div>

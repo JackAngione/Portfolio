@@ -34,6 +34,11 @@ app.post("/api/upload", async(req, res) => {
     let uploadTutorial = await db.uploadTutorial(req.body)
 })
 
+//edit a  tutorial
+app.post("/api/editTutorial", async(req, res) => {
+    let newTutorial = req.body
+    await db.editTutorial(newTutorial)
+})
 //create Category
 app.post("/api/createCategory", async(req, res) => {
     let categoryData = req.body
@@ -41,6 +46,7 @@ app.post("/api/createCategory", async(req, res) => {
     let createdCategory = await db.createCategory(categoryData)
 
 })
+
 //edit a  Category
 app.post("/api/editCategory", async(req, res) => {
     let categoryData = req.body
