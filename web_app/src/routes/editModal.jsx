@@ -21,6 +21,7 @@ function EditModal(props) {
 
     const [inputCategory, setInputCategory] = useState("")
     const [inputSubCategories, setInputSubCategories] = useState([])
+    const [subCategoriesValue, setSubCategoriesValue] = useState([])
     //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (just the titles)
     const [categoryTitles, setCategoryTitles] = useState([])
     const [subCategoryTitles, setSubCategoryTitles] = useState([])
@@ -47,7 +48,7 @@ function EditModal(props) {
                 })
             props.onClose()
         }
-    }, [inputKeywords, submitFlag])
+    }, [inputKeywords, inputSubCategories, submitFlag])
 
 
     useEffect(() =>
@@ -61,7 +62,17 @@ function EditModal(props) {
             setInputSource(props.tutorialData.source)
             setInputKeywords(props.tutorialData.keywords)
             setInputCategory(props.tutorialData.category)
+            //init subcategories
+            let tempSubCategories = []
+            if(props.tutorialData.subCategories.length > 0)
+            {
+                for(let i = 0; i< props.tutorialData.subCategories.length; i++)
+                {
+                    tempSubCategories[i] = {value: props.tutorialData.subCategories[i], label: props.tutorialData.subCategories[i], selected: true}
+                }
 
+                setSubCategoriesValue(tempSubCategories)
+            }
             //initializes the existing keywords into the selectable
             if(props.tutorialData.keywords.length > 0 )
             {
@@ -117,8 +128,15 @@ function EditModal(props) {
         {
             finalEditKeywords.push(reactKeywords[i].value)
         }
-        setInputKeywords(finalEditKeywords)
 
+        //convert subcategories from select to standard array format
+        let finalEditSubCategories = []
+        for(let i=0;i<subCategoriesValue.length;i++)
+        {
+            finalEditSubCategories.push(subCategoriesValue[i].value)
+        }
+        setInputSubCategories(finalEditSubCategories)
+        setInputKeywords(finalEditKeywords)
         setSubmitFlag(true)
 
     }
@@ -127,10 +145,10 @@ function EditModal(props) {
     {
         return (
             <>
-                <p> {inputTitle} </p>
+                {/*<p> {inputTitle} </p>
                 <p> {inputDesc} </p>
                 <p> {inputSource} </p>
-                <p> {inputCategory} </p>
+                <p> {inputCategory} </p>*/}
 
                 {
                     inputSubCategories.map((result, index) =>
@@ -208,45 +226,25 @@ if(!props.open)
                                     defaultValue={createOption(props.tutorialData.category)}
                                     onChange={(e) => {
                                         setInputCategory(e.label)
-                                    }}
+                                        setSubCategoriesValue([])
+                                        }
+                                    }
                                     options={categoryTitles}
                             />
                         </label>
 
                         <label>Select Sub-Category:
                             <Select
-                                defaultValue={
-                                //have to set default in here so that it loads in time, otherwise data loads after modal, and you need to reopen
-                                () => {
-                                    let tempSubCategories = []
-                                    let defaultSubCategories = []
-                                    if(props.tutorialData.subCategories.length > 0)
-                                    {
-                                        for(let i = 0; i< props.tutorialData.subCategories.length; i++)
-                                        {
-                                            tempSubCategories[i] = props.tutorialData.subCategories[i]
-                                            defaultSubCategories[i] = {value: props.tutorialData.subCategories[i], label: props.tutorialData.subCategories[i], selected: true}
-                                        }
-
-                                        setInputSubCategories(tempSubCategories)
-                                    }
-                                    return defaultSubCategories
-                                }
-                                }
-
                                 isMulti
                                 isSearchable={false}
                                 name="sub-categories"
                                 options={subCategoryTitles}
                                 onChange={(event) => {
-                                    let tempInputSubCats =[]
-                                    for(let i= 0; i<event.length; i++)
-                                    {
-                                        tempInputSubCats[i] = event[i].label
-                                    }
-                                    setInputSubCategories(tempInputSubCats)
+
+                                    setSubCategoriesValue(event)
 
                                 }}
+                                value={subCategoriesValue}
                             />
                         </label>
 
