@@ -64,7 +64,7 @@ function EditModal(props) {
             setInputCategory(props.tutorialData.category)
             //init subcategories
             let tempSubCategories = []
-            if(props.tutorialData.subCategories.length > 0)
+            if(props.tutorialData.subCategories != null && props.tutorialData.subCategories.length > 0)
             {
                 for(let i = 0; i< props.tutorialData.subCategories.length; i++)
                 {
@@ -74,7 +74,7 @@ function EditModal(props) {
                 setSubCategoriesValue(tempSubCategories)
             }
             //initializes the existing keywords into the selectable
-            if(props.tutorialData.keywords.length > 0 )
+            if(props.tutorialData.keywords != null && props.tutorialData.keywords.length > 0 )
             {
                 let tempKeywords = []
                 for(let i = 0; i< props.tutorialData.keywords.length; i++)

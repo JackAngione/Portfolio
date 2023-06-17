@@ -101,9 +101,8 @@ function Category() {
     //
     //WHEN CATEGORY TO EDIT IS CHANGED, UPDATE THE SUBCATEGORIES TO EDIT
     useEffect(() => {
-        console.log("EDITSUBCATEGORIES")
-        console.log(categories)
-        let subCategoryList = [{}]
+
+        let subCategoryList = []
         for(let i =0;i<categories.length;i++)
         {
             if(categories[i].title === categoryToEdit)

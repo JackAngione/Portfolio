@@ -79,6 +79,11 @@ async function editTutorial(newTutorial)
         keywords: newTutorial.keywords
     }
     await collection.replaceOne({title: newTutorial.oldTitle, source: newTutorial.oldSource}, updateJSON);
-
 }
-module.exports = {searchTutorials, uploadTutorial, editTutorial, getAllCategories, createCategory, editCategory}
+async function deleteTutorial(tutorialInfo)
+{
+    const collection = client.db("KNOWLEDGE").collection("tutorials")
+    await collection.deleteOne({title: tutorialInfo.title, source: tutorialInfo.source})
+    console.log("deleted!")
+}
+module.exports = {searchTutorials, uploadTutorial, deleteTutorial, editTutorial, getAllCategories, createCategory, editCategory}

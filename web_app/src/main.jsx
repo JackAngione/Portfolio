@@ -24,10 +24,6 @@ const router = createBrowserRouter([
                 element: <Upload/>
             },
             {
-                path: "editTutorial",
-                element: <EditTutorial/>
-            },
-            {
                 path: "category",
                 element: <Category/>
             }

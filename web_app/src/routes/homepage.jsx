@@ -4,6 +4,7 @@ import axios from 'axios'
 import Select from 'react-select'
 import {serverAddress} from "./serverInfo.jsx";
 import EditModal from "./editModal.jsx";
+import DeleteModal from "./deleteModal.jsx";
 function Homepage() {
     //THE USER'S SEARCH QUERY
     const [searchText, updateSearchText] = useState("")
@@ -16,9 +17,12 @@ function Homepage() {
     //SEARCH RESULTS ARE AN ARRAY OF MONGODB DOCUMENTS IN JSON FORMAT
     const [searchresults, setSearchResults] = useState([])
 
-    //MODAL EDITOR
-    const [openModal, setOpenModal] = useState(false)
+    //EDITOR MODAL
+    const [openEditModal, setOpenEditModal] = useState(false)
+    const [openDeleteModal, setOpenDeleteModal] = useState(false)
     const [tutorialToEdit, setTutorialToEdit] = useState()
+
+
     //GET ALL CATEGORIES ON PAGE LOAD
     useEffect(() =>{
         getCategories()
@@ -117,32 +121,41 @@ function Homepage() {
     return (
         <>
 
-        <ul id="searchResultList">
-          {
-            searchresults.map((result, index) =>
-              <li key={index}>
-                  <div id="singleSearchResult">
-                <a href={result.source} target="_blank" rel="noopener noreferrer">
+            <ul id="searchResultList">
+              {
+                searchresults.map((result, index) =>
+                  <li key={index}>
+                      <div id="singleSearchResult">
+                    <a href={result.source} target="_blank" rel="noopener noreferrer">
 
-                        {result.title}
-                        {result.description}
+                            {result.title}
+                            {result.description}
 
+                    </a>
+                          {
+                              //EDIT and DELETE TUTORIAL BUTTON
+                          }
+                          <button onClick={() =>{
+                              setTutorialToEdit(result)
+                              setOpenEditModal(!openEditModal)
+                          }}>
+                              EDIT
+                          </button>
 
+                          <button onClick={() =>{
+                              setTutorialToEdit(result)
+                              setOpenDeleteModal(!openDeleteModal)
+                          }}>
+                              Delete
+                          </button>
+                      </div>
+                  </li>
+                )
+              }
+            </ul>
+            <EditModal open = {openEditModal} categories = {categories} tutorialData = {tutorialToEdit} onClose={()=> setOpenEditModal(!openEditModal)}/>
+            <DeleteModal open = {openDeleteModal} tutorialData = {tutorialToEdit} onClose={()=> setOpenDeleteModal(!openDeleteModal)}/>
 
-                </a>
-                      <button onClick={() =>{
-                          setTutorialToEdit(result)
-                          setOpenModal(!openModal)
-                      }
-
-                      }>EDIT</button>
-                      <button>Delete</button>
-                  </div>
-              </li>
-            )
-          }
-        </ul>
-      <EditModal open = {openModal} categories = {categories} tutorialData = {tutorialToEdit} onClose={()=> setOpenModal(!openModal)}/>
         </>
     )
   }

@@ -33,7 +33,12 @@ app.post("/api/upload", async(req, res) => {
     console.log("received upload: " + JSON.stringify(req.body))
     let uploadTutorial = await db.uploadTutorial(req.body)
 })
+//delete a tutorial
+app.post("/api/deleteTutorial", async(req, res) => {
+    let tutorialData = JSON.stringify(req.body)
 
+    let deleteTutorial = await db.deleteTutorial(req.body)
+})
 //edit a  tutorial
 app.post("/api/editTutorial", async(req, res) => {
     let newTutorial = req.body
