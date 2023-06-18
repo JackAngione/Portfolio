@@ -3,8 +3,8 @@ import './homepage.css'
 import axios from 'axios'
 import Select from 'react-select'
 import {serverAddress} from "./serverInfo.jsx";
-import EditModal from "./editModal.jsx";
-import DeleteModal from "./deleteModal.jsx";
+import EditModal from "./modals/editModal.jsx";
+import DeleteModal from "./modals/deleteModal.jsx";
 function Homepage() {
     //THE USER'S SEARCH QUERY
     const [searchText, updateSearchText] = useState("")

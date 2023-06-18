@@ -4,7 +4,7 @@ import axios from 'axios'
 import CreatableSelect from "react-select/creatable";
 import {serverAddress} from "./serverInfo.jsx";
 import Select from "react-select";
-import EditModal from "./editModal.jsx";
+import EditModal from "./modals/editModal.jsx";
 function EditTutorial() {
 
     //THE USER'S SEARCH QUERY

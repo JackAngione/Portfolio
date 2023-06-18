@@ -46,3 +46,13 @@
     margin-right: auto;
     margin-bottom: 40px;
 }
+#confirmDelete label
+{
+    padding-top: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: auto;
+
+
+}

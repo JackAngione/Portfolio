@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react'
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import axios from "axios";
-import {serverAddress} from "./serverInfo.jsx";
+import {serverAddress} from "../serverInfo.jsx";
 
 function EditModal(props) {
     //KEEP THE OLD TITLE AND SOURCE

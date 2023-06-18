@@ -4,6 +4,7 @@ import axios from 'axios'
 import CreatableSelect from "react-select/creatable";
 import {serverAddress} from "./serverInfo.jsx";
 import Select from "react-select";
+import DeleteCategoryModal from "./modals/deleteCategoryModal.jsx";
 
 function Category() {
     //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (in json format)
@@ -227,7 +228,9 @@ function Category() {
                     value={editSubCategories}
                 />
                 <button type="submit">Edit Category</button>
+
             </form>
+            <DeleteCategoryModal categoryData = {categoryToEdit}/>
         </>
     )
 }

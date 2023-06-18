@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react'
 
 import axios from "axios";
-import {serverAddress} from "./serverInfo.jsx";
+import {serverAddress} from "../serverInfo.jsx";
 function DeleteModal(props) {
     const [isChecked, setIsChecked] = useState(false);
 
@@ -27,11 +27,13 @@ function DeleteModal(props) {
             <div className="overlay">
                 <div className="modalContent">
                     <h1> Delete Tutorial </h1>
+                    <p>{props.tutorialData.title}</p>
                     <input
                         type="checkbox"
                         checked={isChecked}
                         onChange={()=> {setIsChecked(!isChecked)}}
                     />
+                    Confirm
                     <div className="modalButtons">
                         <button onClick={deleteTutorial} disabled={!isChecked}>Delete Tutorial</button>
                         <button onClick={props.onClose}>Cancel</button>

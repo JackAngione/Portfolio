@@ -12,10 +12,26 @@ async function createCategory(newCategory)
 //edit category
 async function editCategory(category)
 {
-    const collection = client.db("KNOWLEDGE").collection("categories")
+    const categoryCollection = client.db("KNOWLEDGE").collection("categories")
     const updateJSON = { title: category.title, subCategories: category.subCategories}
-    await collection.replaceOne({title: category.oldTitle}, updateJSON);
-
+    await categoryCollection.replaceOne({title: category.oldTitle}, updateJSON);
+    // Update documents where category is edited
+    const tutorialCollection = client.db("KNOWLEDGE").collection("tutorials")
+    await tutorialCollection.updateMany(
+        { category: category.title }, {$pull: {subCategories: {$nin: category.subCategories}}}
+    )
+    //UPDATE SUBCATEGORIES to new
+}
+//DELETE CATEGORY FROM DATABASE
+async function deleteCategory(category)
+{
+    const collection = client.db("KNOWLEDGE").collection("categories")
+    await collection.deleteOne({title: category.title})
+    // Update documents where category is deleted
+    const tutorialCollection = client.db("KNOWLEDGE").collection("tutorials")
+    await tutorialCollection.updateMany({ category: category.title }, { $set: { category: "" }}, function(err, result) {
+        if(err) throw err;
+    })
 }
 //SEARCHES THE DATABASE BASED ON A USER'S QUERY
 async function searchTutorials(searchQuery, categories) {
@@ -86,4 +102,4 @@ async function deleteTutorial(tutorialInfo)
     await collection.deleteOne({title: tutorialInfo.title, source: tutorialInfo.source})
     console.log("deleted!")
 }
-module.exports = {searchTutorials, uploadTutorial, deleteTutorial, editTutorial, getAllCategories, createCategory, editCategory}
+module.exports = {searchTutorials, uploadTutorial, deleteTutorial, editTutorial, getAllCategories, createCategory, editCategory, deleteCategory}

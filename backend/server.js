@@ -51,6 +51,13 @@ app.post("/api/createCategory", async(req, res) => {
     let createdCategory = await db.createCategory(categoryData)
 
 })
+//delete Category
+app.post("/api/deleteCategory", async(req, res) => {
+    let categoryData = req.body
+    console.log("received category TO Delete: " + JSON.stringify(categoryData))
+    let deleteCategory = await db.deleteCategory(categoryData)
+
+})
 
 //edit a  Category
 app.post("/api/editCategory", async(req, res) => {
