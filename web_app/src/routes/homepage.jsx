@@ -5,6 +5,7 @@ import Select from 'react-select'
 import {serverAddress} from "./serverInfo.jsx";
 import EditModal from "./modals/editModal.jsx";
 import DeleteModal from "./modals/deleteModal.jsx";
+import trashIcon from "../svgIcons/trashIcon.svg";
 function Homepage() {
     //THE USER'S SEARCH QUERY
     const [searchText, updateSearchText] = useState("")
@@ -128,8 +129,8 @@ function Homepage() {
                       <div id="singleSearchResult">
                     <a href={result.source} target="_blank" rel="noopener noreferrer">
 
-                            {result.title}
-                            {result.description}
+                        <p id="searchResultTitle">{result.title}</p>
+                        <p id="searchResultDesc">{result.description}</p>
 
                     </a>
                           {
@@ -146,7 +147,7 @@ function Homepage() {
                               setTutorialToEdit(result)
                               setOpenDeleteModal(!openDeleteModal)
                           }}>
-                              Delete
+                              <img className="SVG_icon" src={trashIcon}/>
                           </button>
                       </div>
                   </li>

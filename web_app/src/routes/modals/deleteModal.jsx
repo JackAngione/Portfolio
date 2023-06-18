@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react'
 
 import axios from "axios";
 import {serverAddress} from "../serverInfo.jsx";
+import trashIcon from "../../svgIcons/trashIcon.svg";
 function DeleteModal(props) {
     const [isChecked, setIsChecked] = useState(false);
 
@@ -35,7 +36,9 @@ function DeleteModal(props) {
                     />
                     Confirm
                     <div className="modalButtons">
-                        <button onClick={deleteTutorial} disabled={!isChecked}>Delete Tutorial</button>
+                        <button onClick={deleteTutorial} disabled={!isChecked}>
+                            <img className="SVG_icon" src={trashIcon}/>
+                        </button>
                         <button onClick={props.onClose}>Cancel</button>
                     </div>
                 </div>

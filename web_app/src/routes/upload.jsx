@@ -138,7 +138,7 @@ function Upload() {
                 </label>
 
                 <label>Enter Description:
-                    <input
+                    <textarea
                         type="text"
                         name="description"
                         value={inputDesc || ""}

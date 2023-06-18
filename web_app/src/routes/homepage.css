@@ -14,5 +14,25 @@
 #singleSearchResult
 {
   display: flex;
+  justify-content: center;
   padding: 20px;
+  position: relative;
+  left: 100px;
+}
+#singleSearchResult button
+{
+  scale: 60%;
+}
+#searchResultTitle
+{
+  font-weight:bold
+}
+#searchResultDesc
+{
+  font-size: .8rem;
+}
+
+.SVG_icon
+{
+  width: 25px;
 }

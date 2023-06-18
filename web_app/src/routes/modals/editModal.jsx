@@ -187,7 +187,7 @@ if(!props.open)
         <>
             <div className="overlay">
                 <div className="modalContent">
-                    <h1> Editing Tutorial </h1>
+                    <h1 id="editingTitle"> Editing Tutorial </h1>
 
                     {props.tutorialData.title}
                     <form onSubmit={submitUpload} id="editForm">
@@ -202,7 +202,7 @@ if(!props.open)
                         </label>
 
                         <label>Enter Description:
-                            <input
+                            <textarea
                                 type="text"
                                 name="description"
                                 value={inputDesc || ""}
@@ -275,7 +275,6 @@ if(!props.open)
                         </div>
                     </form>
 
-                    <DisplayEdited/>
 
 
 

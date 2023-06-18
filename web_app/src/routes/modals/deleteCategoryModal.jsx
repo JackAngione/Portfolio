@@ -3,6 +3,7 @@ import {useState} from 'react'
 import axios from "axios";
 import {serverAddress} from "../serverInfo.jsx";
 import "../category.css"
+import trashIcon from "../../svgIcons/trashIcon.svg"
 function DeleteCategoryModal(props) {
     const [isChecked, setIsChecked] = useState(false);
 
@@ -20,7 +21,7 @@ function DeleteCategoryModal(props) {
         <>
             <div id="confirmDelete">
                     <label>
-                        Confirm
+                        Confirm Delete Category
                         <input
                             type="checkbox"
                             checked={isChecked}
@@ -30,7 +31,9 @@ function DeleteCategoryModal(props) {
                     </label>
 
 
-                <button onClick={deleteTutorial} disabled={!isChecked}>Delete Category</button>
+                <button onClick={deleteTutorial} disabled={!isChecked}>
+                    <img className="SVG_icon" src={trashIcon}/>
+                </button>
 
             </div>
 

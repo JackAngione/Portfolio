@@ -53,6 +53,8 @@
     flex-direction: row;
     justify-content: center;
     margin: auto;
-
-
+}
+.SVG_icon
+{
+    width: 25px;
 }
