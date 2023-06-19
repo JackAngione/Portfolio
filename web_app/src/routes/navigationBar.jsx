@@ -1,26 +1,34 @@
-import { Outlet} from "react-router-dom";
+import {Link, Outlet} from "react-router-dom";
 import "./navigationBar.css"
 import {useEffect} from "react";
 //BASICALLY THE NAVIGATION BAR
 export default function NavigationBar() {
     return (
         <>
-            <div id="navigation">
+            <nav id="navigation">
                 <li>
-                    <a href={`/homepage`}>Homepage</a>
+                    <Link to="/"> Home </Link>
+                </li>
+                    |
+                <li>
+                    <Link to="/projects"> Projects </Link>
+                </li>
+                    |
+                <li>
+                    <Link to="/resources">Resources</Link>
                 </li>
 
                 <li>
                     |
-                    <a href={`/upload`}>Upload Tutorial</a>
+                    <Link to="/upload">Upload Tutorial</Link>
                 </li>
                
                 <li>
                     |
-                    <a href={`/category`}>Category</a>
+                    <Link to="/category">Category</Link>
                 </li>
-            </div>
-            <Outlet />
+            </nav>
+
         </>
     );
 }

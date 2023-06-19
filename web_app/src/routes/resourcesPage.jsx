@@ -1,12 +1,12 @@
 import {useEffect, useState} from 'react'
-import './homepage.css'
+import './resourcePage.css'
 import axios from 'axios'
 import Select from 'react-select'
 import {serverAddress} from "./serverInfo.jsx";
 import EditModal from "./modals/editModal.jsx";
 import DeleteModal from "./modals/deleteModal.jsx";
 import trashIcon from "../svgIcons/trashIcon.svg";
-function Homepage() {
+function ResourcesPage() {
     //THE USER'S SEARCH QUERY
     const [searchText, updateSearchText] = useState("")
     //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (in json format)
@@ -121,7 +121,6 @@ function Homepage() {
   {
     return (
         <>
-
             <ul id="searchResultList">
               {
                 searchresults.map((result, index) =>
@@ -162,7 +161,7 @@ function Homepage() {
   }
   return (
     <>
-    <h1>HOME</h1>
+    <h1>RESOURCES</h1>
 
         <Select
             isMulti
@@ -190,4 +189,4 @@ function Homepage() {
   )
 }
 
-export default Homepage
+export default ResourcesPage

@@ -1,23 +1,26 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import Homepage from './routes/homepage.jsx'
+import ResourcesPage from './routes/resourcesPage.jsx'
 import Upload from "./routes/upload.jsx";
 import './main.css'
 import ErrorPage from "./routes/error-page.jsx";
 import NavigationBar from "./routes/navigationBar.jsx";
-import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import {BrowserRouter, createBrowserRouter, Route, RouterProvider, Routes} from "react-router-dom";
 import Category from "./routes/category.jsx";
 import EditTutorial from "./routes/editTutorial.jsx";
-
-const router = createBrowserRouter([
+import Homepage from "./routes/home.jsx";
+import Home from "./routes/home.jsx";
+import Projects from "./routes/projects.jsx";
+//TODO OLD ROUTER, SCHEDULED TO DELETE
+/*const router = createBrowserRouter([
     {
         path: "/",
-        element: <NavigationBar />,
+        element:<Upload/> ,
         errorElement: <ErrorPage />,
         children: [
             {
-                path: "homepage",
-                element: <Homepage/>
+                path: "resources",
+                element: <ResourcesPage/>
             },
             {
                 path: "upload",
@@ -29,10 +32,21 @@ const router = createBrowserRouter([
             }
         ],
     },
-]);
+]);*/
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-      <RouterProvider router={router} />
+
+      <BrowserRouter>
+          <NavigationBar />
+          <Routes>
+              <Route path ="/" element={<Home/>} />
+              <Route path ="/projects" element={<Projects/>} />
+              <Route path ="/resources" element={<ResourcesPage/>} />
+              <Route path ="/upload" element={<Upload/>} />
+              <Route path ="/category" element={<Category/>} />
+          </Routes>
+      </BrowserRouter>
+
   </React.StrictMode>,
 )
