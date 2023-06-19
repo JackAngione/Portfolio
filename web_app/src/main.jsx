@@ -7,10 +7,12 @@ import ErrorPage from "./routes/error-page.jsx";
 import NavigationBar from "./routes/navigationBar.jsx";
 import {BrowserRouter, createBrowserRouter, Route, RouterProvider, Routes} from "react-router-dom";
 import Category from "./routes/category.jsx";
-import EditTutorial from "./routes/editTutorial.jsx";
-import Homepage from "./routes/home.jsx";
+
 import Home from "./routes/home.jsx";
-import Projects from "./routes/projects.jsx";
+import CodeProjects from "./skills/codeProjects.jsx";
+
+import Photography from "./skills/photography.jsx";
+import Music from "./skills/music.jsx";
 //TODO OLD ROUTER, SCHEDULED TO DELETE
 /*const router = createBrowserRouter([
     {
@@ -41,7 +43,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <NavigationBar />
           <Routes>
               <Route path ="/" element={<Home/>} />
-              <Route path ="/projects" element={<Projects/>} />
+              <Route path= "photography" element={<Photography/>}/>
+              <Route path ="/code" element={<CodeProjects/>} />
+              <Route path ="/music" element={<Music/>} />
               <Route path ="/resources" element={<ResourcesPage/>} />
               <Route path ="/upload" element={<Upload/>} />
               <Route path ="/category" element={<Category/>} />

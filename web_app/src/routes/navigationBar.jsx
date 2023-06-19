@@ -10,9 +10,14 @@ export default function NavigationBar() {
                     <Link to="/"> Home </Link>
                 </li>
                     |
-                <li>
-                    <Link to="/projects"> Projects </Link>
-                </li>
+                <div className="skillDropdown">
+                    <button className ="skillsBtn"><a href=""> Skills </a></button>
+                    <div className="skillsList">
+                            <Link to="/code"> Programming</Link>
+                            <Link to="/photography"> Photography </Link>
+                            <Link to="/music"> Music </Link>
+                    </div>
+                </div>
                     |
                 <li>
                     <Link to="/resources">Resources</Link>
