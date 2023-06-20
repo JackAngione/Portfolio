@@ -1,0 +1,30 @@
+#softwareList
+{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0px;
+    border: 3px solid #19f800;
+}
+#softwareList ul
+{
+    list-style: none;
+    border: 3px solid #19f800;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.logo
+{
+    width: 50px;
+    height: 50px;
+    padding-right: 10px;
+}
+#softwareList ul li
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: auto;
+    border: 3px solid #2100f8;
+}
