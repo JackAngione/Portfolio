@@ -1,16 +1,10 @@
-h1
-{
-   color: #FF7B9C;
-}
-
 .project
 {
     border-radius: 20px;
-    background: #607196;
+    background: #BF1363;
     padding: 1px 60px 14px;
-
-    color: #E8E9ED;
     margin-bottom: 100px;
+    color: #E8E9ED;
 }
 
 .project a

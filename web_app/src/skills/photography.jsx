@@ -8,7 +8,6 @@ import PremiereProLogo from "./softwareLogos/premiere-pro-cc.svg"
 import {useEffect, useState} from "react";
 import {flickrKey} from "../API_Keys.jsx";
 function Photography() {
-
     const [photos, setPhotos] = useState([]);
 
     useEffect(() => {
@@ -16,9 +15,9 @@ function Photography() {
             .then(response => response.json())
             .then(data => {
                 let photoArray = data.photos.photo.map((pic) => {
-                    var srcPath = 'https://farm' + pic.farm + '.staticflickr.com/' + pic.server + '/' + pic.id + '_' + pic.secret + '.jpg';
+                    const srcPath = 'https://farm' + pic.farm + '.staticflickr.com/' + pic.server + '/' + pic.id + '_' + pic.secret + '_c.jpg';
                     return(
-                        <img alt="Flickr" src={srcPath} />
+                            <a  href={`https://www.flickr.com/photos/jackangione/${pic.id}`} target="_blank"  rel="noopener noreferrer"><img alt="Flickr" src={srcPath} /></a>
                     )
                 })
                 setPhotos(photoArray);
@@ -35,46 +34,63 @@ function Photography() {
 
 
     return (
-        <>
+        <div className="entirePage">
             <h1>Photography</h1>
             <p>
-                8 years of experience in photography/videography .
-                Expertise in the following software:
+                8 years of experience in photography/videography, with expertise in:
 
             </p>
             <div id="softwareList">
                 <ul >
-                    <li>
-                        <img src={CaptureOneLogo} className="logo"/>
-                        Capture One
-                    </li>
-                    <li>
-                        <img src={PhotoshopLogo} className="logo"/>
-                        Photoshop
-                    </li>
-                    <li>
-                        <img src={LightroomLogo} className="logo"/>
-                        Lightroom
-                    </li>
+                    <a href="https://www.captureone.com/en" target="_blank"  rel="noopener noreferrer">
+                        <li>
+                            <img src={CaptureOneLogo} className="logo"/>
+                            Capture One
+                        </li>
+                    </a>
+                    <a href="https://www.adobe.com/products/photoshop.html" target="_blank"  rel="noopener noreferrer">
+                        <li>
+                            <img src={PhotoshopLogo} className="logo"/>
+                            Photoshop
+                        </li>
+                    </a>
 
+                    <a href="https://www.adobe.com/products/photoshop-lightroom.html" target="_blank"  rel="noopener noreferrer">
+                        <li>
+                            <img src={LightroomLogo} className="logo"/>
+                            Lightroom
+                        </li>
+                    </a>
                 </ul>
                 <ul>
-                    <li>
-                        <img src={DavinciLogo} className="logo"/>
-                        DaVinci Resolve
-                    </li>
-                    <li>
-                        <img src={PremiereProLogo} className="logo"/>
-                        Premiere Pro
-                    </li>
-                    <li>
-                        <img src={AfterEffectsLogo} className="logo"/>
-                        After Effects
-                    </li>
+                    <a href="https://www.blackmagicdesign.com/products/davinciresolve" target="_blank"  rel="noopener noreferrer">
+                        <li>
+                            <img src={DavinciLogo} className="logo"/>
+                            DaVinci Resolve
+                        </li>
+                    </a>
+                    <a href="https://www.adobe.com/products/premiere.html" target="_blank"  rel="noopener noreferrer">
+                        <li>
+                            <img src={PremiereProLogo} className="logo"/>
+                            Premiere Pro
+                        </li>
+                    </a>
+
+
+                    <a href="https://www.adobe.com/products/aftereffects.html" target="_blank"  rel="noopener noreferrer">
+                        <li>
+                            <img src={AfterEffectsLogo} className="logo"/>
+                            After Effects
+                        </li>
+                    </a>
+
                 </ul>
             </div>
-            {photos}
-        </>
+            <div className="flickrPhotos">
+                {photos}
+            </div>
+
+        </div>
     )
 
 

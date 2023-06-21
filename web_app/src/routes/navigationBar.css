@@ -5,25 +5,30 @@
     list-style: none;
     flex-wrap:wrap;
     justify-content: center;
+    color: #BF1363;
 }
 #navigation li a
 {
     padding: 10px;
+    color: #BF1363;
 
 }
 .skillsBtn a
 {
     padding: 10px;
+    color: #BF1363;
 }
 .skillsBtn {
     padding: 0px;
     display: block;
-    background-color: white;
+
+    background-color: rgba(255, 12, 12, 0);
 }
 .skillDropdown {
     position: relative;
     display: inline-block;
     height: 100%;
+
 }
 
 .skillsList {
@@ -32,7 +37,6 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #f1f1f1;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
@@ -41,18 +45,19 @@
 }
 
 .skillsList a {
-    color: black;
+
     padding: 12px 16px;
     text-decoration: none;
     display: block;
     transition-duration: 0.5s;
+    color: #BF1363;
 }
 
 /* Change color of dropdown links on hover */
 .skillsList a:hover
 {
     border-radius: 10px;
-    background-color: rgba(100, 108, 255, 0.34);
+    background-color: rgba(14, 121, 178, 0.42);
 }
 
 /* Show the dropdown menu on hover */

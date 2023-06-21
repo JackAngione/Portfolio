@@ -1,8 +1,18 @@
-import {Link, Outlet} from "react-router-dom";
+import {Link, Outlet, useLocation} from "react-router-dom";
 import "./navigationBar.css"
 import {useEffect} from "react";
 //BASICALLY THE NAVIGATION BAR
 export default function NavigationBar() {
+    const location = useLocation();
+    //THEATER MODE, FOR PHOTOGRAPHY PAGE
+    useEffect(() => {
+        // Check if we're on the special page
+        if (location.pathname === '/photography') {
+            document.body.classList.add('theaterMode');
+        } else {
+            document.body.classList.remove('theaterMode');
+        }
+    }, [location]);
     return (
         <>
             <nav id="navigation">
