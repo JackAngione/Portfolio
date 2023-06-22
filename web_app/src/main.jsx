@@ -13,28 +13,6 @@ import CodeProjects from "./skills/codeProjects.jsx";
 
 import Photography from "./skills/photography.jsx";
 import Music from "./skills/music.jsx";
-//TODO OLD ROUTER, SCHEDULED TO DELETE
-/*const router = createBrowserRouter([
-    {
-        path: "/",
-        element:<Upload/> ,
-        errorElement: <ErrorPage />,
-        children: [
-            {
-                path: "resources",
-                element: <ResourcesPage/>
-            },
-            {
-                path: "upload",
-                element: <Upload/>
-            },
-            {
-                path: "category",
-                element: <Category/>
-            }
-        ],
-    },
-]);*/
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
