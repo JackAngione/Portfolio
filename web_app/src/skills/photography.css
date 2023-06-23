@@ -33,16 +33,20 @@
     color: #E8E9ED;
 }
 
-.flickrPhotos
+.centerPhotos
 {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0;
-    align-content: center;
-    align-items: center;
+    display: flex;
     justify-content: center;
 }
+.flickrPhotos
+{
+    column-count: 2;
+    column-gap: 0;
+
+}
 .flickrPhotos img {
-    display: inline-flex;
-    width: 46vw;
+    width: 100%;
+    height: auto;
+    margin-bottom: -3px;
+    margin-top: -3px;
 }

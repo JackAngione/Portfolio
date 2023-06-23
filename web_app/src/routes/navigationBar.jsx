@@ -16,10 +16,8 @@ export default function NavigationBar() {
     return (
         <>
             <nav id="navigation">
-                <li>
-                    <Link to="/"> Home </Link>
-                </li>
-                    |
+
+
                 <div className="skillDropdown">
                     <button className ="skillsBtn"><a href=""> Skills </a></button>
                     <div className="skillsList">
@@ -32,7 +30,10 @@ export default function NavigationBar() {
                 <li>
                     <Link to="/resources">Resources</Link>
                 </li>
-
+                |
+                <li>
+                    <Link to="/"> Home </Link>
+                </li>
                 <li>
                     |
                     <Link to="/upload">Upload Tutorial</Link>

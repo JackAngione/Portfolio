@@ -4,7 +4,7 @@ function Home() {
     const [imageSpeed, setImageSpeed] = useState(100)
     const [rangeValue, setRangeValue] = useState(2)
     // assuming you have 100 images named as 'image1.jpg', 'image2.jpg' etc. in the 'public/images' directory
-    const images = Array.from({length: 11}, (_, i) => `/jackAILOGO/img${i + 1}.png`);
+    const images = Array.from({length: 13}, (_, i) => `/jackAILOGO/img${i + 1}.png`);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     useEffect(() => {
@@ -37,12 +37,11 @@ function Home() {
             console.log("CHANGING SPEED0")
             setImageSpeed(1000)
         }
-
     }
 
     return (
         <>
-            <h1>HOME</h1>
+            <h1></h1>
             <div className="homepage" style={{backgroundImage: `url(${images[currentImageIndex]})`}}>
 
                 <img className="AIimage" src={images[currentImageIndex]} alt="slideshow" />
@@ -56,10 +55,9 @@ function Home() {
                 value={rangeValue}
                 onChange={handleImageSpeed}
             />
-          
 
             <p>
-                imagery made with stable diffusion with control net enabled
+                (imagery made with stable diffusion and control net extension)
             </p>
         </>
 

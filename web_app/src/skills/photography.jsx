@@ -15,9 +15,17 @@ function Photography() {
             .then(response => response.json())
             .then(data => {
                 let photoArray = data.photos.photo.map((pic) => {
-                    const srcPath = 'https://farm' + pic.farm + '.staticflickr.com/' + pic.server + '/' + pic.id + '_' + pic.secret + '_c.jpg';
+                    const srcPath = 'https://farm' + pic.farm + '.staticflickr.com/' + pic.server + '/' + pic.id + '_' + pic.secret + '_b.jpg';
+                    const img = new Image();
+
                     return(
-                            <a  href={`https://www.flickr.com/photos/jackangione/${pic.id}`} target="_blank"  rel="noopener noreferrer"><img alt="Flickr" src={srcPath} /></a>
+                        <div className="imageDiv">
+                            <a  href={`https://www.flickr.com/photos/jackangione/${pic.id}`} target="_blank"  rel="noopener noreferrer">
+                                <img alt="Flickr" src={srcPath} />
+                            </a>
+
+                        </div>
+
                     )
                 })
                 setPhotos(photoArray);
@@ -38,7 +46,6 @@ function Photography() {
             <h1>Photography</h1>
             <p>
                 8 years of experience in photography/videography, with expertise in:
-
             </p>
             <div id="softwareList">
                 <ul >
@@ -86,9 +93,13 @@ function Photography() {
 
                 </ul>
             </div>
-            <div className="flickrPhotos">
-                {photos}
+            <div className="centerPhotos">
+                <div className="flickrPhotos">
+                    {photos}
+                </div>
             </div>
+
+
 
         </div>
     )

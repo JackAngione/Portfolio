@@ -38,7 +38,7 @@ function CodeProjects() {
                 </div>
 
                 <div className="project">
-                    <h1><a href={"/resources"} >Resources</a></h1>
+                    <h1><a href={"/resources"} >"Resources"</a></h1>
                     <h4> A collection of tutorials/sources of topics I've come across</h4>
                     <p> Allows for the easy access of information when I need to reference something I've previously regarded as a quality source for the topic</p>
                     <p>The database can be conveniently searched by title, description, source link, or keywords and results can be filtered by category </p>
