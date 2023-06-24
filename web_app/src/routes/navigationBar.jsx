@@ -16,35 +16,27 @@ export default function NavigationBar() {
     return (
         <>
             <nav id="navigation">
-
-
-                <div className="skillDropdown">
-                    <button className ="skillsBtn"><a href=""> Skills </a></button>
-                    <div className="skillsList">
+                <div className="navDropdown">
+                    <Link className ="mainDropdown" >Skills</Link>
+                    <div className="dropDownList">
                             <Link to="/code"> Programming</Link>
                             <Link to="/photography"> Photography </Link>
                             <Link to="/music"> Music </Link>
                     </div>
                 </div>
-                    |
-                <li>
-                    <Link to="/resources">Resources</Link>
-                </li>
                 |
                 <li>
                     <Link to="/"> Home </Link>
                 </li>
-                <li>
                     |
-                    <Link to="/upload">Upload Tutorial</Link>
-                </li>
-               
-                <li>
-                    |
-                    <Link to="/category">Category</Link>
-                </li>
+                <div className="navDropdown">
+                    <Link className ="mainDropdownResources" to="/resources">Resources</Link>
+                    <div className="dropDownList">
+                        <Link to="/upload">Upload Tutorial</Link>
+                        <Link to="/category">Category</Link>
+                    </div>
+                </div>
             </nav>
-
         </>
     );
 }

@@ -6,6 +6,7 @@ import {serverAddress} from "./serverInfo.jsx";
 import EditModal from "./modals/editModal.jsx";
 import DeleteModal from "./modals/deleteModal.jsx";
 import trashIcon from "../svgIcons/trashIcon.svg";
+import {Link} from "react-router-dom";
 function ResourcesPage() {
     //THE USER'S SEARCH QUERY
     const [searchText, updateSearchText] = useState("")
@@ -146,7 +147,7 @@ function ResourcesPage() {
                               setTutorialToEdit(result)
                               setOpenDeleteModal(!openDeleteModal)
                           }}>
-                              <img className="SVG_icon" src={trashIcon}/>
+                              <img className="SVG_icon" src={trashIcon} alt="removeIcon"/>
                           </button>
                       </div>
                   </li>
