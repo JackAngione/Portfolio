@@ -4,8 +4,8 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: rgba(251, 254, 249, 0.96);
+  color: #FBFEF9;
+  background-color: #FBFEF9;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -31,10 +31,7 @@ body {
 
   color: #BF1363;
 }
-body div
-{
-  background-color: rgba(251, 254, 249, 1);
-}
+
 /*THEATER MODE CSS*/
 body.theaterMode
 {
@@ -77,11 +74,11 @@ button:focus-visible {
 @media (prefers-color-scheme: light) {
   :root {
     color: #000000;
-    background-color: rgba(251, 254, 249, 0.95);
+    background-color: #FBFEF9;
   }
 
   button {
-    background-color: #f9f9f9;
+    background-color: #FBFEF9;
   }
   h1
   {

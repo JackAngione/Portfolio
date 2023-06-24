@@ -17,10 +17,12 @@ async function editCategory(category)
     await categoryCollection.replaceOne({title: category.oldTitle}, updateJSON);
     // Update documents where category is edited
     const tutorialCollection = client.db("KNOWLEDGE").collection("tutorials")
+    //update subcategories
     await tutorialCollection.updateMany(
         { category: category.title }, {$pull: {subCategories: {$nin: category.subCategories}}}
     )
-    //UPDATE SUBCATEGORIES to new
+    //change existing category names of tutorials
+    await tutorialCollection.updateMany({category: category.oldTitle}, {$set: {category: category.title}})
 }
 //DELETE CATEGORY FROM DATABASE
 async function deleteCategory(category)

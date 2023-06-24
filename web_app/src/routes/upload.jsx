@@ -187,7 +187,7 @@ function Upload() {
                         }}
                     />
                 </label>
-
+                Keywords
                 <CreatableSelect
                     components={components}
                     inputValue={inputValue}
