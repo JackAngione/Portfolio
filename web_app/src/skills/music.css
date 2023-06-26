@@ -2,3 +2,7 @@
 {
     height: 200px;
 }
+.songList ul
+{
+    list-style: none;
+}
