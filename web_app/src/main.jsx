@@ -12,7 +12,7 @@ import Home from "./routes/home.jsx";
 import CodeProjects from "./skills/codeProjects.jsx";
 
 import Photography from "./skills/photography.jsx";
-import Music from "./skills/music.jsx";
+import Music from "./skills/MUSIC/music.jsx";
 import App from "./app.jsx";
 
 ReactDOM.createRoot(document.getElementById('root')).render(

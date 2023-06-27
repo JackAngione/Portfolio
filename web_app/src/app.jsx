@@ -4,7 +4,7 @@ import {BrowserRouter, Route, Routes, useLocation} from "react-router-dom";
 import Home from "./routes/home.jsx";
 import Photography from "./skills/photography.jsx";
 import CodeProjects from "./skills/codeProjects.jsx";
-import Music from "./skills/music.jsx";
+import Music from "./skills/MUSIC/music.jsx";
 import ResourcesPage from "./routes/resourcesPage.jsx";
 import Upload from "./routes/upload.jsx";
 import Category from "./routes/category.jsx";

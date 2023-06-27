@@ -10,6 +10,8 @@
     justify-content: center;
     color: #BF1363;
     z-index: 1;
+    background-color: #FBFEF9;
+    border-radius: 5px;
 }
 #navigation li a
 {
@@ -41,7 +43,7 @@
 }
 
 .dropDownList {
-    border-radius: 10px;
+    border-radius: 6px;
     display: none;
     position: absolute;
     left: 50%;
@@ -65,8 +67,8 @@
 /* Change color of dropdown links on hover */
 .dropDownList a:hover
 {
-    border-radius: 10px;
-    background-color: rgba(14, 121, 178, 0.42);
+    border-radius: 0px;
+    background-color: rgb(14, 121, 178);
 }
 
 /* Show the dropdown menu on hover */

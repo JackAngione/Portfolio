@@ -21,21 +21,21 @@ export default function NavigationBar() {
                     <div className="navDropdown">
                         <Link className ="mainDropdown" >Skills</Link>
                         <div className="dropDownList">
-                            <Link to="/code"> Programming</Link>
-                            <Link to="/photography"> Photography </Link>
-                            <Link to="/music"> Music </Link>
+                            <Link to="/code"> PROGRAMMING</Link>
+                            <Link to="/photography"> PHOTOGRAPHY </Link>
+                            <Link to="/music"> MUSIC </Link>
                         </div>
                     </div>
                     |
                     <li>
-                        <Link to="/"> Home </Link>
+                        <Link to="/"> HOME </Link>
                     </li>
                     |
                     <div className="navDropdown">
-                        <Link className ="mainDropdownResources" to="/resources">Resources</Link>
+                        <Link className ="mainDropdownResources" to="/resources">RESOURCES</Link>
                         <div className="dropDownList">
-                            <Link to="/upload">Upload Tutorial</Link>
-                            <Link to="/category">Category</Link>
+                            <Link to="/upload">UPLOAD TUTORIAL</Link>
+                            <Link to="/category">CATEGORY</Link>
                         </div>
                     </div>
                 </nav>
