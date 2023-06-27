@@ -1,23 +1,26 @@
 import {Link, Outlet, useLocation} from "react-router-dom";
 import "./navigationBar.css"
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import BackgroundAnim from "./backgroundAnimation.jsx";
 //BASICALLY THE NAVIGATION BAR
 export default function NavigationBar() {
     const location = useLocation();
-    //THEATER MODE, FOR PHOTOGRAPHY PAGE
+    const [navClassName, setNavClassName] = useState("navigation")
+        //THEATER MODE, FOR PHOTOGRAPHY PAGE
     useEffect(() => {
         // Check if we're on the special page
         if (location.pathname === '/photography') {
             document.body.classList.add('theaterMode');
+            setNavClassName("navigationDark")
         } else {
             document.body.classList.remove('theaterMode');
+            setNavClassName("navigation")
         }
     }, [location]);
     return (
         <>
             { useLocation().pathname==="/" && <BackgroundAnim/>}
-                <nav id="navigation">
+                <nav class={navClassName}>
                     <div className="navDropdown">
                         <Link className ="mainDropdown" >Skills</Link>
                         <div className="dropDownList">
