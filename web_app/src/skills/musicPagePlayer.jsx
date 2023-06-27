@@ -150,14 +150,14 @@ function MusicPagePlayer() {
                             <li key={index}>
                                 <h2>{`${song.url}`}</h2>
                                 <button onClick={() => playPause(index)}>{song.playing ? 'Pause' : 'Play'}</button>
-                                <input type='range'
+                                <input className="musicSlider" type='range'
                                        min={0}
                                        max={1}
                                        step='any'
                                        value={volumeSliders[index]}
                                        onChange={(e) =>changeVolume(e, index)} />
                                 {song.currentTime}
-                                <input type='range'
+                                <input className="musicSlider" type='range'
                                        min={0}
                                        max={1}
                                        step='.01'

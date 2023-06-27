@@ -13,22 +13,12 @@ import CodeProjects from "./skills/codeProjects.jsx";
 
 import Photography from "./skills/photography.jsx";
 import Music from "./skills/music.jsx";
+import App from "./app.jsx";
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
 
-      <BrowserRouter>
-          <NavigationBar />
-          <Routes>
-              <Route path ="/" element={<Home/>} />
-              <Route path= "photography" element={<Photography/>}/>
-              <Route path ="/code" element={<CodeProjects/>} />
-              <Route path ="/music" element={<Music/>} />
-              <Route path ="/resources" element={<ResourcesPage/>} />
-              <Route path ="/upload" element={<Upload/>} />
-              <Route path ="/category" element={<Category/>} />
-          </Routes>
-      </BrowserRouter>
+    <App/>
 
   </React.StrictMode>,
 )

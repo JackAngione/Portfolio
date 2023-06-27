@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
-import "./home.css"
-function Home() {
+import "./backgroundAnimation.css"
+import NavigationBar from "./navigationBar.jsx";
+function BackgroundAnim(props) {
     const [imageSpeed, setImageSpeed] = useState(100)
     const [rangeValue, setRangeValue] = useState(2)
     // assuming you have 100 images named as 'image1.jpg', 'image2.jpg' etc. in the 'public/images' directory
@@ -35,22 +36,25 @@ function Home() {
         else if (e.target.value == 0)
         {
             console.log("CHANGING SPEED0")
-            setImageSpeed(1000)
+            setImageSpeed(2000)
         }
     }
 
     return (
         <>
-            <h1></h1>
-            <div className="homepage">
-
-                {/*<img className="AIimage" src={images[currentImageIndex]} alt="slideshow" />*/}
+            <div className="animation" >
+                <img className="AIimage" src={images[currentImageIndex]} alt="slideshow" />
+                <img className="AIimage" src={images[currentImageIndex]} alt="slideshow" />
+                <img className="AIimage" src={images[currentImageIndex]} alt="slideshow" />
 
             </div>
-
-            <p>
-                (imagery made with stable diffusion and control net extension)
-            </p>
+            <input className="speedSlider"
+                type="range"
+                min="0"
+                max="2"
+                value={rangeValue}
+                onChange={handleImageSpeed}
+            />
         </>
 
     )
@@ -58,4 +62,4 @@ function Home() {
 
 
 }
-export default Home
+export default BackgroundAnim
