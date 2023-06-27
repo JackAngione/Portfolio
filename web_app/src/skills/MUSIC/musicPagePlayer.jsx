@@ -3,9 +3,9 @@ import ReactPlayer from 'react-player'
 import "./music.css"
 function MusicPagePlayer() {
     const [songs, setSongs] = useState([
-        {url: "/src/skills/musicFiles/JUST DANCE22.wav", playing: false, volume: .0625, position: 0, currentTime: "0:00", duration: "0:00"},
-        {url: "/src/skills/musicFiles/alexia.wav", playing: false, volume: .0625, position: 0, currentTime: "0:00", duration: "0:00"},
-        {url: "/src/skills/musicFiles/Amana-Musing.mp3", playing: false, volume: .0625, position: 0, currentTime: "0:00", duration: "0:00"}
+        {url: "/src/skills/MUSIC/musicFiles/JUST DANCE22.wav", playing: false, volume: .0625, position: 0, currentTime: "0:00", duration: "0:00"},
+        {url: "/src/skills/MUSIC/musicFiles/alexia.wav", playing: false, volume: .0625, position: 0, currentTime: "0:00", duration: "0:00"},
+        {url: "/src/skills/MUSIC/musicFiles/Amana-Musing.mp3", playing: false, volume: .0625, position: 0, currentTime: "0:00", duration: "0:00"}
     ])
     const [volumeSliders, setVolumeSliders] = useState([])
     const players = useRef(songs.map(() => React.createRef()));

@@ -7,7 +7,7 @@ function PixelAnimation() {
         const intervalId = setInterval(() => {
             const newColors = colors.map(() => getRandomColor());
             setColors(newColors);
-        }, 250); // Change colors every 1 second
+        }, 400); // Change colors every 1 second
 
         return () => clearInterval(intervalId); // Clear interval on unmount
     }, [colors]);
