@@ -65,5 +65,5 @@ app.post("/api/editCategory", async(req, res) => {
     await db.editCategory(categoryData)
 })
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+    console.log(`Portfolio Server listening on port ${port}`)
 })
