@@ -50,7 +50,7 @@ function EditTutorial() {
     };
     function getCategories()
     {
-        axios.get(serverAddress+"/api/categories")
+        axios.get(serverAddress+"/categories")
             .then(function (response) {
                 let tempCategoryTitle = []
                 setCategories(response.data)
@@ -74,7 +74,7 @@ function EditTutorial() {
         else
         {
             let encodedSearch = encodeURIComponent(searchQuery)
-            axios.get(serverAddress+"/api/search", {
+            axios.get(serverAddress+"/search", {
                 params: {
                     searchQuery: encodedSearch,
                     categories: chosenCategories

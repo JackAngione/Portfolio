@@ -17,7 +17,7 @@ function DeleteModal(props) {
             "source": props.tutorialData.source
         }
 
-        axios.post(serverAddress + "/api/deleteTutorial", inputs)
+        axios.post(serverAddress + "/deleteTutorial", inputs)
             .then(({response}) => {
                 //console.log(response.data)
             })

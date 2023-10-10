@@ -30,7 +30,7 @@ function Upload() {
     //GET CATEGORIES LIST FROM DATABASE
     useEffect(() =>{
         console.log("get categories use effect running!!!")
-        axios.get(serverAddress+"/api/categories")
+        axios.get(serverAddress+"/categories")
             .then(function (response) {
                 setCategories(response.data)
                 let tempCategoryTitle = []
@@ -70,7 +70,7 @@ function Upload() {
         if(submitFlag === true)
         {
             let inputs = {"title": inputTitle, "description": inputDesc, "source": inputSource, "category": inputCategory, "subCategories": inputSubCategories, "keywords": inputKeywords}
-            axios.post(serverAddress + "/api/upload", inputs)
+            axios.post(serverAddress + "/upload", inputs)
                 .then(({response}) => {
                     //console.log(response.data)
                 })

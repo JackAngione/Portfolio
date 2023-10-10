@@ -35,7 +35,7 @@ function Category() {
     //GET CATEGORIES LIST FROM DATABASE
     useEffect(() =>{
         console.log("get categories use effect running!!!")
-        axios.get(serverAddress+"/api/categories")
+        axios.get(serverAddress+"/categories")
             .then(function (response) {
                 setCategories(response.data)
                 let tempCategoryTitle = []
@@ -78,7 +78,7 @@ function Category() {
         if(submitCreateCategory === true)
         {
             const categoryFinal = {"title": categoryTitle, "subCategories": subCategories}
-            axios.post(serverAddress + "/api/createCategory", categoryFinal)
+            axios.post(serverAddress + "/createCategory", categoryFinal)
                 .then(({response}) => {
                     //console.log(response.data)
                 })
@@ -92,7 +92,7 @@ function Category() {
         {
             const editCategoryFinal = {"oldTitle": categoryToEdit, "title": categoryTitleEdit, "subCategories": finalEditSubCategories}
             console.log("EDITING CATEGORIES" + JSON.stringify(editCategoryFinal.subCategories))
-            axios.post(serverAddress + "/api/editCategory", editCategoryFinal)
+            axios.post(serverAddress + "/editCategory", editCategoryFinal)
                 .then(({response}) => {
                     //console.log(response.data)
                 })

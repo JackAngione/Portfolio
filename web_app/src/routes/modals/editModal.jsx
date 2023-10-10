@@ -42,7 +42,7 @@ function EditModal(props) {
                 "category": inputCategory,
                 "subCategories": inputSubCategories,
                 "keywords": inputKeywords}
-            axios.post(serverAddress + "/api/editTutorial", inputs)
+            axios.post(serverAddress + "/editTutorial", inputs)
                 .then(({response}) => {
                     //console.log(response.data)
                 })

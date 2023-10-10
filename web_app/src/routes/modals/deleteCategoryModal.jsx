@@ -12,7 +12,7 @@ function DeleteCategoryModal(props) {
         let inputs = {
             "title": props.categoryData
         }
-        axios.post(serverAddress + "/api/deleteCategory", inputs)
+        axios.post(serverAddress + "/deleteCategory", inputs)
             .then(({response}) => {
                 //console.log(response.data)
             })

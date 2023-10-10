@@ -8,14 +8,14 @@ app.use(cors());
 app.use(express.json());
 
 //get a list of all categories
-app.get('/api/categories', async (req, res) => {
+app.get('/categories', async (req, res) => {
     console.log("category request made")
     let allCategories = await db.getAllCategories()
     res.send(allCategories)
 })
 
 //search for a tutorial
-app.get('/api/search', async (req, res) => {
+app.get('/search', async (req, res) => {
 
     const chosenCategories = req.query.categories
     const searchQuery = req.query.searchQuery;
@@ -28,31 +28,31 @@ app.get('/api/search', async (req, res) => {
 })
 
 //upload a tutorial
-app.post("/api/upload", async(req, res) => {
+app.post("/upload", async(req, res) => {
     let tutorialData = JSON.stringify(req.body)
     console.log("received upload: " + JSON.stringify(req.body))
     let uploadTutorial = await db.uploadTutorial(req.body)
 })
 //delete a tutorial
-app.post("/api/deleteTutorial", async(req, res) => {
+app.post("/deleteTutorial", async(req, res) => {
     let tutorialData = JSON.stringify(req.body)
 
     let deleteTutorial = await db.deleteTutorial(req.body)
 })
 //edit a  tutorial
-app.post("/api/editTutorial", async(req, res) => {
+app.post("/editTutorial", async(req, res) => {
     let newTutorial = req.body
     await db.editTutorial(newTutorial)
 })
 //create Category
-app.post("/api/createCategory", async(req, res) => {
+app.post("/createCategory", async(req, res) => {
     let categoryData = req.body
     console.log("received upload: " + JSON.stringify(categoryData))
     let createdCategory = await db.createCategory(categoryData)
 
 })
 //delete Category
-app.post("/api/deleteCategory", async(req, res) => {
+app.post("/deleteCategory", async(req, res) => {
     let categoryData = req.body
     console.log("received category TO Delete: " + JSON.stringify(categoryData))
     let deleteCategory = await db.deleteCategory(categoryData)
@@ -60,10 +60,10 @@ app.post("/api/deleteCategory", async(req, res) => {
 })
 
 //edit a  Category
-app.post("/api/editCategory", async(req, res) => {
+app.post("/editCategory", async(req, res) => {
     let categoryData = req.body
     await db.editCategory(categoryData)
 })
-app.listen(port, () => {
+app.listen(port, 'localhost', () => {
     console.log(`Portfolio Server listening on port ${port}`)
 })
