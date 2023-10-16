@@ -1,8 +1,12 @@
 import {useEffect, useState} from "react";
 import "./home.css"
+import LoginModal from "./modals/loginModal"
+import axios from "axios";
+import {serverAddress} from "./serverInfo.jsx";
 function Home() {
     const [imageSpeed, setImageSpeed] = useState(100)
     const [rangeValue, setRangeValue] = useState(2)
+    const [openModal, setOpenModal] = useState(false)
     // assuming you have 100 images named as 'image1.jpg', 'image2.jpg' etc. in the 'public/images' directory
     const images = Array.from({length: 13}, (_, i) => `/jackAILOGO/img${i + 1}.png`);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -19,26 +23,6 @@ function Home() {
         };
     }, [imageSpeed]);
 
-    const handleImageSpeed = (e) =>
-    {
-        setRangeValue(e.target.value)
-        if(e.target.value == 2)
-        {
-            setImageSpeed(100)
-            console.log("CHANGING SPEED2")
-        }
-        else if (e.target.value == 1)
-        {
-            console.log("CHANGING SPEED1")
-            setImageSpeed(200)
-        }
-        else if (e.target.value == 0)
-        {
-            console.log("CHANGING SPEED0")
-            setImageSpeed(1000)
-        }
-    }
-
     return (
         <>
             <h1></h1>
@@ -51,11 +35,13 @@ function Home() {
             <p>
                 (imagery made with stable diffusion and control net extension)
             </p>
+            <button onClick={() =>{
+                setOpenModal(!openModal)
+            }
+
+            }>Login</button>
+            <LoginModal open = {openModal}></LoginModal>
         </>
-
     )
-
-
-
 }
 export default Home

@@ -1,6 +1,9 @@
 const express = require('express')
 const cors = require('cors');
 const db = require("./mongoDBaccess.js")
+const jwt = require('jsonwebtoken');
+const expressJwt = require('express-jwt');
+const { JWT_Key } = require("./mongoDBconnection")
 
 const port = 3000
 const app = express()
@@ -63,6 +66,21 @@ app.post("/deleteCategory", async(req, res) => {
 app.post("/editCategory", async(req, res) => {
     let categoryData = req.body
     await db.editCategory(categoryData)
+})
+app.post("/login", async(req, res) => {
+    let credentials = req.body
+    console.log("hit login")
+    const loginStatus = await db.login(credentials)
+    if(loginStatus === 200)
+    {
+        const token = jwt.sign({ username: credentials.username }, JWT_Key, { expiresIn: '24h' });
+        res.status(200).send
+        res.send(token)
+    }
+    else
+    {
+        console.log("login failed")
+    }
 })
 app.listen(port, 'localhost', () => {
     console.log(`Portfolio Server listening on port ${port}`)

@@ -104,4 +104,23 @@ async function deleteTutorial(tutorialInfo)
     await collection.deleteOne({title: tutorialInfo.title, source: tutorialInfo.source})
     console.log("deleted!")
 }
-module.exports = {searchTutorials, uploadTutorial, deleteTutorial, editTutorial, getAllCategories, createCategory, editCategory, deleteCategory}
+
+async function login(loginInfo)
+{
+    const collection = client.db("KNOWLEDGE").collection("users")
+    console.log(loginInfo.username)
+    console.log(loginInfo.password)
+    const user = await collection.findOne({username: loginInfo.username, password: loginInfo.password})
+    if(user)
+    {
+        return 200
+    }
+    else
+    {
+        return 401
+    }
+}
+
+
+
+module.exports = {searchTutorials, uploadTutorial, deleteTutorial, editTutorial, getAllCategories, createCategory, editCategory, deleteCategory, login}

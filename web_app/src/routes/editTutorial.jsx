@@ -124,7 +124,6 @@ function EditTutorial() {
                                 setTutorialToEdit(result)
                                 setOpenModal(!openModal)
                                 }
-
                             }
                                rel="noopener noreferrer">
                                 {result.title}

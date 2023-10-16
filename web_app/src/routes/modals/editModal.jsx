@@ -16,7 +16,6 @@ function EditModal(props) {
     //REACT SELECT KEYWORDS
     const [inputValue, setInputValue] = useState("")
     const [reactKeywords, setReactKeywords] = useState([])
-    const components = { DropdownIndicator: null, };
     //
 
     const [inputCategory, setInputCategory] = useState("")
