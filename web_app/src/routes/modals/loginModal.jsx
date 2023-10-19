@@ -1,14 +1,13 @@
 import {useState} from "react";
 import axios from "axios";
 import {serverAddress} from "../serverInfo.jsx";
-import {useCookies} from 'react-cookie';
+import Cookies from 'js-cookie';
 import {useNavigate} from "react-router-dom";
 
 function LoginModal(props) {
     const [loginFail, setLoginFail] = useState("");
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
-    const [cookies, setCookie] = useCookies(['LoginToken']);
     const [showPassword, setShowPassword] = useState(false)
     const navigate = useNavigate()
     if(!props.open)
@@ -24,7 +23,7 @@ function LoginModal(props) {
             .then(function (response) {
                 if (response.status === 200) {
                     const token = response.data.token; // Ensure your server sends the JWT as "token" in the response body
-                    setCookie('LoginToken', token);
+                    Cookies.set('LoginToken', token, { expires: 1 }); // Expires after 1 day
                     console.log("cookie set sucessfully")
                     window.location.reload()
                 } else {

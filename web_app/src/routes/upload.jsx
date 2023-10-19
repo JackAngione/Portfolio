@@ -3,6 +3,7 @@ import './upload.css'
 import axios from 'axios'
 import CreatableSelect from "react-select/creatable";
 import {serverAddress} from "./serverInfo.jsx";
+import Cookies from 'js-cookie';
 import Select from "react-select";
 
 function Upload() {
@@ -70,7 +71,12 @@ function Upload() {
         if(submitFlag === true)
         {
             let inputs = {"title": inputTitle, "description": inputDesc, "source": inputSource, "category": inputCategory, "subCategories": inputSubCategories, "keywords": inputKeywords}
-            axios.post(serverAddress + "/upload", inputs)
+            const token = Cookies.get('LoginToken');  // Get JWT from cookies
+            axios.post(serverAddress + "/upload", inputs, {
+                headers: {
+                    authorization: `Bearer ${token}`,  // Pass JWT in Authorization header
+                }
+            })
                 .then(({response}) => {
                     //console.log(response.data)
                 })

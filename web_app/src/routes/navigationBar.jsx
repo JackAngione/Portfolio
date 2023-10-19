@@ -2,10 +2,13 @@ import {Link, Outlet, useLocation} from "react-router-dom";
 import "./navigationBar.css"
 import {useEffect, useState} from "react";
 import BackgroundAnim from "./backgroundAnimation.jsx";
+import Cookies from 'js-cookie';
 //BASICALLY THE NAVIGATION BAR
 export default function NavigationBar() {
     const location = useLocation();
     const [navClassName, setNavClassName] = useState("navigation")
+    //const [token, setToken] = useState()
+    const token = Cookies.get("LoginToken")
         //THEATER MODE, FOR PHOTOGRAPHY PAGE
     useEffect(() => {
         // Check if we're on the special page
@@ -17,6 +20,14 @@ export default function NavigationBar() {
             setNavClassName("navigation")
         }
     }, [location]);
+    useEffect(() => {
+        try {
+            //setToken(Cookies.get("LoginToken"))
+        }
+        catch (e) {
+            console.log("no token")
+        }
+    }, []);
     return (
         <>
             { useLocation().pathname==="/" && <BackgroundAnim/>}
@@ -36,10 +47,11 @@ export default function NavigationBar() {
                     |
                     <div className="navDropdown">
                         <Link className ="mainDropdownResources" to="/resources">RESOURCES</Link>
-                        <div className="dropDownList">
+                        {token ? (<div className="dropDownList">
                             <Link to="/upload">UPLOAD TUTORIAL</Link>
                             <Link to="/category">CATEGORY</Link>
-                        </div>
+                        </div>): (<></> ) }
+
                     </div>
                 </nav>
 

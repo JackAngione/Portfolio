@@ -1,8 +1,10 @@
 const {connectionString} = require("./mongoDBconnection")
 const { MongoClient } = require('mongodb');
-
+const jwt = require('jsonwebtoken');
 const client = new MongoClient(connectionString)
-
+const {JWT_Key} = require("./mongoDBconnection")
+const crypto = require("crypto");
+const moment = require('moment');
 //INSERT CATEGORY INTO DATABASE
 async function createCategory(newCategory)
 {
@@ -108,19 +110,76 @@ async function deleteTutorial(tutorialInfo)
 async function login(loginInfo)
 {
     const collection = client.db("KNOWLEDGE").collection("users")
+    const hashed_password = sha256Hash(loginInfo.password)
     console.log(loginInfo.username)
     console.log(loginInfo.password)
-    const user = await collection.findOne({username: loginInfo.username, password: loginInfo.password})
+    const user = await collection.findOne({username: loginInfo.username, password: hashed_password})
     if(user)
-    {
-        return 200
-    }
+    { return 200 }
     else
-    {
-        return 401
-    }
+    { return 401 }
 }
 
+function sha256Hash(input) {
+    const hash = crypto.createHash('sha256');
+    hash.update(input);
+    return hash.digest('hex');
+}
+//checks if token is valid and not blacklisted
+async function verify_token(token)
+{
+    //verifies the token against the secret key
+    try {
+        //console.log("JWT TOKEN IS: " + token)
+        const verified = jwt.verify(token, JWT_Key)
+        /*
+        const currentTime = Math.floor(Date.now() / 1000); // Get current time in seconds
 
+        //Calculate time left in seconds
+        const timeLeft = verified.exp - currentTime;
+        if (timeLeft > 0) {
+            console.log("Token will expire in: ", timeLeft, " seconds.");
+            console.log("Token will expire in: ", Math.floor(timeLeft / 60), " minutes.");
+            console.log("Token will expire in: ", Math.floor(timeLeft / 60 / 60), " hours.");
+        } else {
+            console.log("Token has expired.");
+        }
 
-module.exports = {searchTutorials, uploadTutorial, deleteTutorial, editTutorial, getAllCategories, createCategory, editCategory, deleteCategory, login}
+        */
+        //console.log('JWT will expire at: ', new Date(verified.exp * 1000));
+
+        //check if token is blacklisted
+        const blt_collection = client.db("KNOWLEDGE").collection("BLACKLISTED_TOKENS")
+        const blacklisted_token = await blt_collection.findOne({
+            "token": token
+        })
+        //console.log("token is valid!")
+        return !blacklisted_token && verified;
+    }
+    catch (e) {
+        //console.log("token is not valid")
+        return false
+    }
+}
+async function logout(token)
+{
+    let decoded_token = jwt.decode(token)
+    let expirationDate = moment.unix(decoded_token.exp).utc()
+    // You can format the date however you like
+    expirationDate = expirationDate.format('YYYY-MM-DD, HH:mm:ss');
+
+    try {
+        //BLACKLISTED TOKENS COLLECTION
+        const blt_collection = client.db("mediaPlatform").collection("blacklisted_tokens")
+        //blacklists the token by inserting it into the blacklisted database
+        await blt_collection.insertOne({
+            "token": token,
+            "expiration": expirationDate
+        })
+        return 200
+    } catch (e) {
+        //there was a server/database error logging out
+        return 500
+    }
+}
+module.exports = {logout, verify_token, searchTutorials, uploadTutorial, deleteTutorial, editTutorial, getAllCategories, createCategory, editCategory, deleteCategory, login}

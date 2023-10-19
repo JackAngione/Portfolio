@@ -7,7 +7,10 @@ import EditModal from "./modals/editModal.jsx";
 import DeleteModal from "./modals/deleteModal.jsx";
 import trashIcon from "../svgIcons/trashIcon.svg";
 import {Link} from "react-router-dom";
+import Cookies from "js-cookie";
 function ResourcesPage() {
+    const token = Cookies.get("LoginToken")
+
     //THE USER'S SEARCH QUERY
     const [searchText, updateSearchText] = useState("")
     //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (in json format)
@@ -133,22 +136,24 @@ function ResourcesPage() {
                         <p id="searchResultDesc">{result.description}</p>
 
                     </a>
+
                           {
                               //EDIT and DELETE TUTORIAL BUTTON
                           }
-                          <button onClick={() =>{
-                              setTutorialToEdit(result)
-                              setOpenEditModal(!openEditModal)
-                          }}>
-                              EDIT
-                          </button>
+                          {token ? ( <><button onClick={() =>{
+                          setTutorialToEdit(result)
+                          setOpenEditModal(!openEditModal)
+                      }}>
+                          EDIT
+                      </button>
 
                           <button onClick={() =>{
                               setTutorialToEdit(result)
                               setOpenDeleteModal(!openDeleteModal)
                           }}>
                               <img className="SVG_icon" src={trashIcon} alt="removeIcon"/>
-                          </button>
+                          </button> </>) : (<></>)}
+
                       </div>
                   </li>
                 )

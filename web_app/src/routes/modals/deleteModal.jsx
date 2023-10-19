@@ -3,6 +3,7 @@ import {useEffect, useState} from 'react'
 import axios from "axios";
 import {serverAddress} from "../serverInfo.jsx";
 import trashIcon from "../../svgIcons/trashIcon.svg";
+import Cookies from 'js-cookie';
 function DeleteModal(props) {
     const [isChecked, setIsChecked] = useState(false);
 
@@ -16,8 +17,11 @@ function DeleteModal(props) {
             "title": props.tutorialData.title,
             "source": props.tutorialData.source
         }
-
-        axios.post(serverAddress + "/deleteTutorial", inputs)
+        const token = Cookies.get('LoginToken');  // Get JWT from cookies
+        axios.post(serverAddress + "/deleteTutorial", inputs, {
+            headers: {
+                authorization: `Bearer ${token}`,  // Pass JWT in Authorization header
+            }})
             .then(({response}) => {
                 //console.log(response.data)
             })

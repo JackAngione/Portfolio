@@ -4,6 +4,7 @@ import CreatableSelect from "react-select/creatable";
 import axios from "axios";
 import {serverAddress} from "../serverInfo.jsx";
 import "../editTutorial.css"
+import Cookies from 'js-cookie';
 function EditModal(props) {
     //KEEP THE OLD TITLE AND SOURCE
     const [oldTitle, setOldTitle] = useState("")
@@ -40,8 +41,14 @@ function EditModal(props) {
                 "source": inputSource,
                 "category": inputCategory,
                 "subCategories": inputSubCategories,
-                "keywords": inputKeywords}
-            axios.post(serverAddress + "/editTutorial", inputs)
+                "keywords": inputKeywords
+            }
+            const token = Cookies.get('LoginToken');  // Get JWT from cookies
+            axios.post(serverAddress + "/editTutorial", inputs, {
+                headers: {
+                    authorization: `Bearer ${token}`,  // Pass JWT in Authorization header
+                }
+            })
                 .then(({response}) => {
                     //console.log(response.data)
                 })

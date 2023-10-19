@@ -12,7 +12,12 @@ function DeleteCategoryModal(props) {
         let inputs = {
             "title": props.categoryData
         }
-        axios.post(serverAddress + "/deleteCategory", inputs)
+        const token = Cookies.get('LoginToken');  // Get JWT from cookies
+        axios.post(serverAddress + "/deleteCategory", inputs, {
+            headers: {
+                authorization: `Bearer ${token}`,  // Pass JWT in Authorization header
+            }
+        })
             .then(({response}) => {
                 //console.log(response.data)
             })
