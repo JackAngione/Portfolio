@@ -18,7 +18,10 @@ function CodeProjects() {
                             Interactively view all possible combinations of the artwork components
                         </li>
                         <li>
-                            Buy NFT
+                            Randomly generate a look
+                        </li>
+                        <li>
+                            Link to buy NFT
                         </li>
                     </ul>
                 </div>
@@ -33,6 +36,26 @@ function CodeProjects() {
                         </li>
                         <li>
                             Intuitive interface for controlling music playback, including notification controls for background playback
+                        </li>
+                    </ul>
+                </div>
+
+                <div className="project">
+                    <h1><a href={"https://github.com/JackAngione/Media-Platform"} >"Media Platform"</a></h1>
+                    <h4> Platform for uploading/downloading artistic media</h4>
+                    <p> Users can upload and view the content of others on the platform</p>
+                    <p> Video, audio, or imagery can be uploaded</p>
+                    <p> Users can download another users upload at the full original quality </p>
+                    <h4>Features</h4>
+                    <ul>
+                        <li>
+                            File server for storing the platform's media
+                        </li>
+                        <li>
+                            Create an account or view other users
+                        </li>
+                        <li>
+                            Upload/Download content to your device
                         </li>
                     </ul>
                 </div>
@@ -56,6 +79,8 @@ function CodeProjects() {
                     </ul>
                     <p></p>
                 </div>
+
+
             </div>
 
         </>

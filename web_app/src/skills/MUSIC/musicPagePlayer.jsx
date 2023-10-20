@@ -148,34 +148,37 @@ function MusicPagePlayer() {
                     songs.map((song, index) =>
                         <ul>
                             <li key={index}>
-                                <h2>{`${song.url}`}</h2>
-                                <button onClick={() => playPause(index)}>{song.playing ? 'Pause' : 'Play'}</button>
-                                <input className="musicSlider" type='range'
-                                       min={0}
-                                       max={1}
-                                       step='any'
-                                       value={volumeSliders[index]}
-                                       onChange={(e) =>changeVolume(e, index)} />
-                                {song.currentTime}
-                                <input className="musicSlider" type='range'
-                                       min={0}
-                                       max={1}
-                                       step='.01'
-                                       value={songs[index].position}
-                                       onMouseDown={(e) => handleSeekMouseDown(e, index)}
-                                       onChange={(e) => handleSeekChange(e, index)}
-                                       onMouseUp={(e) => handleSeekMouseUp(e, index)}
-                                />
-                                {song.duration}
-                                <ReactPlayer
-                                    url={song.url}
-                                    height="0%"
-                                    ref={players.current[index]}
-                                    playing={song.playing}
-                                    volume={song.volume}
-                                    onDuration={(duration) => handleDuration(duration, index)}
-                                    onProgress={(progress) => handleProgress(progress, index)}
-                                />
+                                <h2>{`${song.url.substring(19)}`}</h2>
+                                <div className="songControls">
+                                    <button onClick={() => playPause(index)}>{song.playing ? 'Pause' : 'Play'}</button>
+                                    <input className="musicSlider" type='range'
+                                           min={0}
+                                           max={1}
+                                           step='any'
+                                           value={volumeSliders[index]}
+                                           onChange={(e) =>changeVolume(e, index)} />
+                                    {song.currentTime}
+                                    <input className="musicSlider" type='range'
+                                           min={0}
+                                           max={1}
+                                           step='.01'
+                                           value={songs[index].position}
+                                           onMouseDown={(e) => handleSeekMouseDown(e, index)}
+                                           onChange={(e) => handleSeekChange(e, index)}
+                                           onMouseUp={(e) => handleSeekMouseUp(e, index)}
+                                    />
+                                    {song.duration}
+                                    <ReactPlayer
+                                        url={song.url}
+                                        height="0%"
+                                        ref={players.current[index]}
+                                        playing={song.playing}
+                                        volume={song.volume}
+                                        onDuration={(duration) => handleDuration(duration, index)}
+                                        onProgress={(progress) => handleProgress(progress, index)}
+                                    />
+                                </div>
+
                             </li>
                         </ul>
 
