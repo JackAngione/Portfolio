@@ -134,7 +134,6 @@ function ResourcesPage() {
 
                         <p id="searchResultTitle">{result.title}</p>
                         <p id="searchResultDesc">{result.description}</p>
-
                     </a>
 
                           {

@@ -3,7 +3,7 @@ const cors = require('cors');
 const db = require("./mongoDBaccess.js")
 const jwt = require('jsonwebtoken');
 const expressJwt = require('express-jwt');
-const { JWT_Key } = require("./mongoDBconnection")
+const { JWT_Key } = require("./secret_keys")
 
 const port = 3000
 const app = express()
@@ -79,8 +79,6 @@ app.post("/editTutorial", async(req, res) => {
     {
         res.status(401).send()
     }
-
-
 })
 //create Category
 app.post("/createCategory", async(req, res) => {

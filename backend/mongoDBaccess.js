@@ -1,10 +1,31 @@
-const {connectionString} = require("./mongoDBconnection")
+const {connectionString} = require("./secret_keys")
 const { MongoClient } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const client = new MongoClient(connectionString)
-const {JWT_Key} = require("./mongoDBconnection")
+const {JWT_Key} = require("./secret_keys")
 const crypto = require("crypto");
 const moment = require('moment');
+const meiliSearch = require("./searchServer")
+//GENERATE resourceID for a new resource
+async function generateResourceID() {
+    const userCollection = client.db("KNOWLEDGE").collection("tutorials")
+    let resource_id = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+    const charactersLength = characters.length;
+    let repeatCheck = 1
+    while(repeatCheck > 0)
+    {
+        resource_id = ""
+        for (let i = 0; i < 7; i++) {
+            resource_id += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        repeatCheck = await userCollection.countDocuments({resource_id: resource_id})
+        console.log("repeat check" + repeatCheck)
+    }
+    return resource_id
+}
+
+
 //INSERT CATEGORY INTO DATABASE
 async function createCategory(newCategory)
 {
@@ -82,7 +103,20 @@ async function getAllCategories()
 async function uploadTutorial(tutorialInfo)
 {
     const collection = client.db("KNOWLEDGE").collection("tutorials")
-    await collection.insertOne(tutorialInfo)
+
+    const resource_id = await generateResourceID()
+    tutorialInfo.resource_id = resource_id
+    try{
+        //ADD RESOURCE TO MONGODB
+        await collection.insertOne(tutorialInfo)
+
+        //ADD TO MEILISEARCH
+        await meiliSearch.addResource(tutorialInfo)
+    }
+    catch (e) {
+        //TODO REMOVE BOTH FROM THE DATABASES IF ONE FAILS
+    }
+
     console.log("INSERTED!")
 }
 //edit a tutorial
@@ -103,7 +137,14 @@ async function editTutorial(newTutorial)
 async function deleteTutorial(tutorialInfo)
 {
     const collection = client.db("KNOWLEDGE").collection("tutorials")
-    await collection.deleteOne({title: tutorialInfo.title, source: tutorialInfo.source})
+    try{
+        await collection.deleteOne({title: tutorialInfo.title, source: tutorialInfo.source})
+        await meiliSearch.deleteResource(tutorialInfo.resource_id)
+    }
+    catch (e) {
+
+    }
+
     console.log("deleted!")
 }
 

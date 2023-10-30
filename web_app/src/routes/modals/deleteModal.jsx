@@ -15,7 +15,8 @@ function DeleteModal(props) {
     {
         let inputs = {
             "title": props.tutorialData.title,
-            "source": props.tutorialData.source
+            "source": props.tutorialData.source,
+            "resource_id": props.tutorialData.resource_id
         }
         const token = Cookies.get('LoginToken');  // Get JWT from cookies
         axios.post(serverAddress + "/deleteTutorial", inputs, {
