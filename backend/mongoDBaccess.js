@@ -130,9 +130,12 @@ async function editTutorial(newTutorial)
         source: newTutorial.source,
         category: newTutorial.category,
         subCategories: newTutorial.subCategories,
-        keywords: newTutorial.keywords
+        keywords: newTutorial.keywords,
+        resource_id: newTutorial.resource_id
+
     }
     await collection.replaceOne({title: newTutorial.oldTitle, source: newTutorial.oldSource}, updateJSON);
+    await meiliSearch.updateResource(updateJSON)
 }
 async function deleteTutorial(tutorialInfo)
 {

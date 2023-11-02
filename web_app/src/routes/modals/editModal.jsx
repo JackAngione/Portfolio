@@ -14,6 +14,7 @@ function EditModal(props) {
     const [inputDesc, setInputDesc] = useState("")
     const [inputSource, setInputSource] = useState("")
     const [inputKeywords, setInputKeywords] = useState([])
+    const [resource_id, setResource_id] = useState("")
     //REACT SELECT KEYWORDS
     const [inputValue, setInputValue] = useState("")
     const [reactKeywords, setReactKeywords] = useState([])
@@ -41,7 +42,8 @@ function EditModal(props) {
                 "source": inputSource,
                 "category": inputCategory,
                 "subCategories": inputSubCategories,
-                "keywords": inputKeywords
+                "keywords": inputKeywords,
+                "resource_id": resource_id
             }
             const token = Cookies.get('LoginToken');  // Get JWT from cookies
             axios.post(serverAddress + "/editTutorial", inputs, {
@@ -68,6 +70,7 @@ function EditModal(props) {
             setInputSource(props.tutorialData.source)
             setInputKeywords(props.tutorialData.keywords)
             setInputCategory(props.tutorialData.category)
+            setResource_id(props.tutorialData.resource_id)
             //init subcategories
             let tempSubCategories = []
             if(props.tutorialData.subCategories != null && props.tutorialData.subCategories.length > 0)
@@ -194,7 +197,7 @@ if(!props.open)
             <div className="overlay">
                 <div className="modalContent">
                     <h1 id="editingTitle"> Editing Tutorial </h1>
-
+                    <p>Resource_ID: {props.tutorialData.resource_id}</p>
                     {props.tutorialData.title}
                     <form onSubmit={submitUpload} id="editForm">
                         <label>Enter Title:
