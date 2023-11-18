@@ -1,4 +1,7 @@
 [{
+  "_id": {
+    "$oid": "6465d94bd31525dff70a3794"
+  },
   "title": "How to Master Loud without Distortion and sound GOOD",
   "description": "remove distortion from master",
   "source": "https://www.youtube.com/watch?v=zYyaS_0CkGk&list=PLE7fbSYfzRjAiqFidWInBUbLCUlK7xRVT",
@@ -14,6 +17,9 @@
   "resource_id": "fsDSB_T"
 },
 {
+  "_id": {
+    "$oid": "6469851fb22c614e46f3a99d"
+  },
   "title": "CIVITAI",
   "description": "website for stable diffusion models",
   "source": "https://civitai.com/",
@@ -32,6 +38,9 @@
   "resource_id": "HIIKDnD"
 },
 {
+  "_id": {
+    "$oid": "648552219af11a84d2146788"
+  },
   "title": "Express Hello World Example",
   "description": "startup express server",
   "source": "https://expressjs.com/en/starter/hello-world.html",
@@ -49,6 +58,9 @@
   "resource_id": "gd_GFDS"
 },
 {
+  "_id": {
+    "$oid": "648ea506d74ae5d55bb5fabb"
+  },
   "title": "Install Xformers",
   "description": "install xformers for stable diffusion. Provides performance improvment.",
   "source": "https://www.youtube.com/watch?v=ZVqalCax6MA",
@@ -62,6 +74,9 @@
   "resource_id": "NTNRIsD"
 },
 {
+  "_id": {
+    "$oid": "648fccc65d30349c28798f80"
+  },
   "title": "React Router Youtube Tutorial",
   "description": "Boiler plate code for setting up react router with navbar",
   "source": "https://www.youtube.com/watch?v=Ul3y1LXxzdU&t=834s",
@@ -78,6 +93,9 @@
   "resource_id": "rrrtttt"
 },
 {
+  "_id": {
+    "$oid": "648fd5fe0f848bc5a9fe9f49"
+  },
   "title": "Coloors",
   "description": "color pallet generator",
   "source": "https://coolors.co/",
@@ -92,6 +110,9 @@
   "resource_id": "bdfsfGG"
 },
 {
+  "_id": {
+    "$oid": "64965c8b56f3370c1e1f98bf"
+  },
   "title": "MongoDB Text Search",
   "description": "search text in mongodb database",
   "source": "https://dev.to/sagnikbanerjeesb/partial-text-search-on-mongo-46j3",
@@ -106,6 +127,9 @@
   "resource_id": "ZnGNIDD"
 },
 {
+  "_id": {
+    "$oid": "649a216435c0d33d5cb15e69"
+  },
   "title": "Background React Component",
   "description": "how to put any react component in the background of another component",
   "source": "https://youtu.be/LSRNmhLS76o",
@@ -122,15 +146,9 @@
   "resource_id": "dfFDS_T"
 },
 {
-  "title": "ADMIn",
-  "description": "admin",
-  "source": "test.com",
-  "category": "",
-  "subCategories": [],
-  "keywords": [],
-  "resource_id": "gdertGD"
-},
-{
+  "_id": {
+    "$oid": "65319a0fcb6cacadfbe1cc28"
+  },
   "title": "Deploy a React Application with Nginx on Ubuntu",
   "description": "How To Deploy a React Application with Nginx on Ubuntu",
   "source": "https://www.digitalocean.com/community/tutorials/how-to-deploy-a-react-application-with-nginx-on-ubuntu-20-04",
@@ -149,6 +167,9 @@
   "resource_id": "tt_dsdF"
 },
 {
+  "_id": {
+    "$oid": "65319ab1cb6cacadfbe1cc29"
+  },
   "title": "OSINT DOJO",
   "description": "Resources for intelligence gathering, hacking",
   "source": "https://www.osintdojo.com/resources/",
@@ -161,14 +182,25 @@
     "resources",
     "tracking"
   ],
-  "resource_id": "dsIfEQW"
+  "resource_id": "yYgdReE"
 },
 {
-  "title": "resrouceprinttest",
-  "description": "asdfa",
-  "source": "printtest,com",
-  "category": "",
-  "subCategories": [],
-  "keywords": [],
-  "resource_id": "la-GFVz"
+  "_id": {
+    "$oid": "65442b8b6334970460a5e139"
+  },
+  "title": "React Instant Search",
+  "description": "Instant Search Box for React\nCan be used with Meilisearch",
+  "source": "https://www.algolia.com/doc/guides/building-search-ui/what-is-instantsearch/react/",
+  "category": "Coding",
+  "subCategories": [
+    "React",
+    "Database"
+  ],
+  "keywords": [
+    "search",
+    "meilisearch",
+    "searchbox",
+    "list"
+  ],
+  "resource_id": "ZbQXxKE"
 }]

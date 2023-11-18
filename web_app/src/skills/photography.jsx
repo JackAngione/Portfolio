@@ -6,7 +6,7 @@ import AfterEffectsLogo from "./softwareLogos/after-effects-1.svg"
 import LightroomLogo from "./softwareLogos/Lightroom_logo.svg"
 import PremiereProLogo from "./softwareLogos/premiere-pro-cc.svg"
 import {useEffect, useState} from "react";
-import {flickrKey} from "../API_Keys.jsx";
+import {flickrKey} from "../API_Keys"
 function Photography() {
     const [photos, setPhotos] = useState([]);
 

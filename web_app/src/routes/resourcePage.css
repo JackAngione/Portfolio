@@ -4,9 +4,8 @@
   text-align: center;
 }
 
-#searchResultList
+.searchResults ul
 {
-  padding: 100px;
   list-style: none;
 }
 
@@ -17,6 +16,7 @@
   padding: 20px;
   position: relative;
   left: 100px;
+  list-style: none;
 }
 #singleSearchResult button
 {

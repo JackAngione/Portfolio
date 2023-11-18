@@ -31,7 +31,7 @@ export default function NavigationBar() {
     return (
         <>
             { useLocation().pathname==="/" && <BackgroundAnim/>}
-                <nav class={navClassName}>
+                <nav className={navClassName}>
                     <div className="navDropdown">
                         <Link className ="mainDropdown" >Skills</Link>
                         <div className="dropDownList">

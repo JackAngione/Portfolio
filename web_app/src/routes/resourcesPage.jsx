@@ -1,13 +1,16 @@
 import {useEffect, useState} from 'react'
 import './resourcePage.css'
 import axios from 'axios'
-import Select from 'react-select'
 import {serverAddress} from "./serverInfo.jsx";
 import EditModal from "./modals/editModal.jsx";
 import DeleteModal from "./modals/deleteModal.jsx";
 import trashIcon from "../svgIcons/trashIcon.svg";
-import {Link} from "react-router-dom";
 import Cookies from "js-cookie";
+import {meiliSearch_Search_Key} from "../API_Keys"
+import {searchServer} from "./serverInfo.jsx";
+import {InstantSearch, SearchBox, Hits, Highlight, RefinementList, HierarchicalMenu} from 'react-instantsearch';
+
+import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
 function ResourcesPage() {
     const token = Cookies.get("LoginToken")
 
@@ -20,18 +23,47 @@ function ResourcesPage() {
     //WHICH CATEGORIES THE USER IS FILTERING BY
     const [chosenCategories, setChosenCategory] = useState([])
     //SEARCH RESULTS ARE AN ARRAY OF MONGODB DOCUMENTS IN JSON FORMAT
-    const [searchresults, setSearchResults] = useState([])
 
     //EDITOR MODAL
     const [openEditModal, setOpenEditModal] = useState(false)
     const [openDeleteModal, setOpenDeleteModal] = useState(false)
     const [tutorialToEdit, setTutorialToEdit] = useState()
 
+    const searchClient = instantMeiliSearch(
+        searchServer,
+        meiliSearch_Search_Key,
+        {placeholderSearch: false}
+    );
+    const Hit = ({ hit }) => {
+        //hit is basically a json object of the meilisearch document
+        //when clicking on a resource, go to it's source page
+        return(
+            <>
+                <button
+                    onClick={()=>{window.open(`${hit.source}`)}}>
 
-    //GET ALL CATEGORIES ON PAGE LOAD
-    useEffect(() =>{
-        getCategories()
-    }, [])
+                   <h2> <Highlight attribute="title" hit={hit}/> </h2>
+                    <p>{`${hit.description}`}</p>
+                </button>
+                {
+                    //EDIT and DELETE TUTORIAL BUTTON
+                }
+                {token ? ( <><button onClick={() =>{
+                    setTutorialToEdit(hit)
+                    setOpenEditModal(!openEditModal)
+                }}>
+                    EDIT
+                </button>
+                    <button onClick={() =>{
+                        setTutorialToEdit(hit)
+                        setOpenDeleteModal(!openDeleteModal)
+                    }}>
+                        <img className="SVG_icon" src={trashIcon} alt="removeIcon"/>
+                    </button> </>) : (<></>)}
+            </>
+        )
+    };
+
     const handleCategoryChoice = (event) => {
         //event is an array of all the categories chosen
         let tempChosen = []
@@ -43,18 +75,7 @@ function ResourcesPage() {
         console.log("TEMPCHOSEN: " + tempChosen)
         console.log("chosen: " + chosenCategories)
     };
-  const handleSearchChange = (event) =>
-  {
-      updateSearchText(event.target.value);
-  }
-  const handleKeyPress = (event) => {
 
-      if (event.key === 'Enter') {
-          event.preventDefault();
-      searchDatabase(searchText)
-    }
-      //
-  };
   function getCategories()
   {
     axios.get(serverAddress+"/categories")
@@ -70,125 +91,68 @@ function ResourcesPage() {
             console.log(categoryTitles)
         })
   }
-  //send search query to database and get results
-    function searchDatabase(searchQuery)
-    {
-        //user is trying to make a search with no categories and no query
-        if(searchQuery ==="" && chosenCategories.length===0)
-        {
-            console.log("INVALID SEARCH!!!yyyooouuuu")
-        }
-        else
-        {
-            let encodedSearch = encodeURIComponent(searchQuery)
-            axios.get(serverAddress+"/search", {
-                params: {
-                    searchQuery: encodedSearch,
-                    categories: chosenCategories
-                }
-            })
-                .then(function (response) {
-                    setSearchResults(response.data)
-                    console.log(searchresults)
-                })
-        }
-
-    }
-    //TEST TO SHOW CATEGORIES
-    function DisplayCategories()
+    function DisplaySearchResults()
     {
         return (
             <>
-                <ul id="">
+                <ul id="searchResultList">
                     {
-                        categories.map((result, index) =>
+                        searchresults.map((result, index) =>
                             <li key={index}>
-                                {JSON.stringify(result)}
+                                <div id="singleSearchResult">
+                                    <a href={result.source} target="_blank" rel="noopener noreferrer">
+                                        <p id="searchResultTitle">{result.title}</p>
+                                        <p id="searchResultDesc">{result.description}</p>
+                                    </a>
+                                    {
+                                        //EDIT and DELETE TUTORIAL BUTTON
+                                    }
+                                    {token ? ( <><button onClick={() =>{
+                                        setTutorialToEdit(result)
+                                        setOpenEditModal(!openEditModal)
+                                    }}>
+                                        EDIT
+                                    </button>
+                                        <button onClick={() =>{
+                                            setTutorialToEdit(result)
+                                            setOpenDeleteModal(!openDeleteModal)
+                                        }}>
+                                            <img className="SVG_icon" src={trashIcon} alt="removeIcon"/>
+                                        </button> </>) : (<></>)}
+                                </div>
                             </li>
                         )
                     }
                 </ul>
-                {<ul id="">
-                    {
-                        chosenCategories.map((result, index) =>
-                            <li key={index}>
-                                {result}
-                            </li>
-                        )
-                    }
-                </ul>}
+                <EditModal open = {openEditModal} categories = {categories} tutorialData = {tutorialToEdit} onClose={()=> setOpenEditModal(!openEditModal)}/>
+                <DeleteModal open = {openDeleteModal} tutorialData = {tutorialToEdit} onClose={()=> setOpenDeleteModal(!openDeleteModal)}/>
             </>
         )
     }
-    //SHOW THE SEARCH RESULTS
-  function DisplaySearchResults()
-  {
-    return (
-        <>
-            <ul id="searchResultList">
-              {
-                searchresults.map((result, index) =>
-                  <li key={index}>
-                      <div id="singleSearchResult">
-                    <a href={result.source} target="_blank" rel="noopener noreferrer">
 
-                        <p id="searchResultTitle">{result.title}</p>
-                        <p id="searchResultDesc">{result.description}</p>
-                    </a>
 
-                          {
-                              //EDIT and DELETE TUTORIAL BUTTON
-                          }
-                          {token ? ( <><button onClick={() =>{
-                          setTutorialToEdit(result)
-                          setOpenEditModal(!openEditModal)
-                      }}>
-                          EDIT
-                      </button>
-
-                          <button onClick={() =>{
-                              setTutorialToEdit(result)
-                              setOpenDeleteModal(!openDeleteModal)
-                          }}>
-                              <img className="SVG_icon" src={trashIcon} alt="removeIcon"/>
-                          </button> </>) : (<></>)}
-
-                      </div>
-                  </li>
-                )
-              }
-            </ul>
-            <EditModal open = {openEditModal} categories = {categories} tutorialData = {tutorialToEdit} onClose={()=> setOpenEditModal(!openEditModal)}/>
-            <DeleteModal open = {openDeleteModal} tutorialData = {tutorialToEdit} onClose={()=> setOpenDeleteModal(!openDeleteModal)}/>
-
-        </>
-    )
-  }
   return (
     <>
     <h1>RESOURCES</h1>
 
-        <Select
-            isMulti
-            onChange={(event) => handleCategoryChoice(event)}
-            options={categoryTitles}
-        />
+        <div className = "searchResults">
+            <InstantSearch
+                indexName="resources"
+                searchClient={searchClient}
+            >
+                {/*<HierarchicalMenu
+                    attributes={[
+                        'category',
+                        'subCategories'
+                    ]}
+                />*/}
+                <RefinementList className="categoryRefinementList" attribute="category"/>
+                <RefinementList className="subCategoriesRefinementList"attribute="subCategories"/>
 
-    <input
-        type= "text"
-        value = {searchText}
-        onChange = {handleSearchChange}
-        onKeyDown={handleKeyPress}
-    />
-    {
-        searchresults.length !== 0 &&
-        <DisplaySearchResults/>
-    }
-    {/*
-        //FORDEBUGGING
-        <DisplayCategories/>
-       */
-    }
+                <SearchBox/>
+                <Hits hitComponent= {Hit} />
+            </InstantSearch>
+        </div>
 
     </>
   )
