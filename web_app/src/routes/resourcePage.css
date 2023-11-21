@@ -4,20 +4,7 @@
   text-align: center;
 }
 
-.searchResults ul
-{
-  list-style: none;
-}
 
-#singleSearchResult
-{
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-  position: relative;
-  left: 100px;
-  list-style: none;
-}
 #singleSearchResult button
 {
   scale: 60%;
@@ -34,4 +21,48 @@
 .SVG_icon
 {
   width: 25px;
+}
+.categoryRefinementList
+{
+  text-align: left;
+
+}
+.categoryRefinementList ul
+{
+  list-style: none;
+  text-align: left;
+
+}
+.instantSearch
+{
+  display: flex;
+  justify-content: flex-start;
+  position: absolute; /* or fixed if you want it to stay in place even when scrolling */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+ 
+}
+.searchResults
+{
+  width: 800px;
+  /*outline: 2px solid green;*/
+}
+.searchResults ol
+{
+  list-style: none;
+  height: 50vh;
+  overflow-y: auto;
+  margin-left: -40px;
+
+  /* Hide scrollbar for IE, Edge, and Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.searchResults ol::-webkit-scrollbar
+{
+  /*
+  hides scroll bar in search resultsfor Chrome,Safari
+   */
+  display: none;
 }

@@ -8,7 +8,7 @@ import trashIcon from "../svgIcons/trashIcon.svg";
 import Cookies from "js-cookie";
 import {meiliSearch_Search_Key} from "../API_Keys"
 import {searchServer} from "./serverInfo.jsx";
-import {InstantSearch, SearchBox, Hits, Highlight, RefinementList, HierarchicalMenu} from 'react-instantsearch';
+import {InstantSearch, ClearRefinements, SearchBox, Hits, Highlight, RefinementList, HierarchicalMenu} from 'react-instantsearch';
 
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
 function ResourcesPage() {
@@ -38,7 +38,7 @@ function ResourcesPage() {
         //hit is basically a json object of the meilisearch document
         //when clicking on a resource, go to it's source page
         return(
-            <>
+            <div className="searchResults">
                 <button
                     onClick={()=>{window.open(`${hit.source}`)}}>
 
@@ -60,7 +60,7 @@ function ResourcesPage() {
                     }}>
                         <img className="SVG_icon" src={trashIcon} alt="removeIcon"/>
                     </button> </>) : (<></>)}
-            </>
+            </div>
         )
     };
 
@@ -135,8 +135,9 @@ function ResourcesPage() {
     <>
     <h1>RESOURCES</h1>
 
-        <div className = "searchResults">
+        <div className="instantSearch">
             <InstantSearch
+
                 indexName="resources"
                 searchClient={searchClient}
             >
@@ -146,11 +147,23 @@ function ResourcesPage() {
                         'subCategories'
                     ]}
                 />*/}
-                <RefinementList className="categoryRefinementList" attribute="category"/>
-                <RefinementList className="subCategoriesRefinementList"attribute="subCategories"/>
+                <div className="categoryRefinementList">
+                    <p>Category</p>
+                    <RefinementList
+                                    title="Category"
+                                    attribute="category"/>
+                    <p>SubCategories</p>
+                    <RefinementList
+                                    title="SubCategories"
+                                    attribute="subCategories"
+                    />
+                    <ClearRefinements title="CLEAR"/>
+                </div>
+                <div className="searchResults">
+                    <SearchBox />
+                    <Hits hitComponent= {Hit} />
+                </div>
 
-                <SearchBox/>
-                <Hits hitComponent= {Hit} />
             </InstantSearch>
         </div>
 
