@@ -5,6 +5,7 @@ import CreatableSelect from "react-select/creatable";
 import {serverAddress} from "./serverInfo.jsx";
 import Select from "react-select";
 import DeleteCategoryModal from "./modals/deleteCategoryModal.jsx";
+import Cookies from "js-cookie";
 
 function Category() {
     //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (in json format)
@@ -78,7 +79,12 @@ function Category() {
         if(submitCreateCategory === true)
         {
             const categoryFinal = {"title": categoryTitle, "subCategories": subCategories}
-            axios.post(serverAddress + "/createCategory", categoryFinal)
+            const token = Cookies.get('LoginToken');  // Get JWT from cookies
+            axios.post(serverAddress + "/createCategory", categoryFinal,{
+            headers: {
+                authorization: `Bearer ${token}`,  // Pass JWT in Authorization header
+            }
+        })
                 .then(({response}) => {
                     //console.log(response.data)
                 })
