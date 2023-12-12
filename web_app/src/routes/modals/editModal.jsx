@@ -196,7 +196,7 @@ if(!props.open)
         <>
             <div className="overlay">
                 <div className="modalContent">
-                    <h1 id="editingTitle"> Editing Tutorial </h1>
+                    <h1 id="editingTitle"> Edit Resource </h1>
                     <p>Resource_ID: {props.tutorialData.resource_id}</p>
                     {props.tutorialData.title}
                     <form onSubmit={submitUpload} id="editForm">
@@ -283,20 +283,9 @@ if(!props.open)
                             <button onClick={props.onClose}>Cancel</button>
                         </div>
                     </form>
-
-
-
-
-
-
                 </div>
-
             </div>
-
         </>
     )
-
-
-
 }
 export default EditModal

@@ -37,15 +37,17 @@
 {
   display: flex;
   justify-content: flex-start;
-  position: absolute; /* or fixed if you want it to stay in place even when scrolling */
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  width: 100%; /* Or any specific width */
+  margin-left: auto;
+  margin-right: auto;
 
 }
 .searchResults
 {
-  width: 800px;
+
+  width: 100%; /* Or any specific width */
+  margin-left: auto;
+  margin-right: auto;
   /*outline: 2px solid green;*/
 }
 .searchResults ol

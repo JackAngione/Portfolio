@@ -10,6 +10,11 @@ import {meiliSearch_Search_Key} from "../API_Keys"
 import {searchServer} from "./serverInfo.jsx";
 import {InstantSearch, ClearRefinements, SearchBox, Hits, Highlight, RefinementList, HierarchicalMenu} from 'react-instantsearch';
 
+const searchClient = instantMeiliSearch(
+    searchServer,
+    meiliSearch_Search_Key,
+    {placeholderSearch: false}
+);
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
 function ResourcesPage() {
     const token = Cookies.get("LoginToken")
@@ -29,11 +34,10 @@ function ResourcesPage() {
     const [openDeleteModal, setOpenDeleteModal] = useState(false)
     const [tutorialToEdit, setTutorialToEdit] = useState()
 
-    const searchClient = instantMeiliSearch(
-        searchServer,
-        meiliSearch_Search_Key,
-        {placeholderSearch: false}
-    );
+    //GET ALL CATEGORIES ON PAGE LOAD
+    useEffect(() =>{
+        getCategories()
+    }, [])
     const Hit = ({ hit }) => {
         //hit is basically a json object of the meilisearch document
         //when clicking on a resource, go to it's source page
@@ -49,17 +53,21 @@ function ResourcesPage() {
                     //EDIT and DELETE TUTORIAL BUTTON
                 }
                 {token ? ( <><button onClick={() =>{
+                    console.log(hit)
                     setTutorialToEdit(hit)
                     setOpenEditModal(!openEditModal)
                 }}>
                     EDIT
                 </button>
                     <button onClick={() =>{
+                        console.log("hitme!baby one more time")
                         setTutorialToEdit(hit)
                         setOpenDeleteModal(!openDeleteModal)
                     }}>
                         <img className="SVG_icon" src={trashIcon} alt="removeIcon"/>
                     </button> </>) : (<></>)}
+                <EditModal open = {openEditModal} categories = {categories} tutorialData = {tutorialToEdit} onClose={()=> setOpenEditModal(!openEditModal)}/>
+                <DeleteModal open = {openDeleteModal} tutorialData = {tutorialToEdit} onClose={()=> setOpenDeleteModal(!openDeleteModal)}/>
             </div>
         )
     };
@@ -124,8 +132,7 @@ function ResourcesPage() {
                         )
                     }
                 </ul>
-                <EditModal open = {openEditModal} categories = {categories} tutorialData = {tutorialToEdit} onClose={()=> setOpenEditModal(!openEditModal)}/>
-                <DeleteModal open = {openDeleteModal} tutorialData = {tutorialToEdit} onClose={()=> setOpenDeleteModal(!openDeleteModal)}/>
+
             </>
         )
     }
