@@ -117,7 +117,6 @@ function Upload() {
         return (
             <>
                 <ul id="">
-
                     {inputTitle}
                     {inputDesc}
                     {inputSubCategories}
@@ -206,7 +205,6 @@ function Upload() {
                     placeholder="Enter Keywords Here"
                     value={reactKeywords}
                 />
-
 
                 <input type="submit" />
             </form>

@@ -1,11 +1,21 @@
+----SETUP FRONTEND----
 1. "portfolio" file is the nginx configuration
 
-2. run "server_info_change" to switch the serverinfo file to production ip addresses
-
+2. run "server_info_change" to switch the serverinfo file to production ip addresses. COMMAND: "python3 server_info_change.py"
+2.5) run "npm install" if freshly downloaded the project
 3. run terminal command "npm run build" in the web_app folder to build the project
 
 4. run "production_files_move" which moves the production files from the project folder, to the nginx live site folder
+    COMMAND: python3 production_files_move.py
+
+5. Restart NGINX server, COMMAND: sudo systemctl restart nginx
 
 ----START BACKEND SERVERS-----
 1. run "pm2 start server.js" to run general backend
-2. run promted commands to rerun on machine restart
+2. run "pm2 start searchServer.js" to run MeiliSearch Server
+3. run prompted commands to rerun on machine restart
+
+
+------TroubleShooting Tips------
+Make sure public IP didn't change and mess up domain link
+Make sure server local IP didn't change which removes port forward

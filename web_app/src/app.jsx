@@ -8,13 +8,11 @@ import Music from "./skills/MUSIC/music.jsx";
 import ResourcesPage from "./routes/resourcesPage.jsx";
 import Upload from "./routes/upload.jsx";
 import Category from "./routes/category.jsx";
-
 import "./app.css"
-import BackgroundAnim from "./routes/backgroundAnimation.jsx";
+
 function App() {
     return (
         <>
-
                 <BrowserRouter>
                     <NavigationBar />
                         <Routes>
@@ -27,8 +25,6 @@ function App() {
                             <Route path ="/category" element={<Category/>} />
                         </Routes>
                 </BrowserRouter>
-
-
         </>
     )
 }

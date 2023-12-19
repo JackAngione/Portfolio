@@ -137,7 +137,6 @@ function ResourcesPage() {
         )
     }
 
-
   return (
     <>
     <h1>RESOURCES</h1>
@@ -148,21 +147,15 @@ function ResourcesPage() {
                 indexName="resources"
                 searchClient={searchClient}
             >
-                {/*<HierarchicalMenu
-                    attributes={[
-                        'category',
-                        'subCategories'
-                    ]}
-                />*/}
                 <div className="categoryRefinementList">
                     <p>Category</p>
                     <RefinementList
-                                    title="Category"
-                                    attribute="category"/>
+                        title="Category"
+                        attribute="category"/>
                     <p>SubCategories</p>
                     <RefinementList
-                                    title="SubCategories"
-                                    attribute="subCategories"
+                        title="SubCategories"
+                        attribute="subCategories"
                     />
                     <ClearRefinements title="CLEAR"/>
                 </div>
@@ -170,12 +163,9 @@ function ResourcesPage() {
                     <SearchBox />
                     <Hits hitComponent= {Hit} />
                 </div>
-
             </InstantSearch>
         </div>
-
     </>
   )
 }
-
 export default ResourcesPage
