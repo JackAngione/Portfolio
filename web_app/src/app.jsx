@@ -23,6 +23,7 @@ function App() {
                             <Route path ="/resources" element={<ResourcesPage/>} />
                             <Route path ="/upload" element={<Upload/>} />
                             <Route path ="/category" element={<Category/>} />
+
                         </Routes>
                 </BrowserRouter>
         </>
