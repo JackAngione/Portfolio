@@ -1,8 +1,10 @@
 ----SETUP FRONTEND----
-1. "portfolio" file is the nginx configuration
+1. "portfolio" file is the nginx configuration "themiddleplace" is the middle place configuration.
+    both need to be inside of nginx sites enabled
 
 2. run "server_info_change" to switch the serverinfo file to production ip addresses. COMMAND: "python3 server_info_change.py"
-2.5) run "npm install" if freshly downloaded the project
+    2.5) run "npm install" if freshly downloaded the project
+
 3. run terminal command "npm run build" in the web_app folder to build the project
 
 4. run "production_files_move" which moves the production files from the project folder, to the nginx live site folder

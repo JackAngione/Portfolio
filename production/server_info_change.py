@@ -1,5 +1,5 @@
 # update server info
-server_info_path = "/home/jack/WebstormProjects/Portfolio/web_app/src/routes/serverInfo.jsx"
+server_info_path = "/home/jack/Documents/GITHUB REPOS/Portfolio/web_app/src/routes/serverInfo.jsx"
 
 with open(server_info_path, 'w') as file:
     file.write(
@@ -9,5 +9,5 @@ with open(server_info_path, 'w') as file:
 
 //production
 export const serverAddress = "https://jackangione.com/api"
-export const searchServer = 'https://jackangione.com/search'"""
+export const searchServer = 'https://jackangione.com/search'""""
     )
