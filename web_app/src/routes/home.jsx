@@ -1,10 +1,16 @@
-import {useEffect, useState} from "react";
-import "./home.css"
+import React, {useState} from "react";
+
 import LoginModal from "./modals/loginModal"
 import jwt_decode from 'jwt-decode';
 import Cookies from 'js-cookie';
 import axios from "axios";
 import {serverAddress} from "./serverInfo.jsx";
+import BackgroundAnim from "./backgroundAnimation.jsx";
+import programsMarquee from "./logosMarquee.jsx";
+import LogosMarquee from "./logosMarquee.jsx";
+
+
+
 function Home() {
 
     const [openModal, setOpenModal] = useState(false)
@@ -56,29 +62,35 @@ function Home() {
     }
     return (
         <>
-            <h1></h1>
-            <div className="homepage">
-
-                {/*<img className="AIimage" src={images[currentImageIndex]} alt="slideshow" />*/}
-
-            </div>
-
-            <p>
-                (imagery made with stable diffusion and control net extension)
-            </p>
+            <BackgroundAnim/>
             <LoginPrompt/>
-            {username  ? (<>
+            {username ? (<>
                 {username}
-                <button onClick={() =>{ process_logout({token}).then(r => {})}}>
+                <button onClick={() => {
+                    process_logout({token}).then(r => {
+                    })
+                }}>
                     Logout
                 </button>
             </>) : (<>
-                <button onClick={() =>{ setOpenModal(!openModal)}}>
+                <button onClick={() => {
+                    setOpenModal(!openModal)
+                }}>
                     Login
                 </button>
-                <LoginModal open = {openModal}></LoginModal>
+                <LoginModal open={openModal}></LoginModal>
             </>)}
+
+            <div className="bg-[#BF1363]  text-white ">
+
+                <LogosMarquee/>
+
+            </div>
+
+
+
         </>
     )
 }
+
 export default Home

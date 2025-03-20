@@ -7,7 +7,9 @@ const { JWT_Key } = require("./secret_keys")
 
 const port = 3000
 const app = express()
-app.use(cors());
+app.use(cors({
+    credentials: true
+}));
 app.use(express.json());
 
 
@@ -143,9 +145,8 @@ app.post('/logout', async (req, res) => {
     {
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
-        let logout = await db.logout(token)
         //returns 201 if successful, 500 if there was a server/database error blacklisting the token
-        return logout
+        return await db.logout(token)
     }
     else
     {
@@ -153,6 +154,6 @@ app.post('/logout', async (req, res) => {
         res.status(401).send()
     }
 })
-app.listen(port, 'localhost', () => {
+app.listen(port, () => {
     console.log(`Portfolio Server listening on port ${port}`)
 })

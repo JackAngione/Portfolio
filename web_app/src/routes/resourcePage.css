@@ -1,70 +1,50 @@
-#root {
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
+@import "tailwindcss";
 
-
-#singleSearchResult button
-{
-  scale: 60%;
-}
-#searchResultTitle
-{
-  font-weight:bold
-}
-#searchResultDesc
-{
-  font-size: .8rem;
-}
-
-.SVG_icon
-{
-  width: 25px;
-}
-.categoryRefinementList
-{
-  text-align: left;
-
-}
-.categoryRefinementList ul
-{
-  list-style: none;
-  text-align: left;
-
-}
-.instantSearch
-{
-  display: flex;
-  justify-content: flex-start;
-  width: 100%; /* Or any specific width */
-  margin-left: auto;
-  margin-right: auto;
-
-}
-.searchResults
-{
-
-  width: 100%; /* Or any specific width */
-  margin-left: auto;
-  margin-right: auto;
-  /*outline: 2px solid green;*/
+@layer base{
+    h3{
+        @apply font-bold;
+    }
+    .ais-RefinementList-checkbox{
+        @apply mr-0.5;
+    }
+    .ais-RefinementList-count{
+        @apply ml-2;
+        @apply px-0.5;
+        margin-top: -2px;
+        border: 1px solid #BF1363;
+        border-radius: 3px;
+    }
+    .ais-RefinementList-item{
+        @apply mb-0.5;
+        @apply uppercase;
+    }
+    .ais-SearchBox-input{
+        @apply border-2 rounded-md;
+    }
 }
 .searchResults ol
 {
-  list-style: none;
-  height: 50vh;
-  overflow-y: auto;
-  margin-left: -40px;
+    padding: 40px;
+    list-style: none;
+    height: 60vh;
+    overflow-y: auto;
+    /*outline: 2px solid #4e2393;*/
+    /* Hide scrollbar for IE, Edge, and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.ais-SearchBox-submit{
+    display: none;
+}
+.ais-SearchBox-reset{
+    margin-left: 10px;
+    border-radius: 2px;
 
-  /* Hide scrollbar for IE, Edge, and Firefox */
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
 }
+/* hides scroll bar in search results for Chrome,Safari */
 .searchResults ol::-webkit-scrollbar
-{
-  /*
-  hides scroll bar in search resultsfor Chrome,Safari
-   */
-  display: none;
-}
+{  display: none; }
+
+/* remove the "x" from inside the sarchbar */
+input[type="search"]::-webkit-search-cancel-button {
+    display: none;}

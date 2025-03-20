@@ -4,18 +4,18 @@ function CodeProjects() {
 
     return (
         <>
-            <h1>PROGRAMMING PROJECTS</h1>
-            <div id="projects">
+            <h1 className="font-bold py-14">PROGRAMMING PROJECTS</h1>
+            <div className="flex-col flex items-center">
                 <div className="project">
                     <h1><a href={"https://TheMiddlePlace.jackangione.com"} target="_blank"
                            rel="noopener noreferrer">The Middle Place</a></h1>
-                    <h4>Algorithmic NFT Artwork</h4>
+                    <h3>Algorithmic NFT Artwork</h3>
                     <p>A collaboration with artist Josh Landis to create a line of algorithmic NFTs</p>
                     <p> Used Canvas in Javascript to render out generated combinations of components to a final image
                         file.</p>
                     <p> Canvas also allowed me to interactively display the artwork on a website. Each component of the
                         art can be swapped out with sliders to view the various combinations. </p>
-                    <h4>Features</h4>
+                    <h3>Features</h3>
                     <ul>
                         <li>
                             Interactively view all possible combinations of the artwork components
@@ -32,8 +32,8 @@ function CodeProjects() {
                 <div className="project">
                     <h1><a href={"https://github.com/JackAngione/MuZe"} target="_blank"
                            rel="noopener noreferrer">MuZe</a></h1>
-                    <h4> Offline Music Player Application for Android made with Jetpack Compose and Kotlin</h4>
-                    <h4>Features</h4>
+                    <h3> Offline Music Player Application for Android made with Jetpack Compose and Kotlin</h3>
+                    <h3>Features</h3>
                     <ul>
                         <li>
                             View and play music files on the device
@@ -47,11 +47,11 @@ function CodeProjects() {
 
                 <div className="project">
                     <h1><a href={"https://github.com/JackAngione/Media-Platform"}>"Media Platform"</a></h1>
-                    <h4> Platform for uploading/downloading artistic media</h4>
+                    <h3> Platform for uploading/downloading artistic media</h3>
                     <p> Users can upload and view the content of others on the platform</p>
                     <p> Video, audio, or imagery can be uploaded</p>
                     <p> Users can download another users upload at the full original quality </p>
-                    <h4>Features</h4>
+                    <h3>Features</h3>
                     <ul>
                         <li>
                             File server for storing the platform's media
@@ -67,12 +67,12 @@ function CodeProjects() {
 
                 <div className="project">
                     <h1><a href={"/resources"}>"Resources"</a></h1>
-                    <h4> A collection of tutorials/sources of topics I've come across</h4>
+                    <h3> A collection of tutorials/sources of topics I've come across</h3>
                     <p> Allows for easy access to a quality source when referencing something I've previously
                         learned</p>
                     <p>The database can be conveniently searched by title, description, source link, or keywords and
                         results can be filtered by category </p>
-                    <h4>Features</h4>
+                    <h3>Features</h3>
                     <ul>
                         <li>
                             Closely interfaces with MongoDB database
@@ -92,10 +92,10 @@ function CodeProjects() {
 
                 <div className="project">
                     <h1><a href={"https://github.com/JackAngione/jack_chess_application"}>"Console Chess Game"</a></h1>
-                    <h4> Functional Java Chess game playable in the console</h4>
+                    <h3> Functional Java Chess game playable in the console</h3>
                     <p> Enter piece coordinate and destination coordinate to move pieces</p>
                     <p> WIP: No pawn promotion</p>
-                    <h4>Features</h4>
+                    <h3>Features</h3>
                     <ul>
                         <li>
                             Only allows valid moves

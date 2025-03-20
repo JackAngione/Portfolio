@@ -9,7 +9,8 @@ export default function NavigationBar() {
     const [navClassName, setNavClassName] = useState("navigation")
     //const [token, setToken] = useState()
     const token = Cookies.get("LoginToken")
-        //THEATER MODE, FOR PHOTOGRAPHY PAGE
+
+    //THEATER MODE, FOR PHOTOGRAPHY PAGES
     useEffect(() => {
         // Check if we're on the special page
         if (location.pathname === '/photography') {
@@ -30,13 +31,14 @@ export default function NavigationBar() {
     }, []);
     return (
         <>
-            { useLocation().pathname==="/" && <BackgroundAnim/>}
+
+           {/* { useLocation().pathname==="/" && <BackgroundAnim/>}*/}
                 <nav className={navClassName}>
                     <div className="navDropdown">
-                        <Link className ="mainDropdown" >Skills</Link>
+                        <Link className ="mainDropdown" >SKILLS</Link>
                         <div className="dropDownList">
                             <Link to="/code"> PROGRAMMING</Link>
-                            <Link to="/photography"> PHOTOGRAPHY </Link>
+                            <Link to="/hdrphotos"> HDR PHOTOS </Link>
                             <Link to="/music"> MUSIC </Link>
                         </div>
                     </div>
@@ -51,10 +53,8 @@ export default function NavigationBar() {
                             <Link to="/upload">UPLOAD TUTORIAL</Link>
                             <Link to="/category">CATEGORY</Link>
                         </div>): (<></> ) }
-
                     </div>
                 </nav>
-
         </>
     );
 }

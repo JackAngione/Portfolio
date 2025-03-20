@@ -34,10 +34,7 @@ function ResourcesPage() {
     const [openDeleteModal, setOpenDeleteModal] = useState(false)
     const [tutorialToEdit, setTutorialToEdit] = useState()
 
-    //GET ALL CATEGORIES ON PAGE LOAD
-    useEffect(() =>{
-        getCategories()
-    }, [])
+
     const Hit = ({ hit }) => {
         //hit is basically a json object of the meilisearch document
         //when clicking on a resource, go to it's source page
@@ -46,8 +43,8 @@ function ResourcesPage() {
                 <button
                     onClick={()=>{window.open(`${hit.source}`)}}>
 
-                   <h2> <Highlight attribute="title" hit={hit}/> </h2>
-                    <p>{`${hit.description}`}</p>
+                   <h2 className=" text-black font-bold text-2xl"> <Highlight attribute="title" hit={hit}/> </h2>
+                    <p className="text-sm text-black">{`${hit.description}`}</p>
                 </button>
                 {
                     //EDIT and DELETE TUTORIAL BUTTON
@@ -71,101 +68,51 @@ function ResourcesPage() {
             </div>
         )
     };
-
-    const handleCategoryChoice = (event) => {
-        //event is an array of all the categories chosen
-        let tempChosen = []
-        for(let i=0; i<event.length;i++)
-        {
-            tempChosen[i] = event[i].label
-        }
-        setChosenCategory(tempChosen)
-        console.log("TEMPCHOSEN: " + tempChosen)
-        console.log("chosen: " + chosenCategories)
-    };
-
-  function getCategories()
-  {
-    axios.get(serverAddress+"/categories")
-        .then(function (response) {
-            let tempCategoryTitle = []
-            setCategories(response.data)
-            for(let i =0; i<response.data.length; i++)
-            {
-                tempCategoryTitle[i] =
-                    {value: response.data[i].title.toLowerCase(), label: response.data[i].title, selected: false}
-            }
-            setCategoryTitles(tempCategoryTitle)
-            console.log(categoryTitles)
-        })
-  }
-    function DisplaySearchResults()
-    {
-        return (
-            <>
-                <ul id="searchResultList">
-                    {
-                        searchresults.map((result, index) =>
-                            <li key={index}>
-                                <div id="singleSearchResult">
-                                    <a href={result.source} target="_blank" rel="noopener noreferrer">
-                                        <p id="searchResultTitle">{result.title}</p>
-                                        <p id="searchResultDesc">{result.description}</p>
-                                    </a>
-                                    {
-                                        //EDIT and DELETE TUTORIAL BUTTON
-                                    }
-                                    {token ? ( <><button onClick={() =>{
-                                        setTutorialToEdit(result)
-                                        setOpenEditModal(!openEditModal)
-                                    }}>
-                                        EDIT
-                                    </button>
-                                        <button onClick={() =>{
-                                            setTutorialToEdit(result)
-                                            setOpenDeleteModal(!openDeleteModal)
-                                        }}>
-                                            <img className="SVG_icon" src={trashIcon} alt="removeIcon"/>
-                                        </button> </>) : (<></>)}
-                                </div>
-                            </li>
-                        )
-                    }
-                </ul>
-
-            </>
-        )
-    }
-
   return (
     <>
-    <h1>RESOURCES</h1>
+    <h1 className="text-center py-14  font-bold">RESOURCES</h1>
+                <div className="lg:flex lg:mr-44 lg:justify-center">
+                    <InstantSearch className=""
+                        indexName="resources"
+                        searchClient={searchClient}
+                    >
 
-        <div className="instantSearch">
-            <InstantSearch
+                        <div className="lg:block sm:flex justify-center block text-center ">
+                            <div className="sm:text-left  text-center pr-4">
+                                <h3 className="pb-2 font-bold">Categories</h3>
+                                <RefinementList
+                                    className="ml-4 justify-center flex-row"
+                                    title="Category"
+                                    attribute="category"
+                                    sortBy={['name']}
+                                />
+                            </div>
 
-                indexName="resources"
-                searchClient={searchClient}
-            >
-                <div className="categoryRefinementList">
-                    <p>Category</p>
-                    <RefinementList
-                        title="Category"
-                        attribute="category"/>
-                    <p>SubCategories</p>
-                    <RefinementList
-                        title="SubCategories"
-                        attribute="subCategories"
-                    />
-                    <ClearRefinements title="CLEAR"/>
+                            <div className="sm:text-left pr-4">
+                                <h3 className="pb-2 font-bold">SubCategories</h3>
+                                <RefinementList
+                                    className="ml-4"
+                                    title="SubCategories"
+                                    attribute="subCategories"
+                                    sortBy={['name']}
+                                />
+                            </div>
+
+
+                            <ClearRefinements className="content-center font-bold"/>
+                        </div>
+                        <div className="searchResults">
+                            <div >
+                                <SearchBox className="text-black py-4"/>
+                                <Hits hitComponent={Hit}/>
+                            </div>
+                        </div>
+
+                    </InstantSearch>
                 </div>
-                <div className="searchResults">
-                    <SearchBox />
-                    <Hits hitComponent= {Hit} />
-                </div>
-            </InstantSearch>
-        </div>
+
     </>
   )
 }
+
 export default ResourcesPage

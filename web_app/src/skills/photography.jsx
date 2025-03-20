@@ -6,7 +6,7 @@ import AfterEffectsLogo from "./softwareLogos/after-effects-1.svg"
 import LightroomLogo from "./softwareLogos/Lightroom_logo.svg"
 import PremiereProLogo from "./softwareLogos/premiere-pro-cc.svg"
 import {useEffect, useState} from "react";
-import {flickrKey} from "../API_Keys"
+//import {flickrKey} from "../API_Keys"
 function Photography() {
     const [photos, setPhotos] = useState([]);
 
@@ -86,7 +86,7 @@ function Photography() {
 
                     <a href="https://www.adobe.com/products/aftereffects.html" target="_blank"  rel="noopener noreferrer">
                         <li>
-                            <img src={AfterEffectsLogo} className="logo"/>
+                            <img src={AfterEffectsLogo} className="logo" alt={"after effects logo"}/>
                             After Effects
                         </li>
                     </a>
@@ -98,7 +98,6 @@ function Photography() {
                     {photos}
                 </div>
             </div>
-
 
 
         </div>

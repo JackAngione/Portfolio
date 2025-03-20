@@ -9,21 +9,22 @@ import ResourcesPage from "./routes/resourcesPage.jsx";
 import Upload from "./routes/upload.jsx";
 import Category from "./routes/category.jsx";
 import "./app.css"
+import HDRPhotos from "./skills/hdrPhotos.jsx";
 
 function App() {
     return (
         <>
                 <BrowserRouter>
-                    <NavigationBar />
+                    <NavigationBar/>
                         <Routes>
                             <Route path ="/" element={<Home/>} />
                             <Route path= "photography" element={<Photography/>}/>
+                            <Route path= "hdrphotos" element={<HDRPhotos/>}/>
                             <Route path ="/code" element={<CodeProjects/>} />
                             <Route path ="/music" element={<Music/>} />
                             <Route path ="/resources" element={<ResourcesPage/>} />
                             <Route path ="/upload" element={<Upload/>} />
                             <Route path ="/category" element={<Category/>} />
-
                         </Routes>
                 </BrowserRouter>
         </>

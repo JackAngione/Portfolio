@@ -13,9 +13,10 @@
 5. Restart NGINX server, COMMAND: sudo systemctl restart nginx
 
 ----START BACKEND SERVERS-----
-1. run "pm2 start server.js" to run general backend
-2. run "pm2 start searchServer.js" to run MeiliSearch Server
-3. run prompted commands to rerun on machine restart
+1. transfer "api keys file"
+2. run "pm2 start server.js" to run general backend
+3. run "pm2 start searchServer.js" to run MeiliSearch Server
+4. run prompted commands to rerun on machine restart
 
 
 ------TroubleShooting Tips------

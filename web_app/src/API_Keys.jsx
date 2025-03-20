@@ -1,2 +1,0 @@
-export const flickrKey = "0e9a22bbb74b5695591b63c942b5c996"
-export const meiliSearch_Search_Key = "96055ea2e799cb96457e63fcc8f1d945ca71678aa5406b52700d0089ecf8d726"

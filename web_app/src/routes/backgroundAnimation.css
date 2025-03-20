@@ -1,3 +1,4 @@
+@import "tailwindcss";
 .animation
 {
     display: flex;
@@ -13,12 +14,6 @@
 }
 .AIimage
 {
+    width: 100%;
     z-index: -1;
-}
-.speedSlider
-{
-    position: absolute;
-    top: 105%;
-    left: 50%;
-    transform: translate(-50%, -50%);
 }

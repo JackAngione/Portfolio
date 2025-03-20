@@ -1,17 +1,17 @@
+
 :root {
+  margin: 0;
+  padding: 0;
+  text-align: center;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
   color: #FBFEF9;
+  color-scheme: light dark;
+
   background-color: #FBFEF9;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
+
 }
 
 a {
@@ -26,8 +26,7 @@ a:hover {
 body {
   margin: 0;
   place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  padding: 0;
 
   color: #BF1363;
 }
@@ -49,7 +48,6 @@ body.theaterMode div
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
-  color: #ff8bc2;
 }
 
 button {
@@ -59,7 +57,6 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -68,21 +65,15 @@ button:hover {
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 2px auto -webkit-focus-ring-color;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #000000;
-    background-color: #FBFEF9;
+    color: #ffffff;
+    background-color: #ffffff;
   }
 
-  button {
-    background-color: #FBFEF9;
-  }
-  h1
-  {
-    color: #BF1363;
-  }
+
 
 }

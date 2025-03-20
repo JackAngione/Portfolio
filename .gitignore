@@ -1,4 +1,12 @@
-
+mediaServer/.env
 backend/secret_keys.js
 web_app/src/API_Keys.jsx
 backend/resources.json
+node_modules
+backend/data.json
+/.idea
+/mediaServer/.idea
+/backend/node_modules
+/backend/.idea
+/mediaServer/artists
+/web_app/.idea

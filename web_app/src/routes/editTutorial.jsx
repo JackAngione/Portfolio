@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react'
 import './editTutorial.css'
 import axios from 'axios'
 import CreatableSelect from "react-select/creatable";
-import {serverAddress} from "./serverInfo.jsx";
+import {searchServer, serverAddress} from "./serverInfo.jsx";
 import Select from "react-select";
 
 import EditModal from "./modals/editModal.jsx";
@@ -70,12 +70,12 @@ function EditTutorial() {
         //user is trying to make a search with no categories and no query
         if(searchQuery ==="" && chosenCategories.length===0)
         {
-            console.log("INVALID SEARCH!!!yyyooouuuu")
+            console.log("INVALID SEARCH!!!")
         }
         else
         {
             let encodedSearch = encodeURIComponent(searchQuery)
-            axios.get(serverAddress+"/search", {
+            axios.get(searchServer, {
                 params: {
                     searchQuery: encodedSearch,
                     categories: chosenCategories
