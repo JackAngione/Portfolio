@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import NavigationBar from "./routes/navigationBar.jsx";
-import {BrowserRouter, Route, Routes, useLocation} from "react-router-dom";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
 import Home from "./routes/home.jsx";
 import Photography from "./skills/photography.jsx";
 import CodeProjects from "./skills/codeProjects.jsx";
@@ -8,25 +8,33 @@ import Music from "./skills/MUSIC/music.jsx";
 import ResourcesPage from "./routes/resourcesPage.jsx";
 import Upload from "./routes/upload.jsx";
 import Category from "./routes/category.jsx";
-import "./app.css"
 import HDRPhotos from "./skills/hdrPhotos.jsx";
+import AuthProvider from "./useAuth.jsx";
+import {AdminRoute} from "./routes/adminRoute.jsx";
 
 function App() {
     return (
         <>
-                <BrowserRouter>
-                    <NavigationBar/>
-                        <Routes>
-                            <Route path ="/" element={<Home/>} />
-                            <Route path= "photography" element={<Photography/>}/>
-                            <Route path= "hdrphotos" element={<HDRPhotos/>}/>
-                            <Route path ="/code" element={<CodeProjects/>} />
-                            <Route path ="/music" element={<Music/>} />
-                            <Route path ="/resources" element={<ResourcesPage/>} />
-                            <Route path ="/upload" element={<Upload/>} />
-                            <Route path ="/category" element={<Category/>} />
-                        </Routes>
-                </BrowserRouter>
+            <BrowserRouter>
+                <AuthProvider>
+                <NavigationBar/>
+                    <Routes>
+                        <Route path ="/" element={<Home/>} />
+                        <Route path= "photography" element={<Photography/>}/>
+                        <Route path= "hdrphotos" element={<HDRPhotos/>}/>
+                        <Route path ="/code" element={<CodeProjects/>} />
+                        <Route path ="/music" element={<Music/>} />
+                        <Route path ="/resources" element={
+                            <ResourcesPage/>} />
+                        <Route path ="/upload" element={
+                            <AdminRoute>
+                                <Upload/>
+                            </AdminRoute>
+                        } />
+                        <Route path ="/category" element={<Category/>} />
+                    </Routes>
+                </AuthProvider>
+            </BrowserRouter>
         </>
     )
 }

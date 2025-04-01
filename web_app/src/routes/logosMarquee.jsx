@@ -19,13 +19,13 @@ function LogosMarquee() {
             <div className="flex h-10 justify-center">
                 <div className="flex justify-center flex-wrap  whitespace-nowrap overflow-hidden text-4xl font-bold">
                     {logoArray.map((item, index) => (
-                        <>
+                        <div key={index}>
+                            <p className="pr-12" >POWERED BY</p>
                             <p className="pr-12">POWERED BY</p>
                             <p className="pr-12">POWERED BY</p>
                             <p className="pr-12">POWERED BY</p>
                             <p className="pr-12">POWERED BY</p>
-                            <p className="pr-12">POWERED BY</p>
-                        </>
+                        </div>
                     ))}
                 </div>
             </div>
@@ -40,7 +40,7 @@ function LogosMarquee() {
             >
                 {logoArray.map((item, index) => (
 
-                    <div className="flex justify-center items-center ">
+                    <div className="flex justify-center items-center " key={index}>
                         <a href="https://vite.dev/" target="_blank" rel="noopener noreferrer" className="p-4">
                             <li className="flex items-center justify-center ">
                                 <img src={vitelogo} className="mr-2 w-12" alt="vite logo"/>

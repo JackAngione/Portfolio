@@ -1,4 +1,4 @@
-
+@import "tailwindcss";
 :root {
   margin: 0;
   padding: 0;
@@ -10,8 +10,6 @@
   color-scheme: light dark;
 
   background-color: #FBFEF9;
-
-
 }
 
 a {
@@ -25,26 +23,14 @@ a:hover {
 
 body {
   margin: 0;
-  place-items: center;
+
   padding: 0;
 
   color: #BF1363;
 }
 
-/*THEATER MODE CSS*/
-body.theaterMode
-{
-  margin: 0;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-  background-color: #050505;
-  color: white;
-}
-body.theaterMode div
-{
-  background-color: #050505;
-}
+
+
 h1 {
   font-size: 3.2em;
   line-height: 1.1;

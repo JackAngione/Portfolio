@@ -96,7 +96,9 @@ function BackgroundAnim(props) {
     };
     return (
         <>
-            <div className="flex justify-center flex-col h-lvh w-full [@media(min-aspect-ratio:1/1)]:flex-row [@media(min-aspect-ratio:1/1)]:overflow-x-hidden overflow-y-hidden">
+            <div className="flex flex-col justify-center overflow-y-hidden h-lvh w-full
+            [@media(min-aspect-ratio:1/1)]:flex-row
+            [@media(min-aspect-ratio:1/1)]:overflow-x-hidden">
                 <LazyLoadImage className="" src={images[currentImageIndex]} alt="slideshow2"/>
                 <LazyLoadImage className="" src={images[currentImageIndex]} alt="slideshow"/>
                 <LazyLoadImage className="" src={images[currentImageIndex]} alt="slideshow"/>

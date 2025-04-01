@@ -6,6 +6,7 @@ const {JWT_Key} = require("./secret_keys")
 const crypto = require("crypto");
 const moment = require('moment');
 const meiliSearch = require("./searchServer")
+const res = require("express/lib/response");
 //GENERATE resourceID for a new resource
 async function generateResourceID() {
     const userCollection = client.db("KNOWLEDGE").collection("tutorials")
@@ -29,8 +30,17 @@ async function generateResourceID() {
 //INSERT CATEGORY INTO DATABASE
 async function createCategory(newCategory)
 {
+    let returnStatus = 500
     const collection = client.db("KNOWLEDGE").collection("categories")
     await collection.insertOne(newCategory)
+        .catch(err => {
+            console.log(err)
+        })
+        .then((res) => {
+            console.log(res)
+            returnStatus = 200
+        })
+    return returnStatus
 }
 //edit category
 async function editCategory(category)
@@ -102,22 +112,42 @@ async function getAllCategories()
 //uploads a tutorial to the database
 async function uploadTutorial(tutorialInfo)
 {
+    //if flipped to true, abort delete uploaded files
+    let uploadError = false
     const collection = client.db("KNOWLEDGE").collection("tutorials")
 
     const resource_id = await generateResourceID()
     tutorialInfo.resource_id = resource_id
-    try{
-        //ADD RESOURCE TO MONGODB
-        await collection.insertOne(tutorialInfo)
 
-        //ADD TO MEILISEARCH
-        await meiliSearch.addResource(tutorialInfo)
-    }
-    catch (e) {
-        //TODO REMOVE BOTH FROM THE DATABASES IF ONE FAILS
-    }
+    await collection.insertOne(tutorialInfo)
+        .catch(err => {
+            console.log(err)
+            uploadError = true
+    })
+        .then((res) => {
+        //console.log("resourceDoc added successfully")
+    })
 
-    console.log("INSERTED!")
+    //ADD TO MEILISEARCH
+    await meiliSearch.addResource(tutorialInfo)
+        .catch(err => {
+            console.log(err)
+            uploadError = true
+        })
+        .then((res) => {
+            //console.log("search insert successful")
+        })
+    //error creating new document, revert all changes
+    if(uploadError)
+    {
+
+        await collection.deleteOne({"resource_id": tutorialInfo.resource_id})
+            .catch(err => {console.log("already deleted")});
+        await meiliSearch.deleteResource(tutorialInfo.resource_id).catch(err => {console.log("already deleted")})
+        console.log("deleted the unsynced resource")
+        return 500
+    }
+    return 200
 }
 //edit a tutorial
 async function editTutorial(newTutorial)

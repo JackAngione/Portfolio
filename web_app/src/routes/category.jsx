@@ -85,8 +85,11 @@ function Category() {
                 authorization: `Bearer ${token}`,  // Pass JWT in Authorization header
             }
         })
-                .then(({response}) => {
-                    //console.log(response.data)
+                .then((res) => {
+                    alert("New Category created successfully!")
+                })
+                .catch((error) => {
+                    alert("Error creating new Category!")
                 })
             setSubmitCreateCategory(false)
         }
@@ -127,7 +130,7 @@ function Category() {
     //FINALIZE CREATE CATEGORY and trigger http push
     function submitCreateForm(e)
     {
-
+        e.preventDefault();
         let finalSubCategories = []
         for(let i=0;i<subCategories.length;i++)
         {

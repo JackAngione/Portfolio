@@ -6,13 +6,11 @@ import reactCompiler from 'eslint-plugin-react-compiler'
 export default defineConfig({
   plugins: [
       react({
-        'react-compiler': reactCompiler,
-            rules: {
-              'react-compiler/react-compiler': 'error',
-            },
-  },
-          ), tailwindcss()],
+              'react-compiler': reactCompiler,
+              rules: {'react-compiler/react-compiler': 'error'}}),
+      tailwindcss()
+  ],
   server: {
-    host: '192.168.1.204',
+    host: '192.168.1.242',
   }
 })

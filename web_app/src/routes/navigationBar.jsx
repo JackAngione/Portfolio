@@ -1,14 +1,15 @@
 import {Link, Outlet, useLocation} from "react-router-dom";
 import "./navigationBar.css"
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import BackgroundAnim from "./backgroundAnimation.jsx";
 import Cookies from 'js-cookie';
+import {AuthContext} from "../useAuth.jsx";
 //BASICALLY THE NAVIGATION BAR
 export default function NavigationBar() {
     const location = useLocation();
     const [navClassName, setNavClassName] = useState("navigation")
     //const [token, setToken] = useState()
-    const token = Cookies.get("LoginToken")
+    const authenticated = useContext(AuthContext).loggedIn;
 
     //THEATER MODE, FOR PHOTOGRAPHY PAGES
     useEffect(() => {
@@ -49,7 +50,7 @@ export default function NavigationBar() {
                     |
                     <div className="navDropdown">
                         <Link className ="mainDropdownResources" to="/resources">RESOURCES</Link>
-                        {token ? (<div className="dropDownList">
+                        {authenticated ? (<div className="dropDownList">
                             <Link to="/upload">UPLOAD TUTORIAL</Link>
                             <Link to="/category">CATEGORY</Link>
                         </div>): (<></> ) }

@@ -9,16 +9,14 @@ import Cookies from "js-cookie";
 import {meiliSearch_Search_Key} from "../API_Keys"
 import {searchServer} from "./serverInfo.jsx";
 import {InstantSearch, ClearRefinements, SearchBox, Hits, Highlight, RefinementList, HierarchicalMenu} from 'react-instantsearch';
-
-const searchClient = instantMeiliSearch(
-    searchServer,
-    meiliSearch_Search_Key,
-    {placeholderSearch: false}
-);
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
 function ResourcesPage() {
     const token = Cookies.get("LoginToken")
-
+    const {searchClient} = instantMeiliSearch(
+        searchServer,
+        meiliSearch_Search_Key,
+        {placeholderSearch: false}
+    );
     //THE USER'S SEARCH QUERY
     const [searchText, updateSearchText] = useState("")
     //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (in json format)
@@ -72,7 +70,7 @@ function ResourcesPage() {
     <>
     <h1 className="text-center py-14  font-bold">RESOURCES</h1>
                 <div className="lg:flex lg:mr-44 lg:justify-center">
-                    <InstantSearch className=""
+                    <InstantSearch
                         indexName="resources"
                         searchClient={searchClient}
                     >

@@ -10,3 +10,8 @@ backend/data.json
 /backend/.idea
 /mediaServer/artists
 /web_app/.idea
+mediaServer/.DS_Store
+.DS_Store
+/web_app/dist
+web_app/package-lock.json
+package-lock.json

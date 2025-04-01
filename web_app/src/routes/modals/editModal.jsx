@@ -130,7 +130,7 @@ function EditModal(props) {
 
     //SEND the form to database
     function submitUpload(e) {
-
+        e.preventDefault()
         //convert keywords from select to standard array format
         let finalEditKeywords = []
         for(let i=0;i<reactKeywords.length;i++)
@@ -260,12 +260,6 @@ if(!props.open)
                         <label>Keywords:
                             <CreatableSelect
                                 components={{ DropdownIndicator: null, }}
-                               /* defaultValue={
-                                    //have to set default in here so that it loads in time, otherwise data loads after modal, and you need to reopen
-                                    () => {
-
-                                    }
-                                }*/
                                 inputValue={inputValue}
                                 isClearable
                                 isMulti

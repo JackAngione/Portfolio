@@ -11,16 +11,25 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
-
-
+//check if token is valid
 async function verifyToken(req) {
-    //console.log("verifying jwt")
     // If expressJwt middleware does not throw an error, the token is valid
     const authHeader = req.headers['authorization'];
     const token = authHeader.split(' ')[1]; // Bearer <token>
     return await db.verify_token(token);
 }
-
+//get a list of all categories
+app.get('/auth', async (req, res) => {
+    //console.log("/auth hit");
+    if(await verifyToken(req))
+    {
+        res.sendStatus(200)
+    }
+    else
+    {
+        res.sendStatus(401)
+    }
+})
 //get a list of all categories
 app.get('/categories', async (req, res) => {
     console.log("category request made")
@@ -47,7 +56,9 @@ app.post("/upload", async(req, res) => {
     console.log("received upload: " + JSON.stringify(req.body))
     if(await verifyToken(req))
     {
-        let uploadTutorial = await db.uploadTutorial(req.body)
+        let uploadStatus = await db.uploadTutorial(req.body)
+        //200=upload successful 500=server error
+        res.sendStatus(uploadStatus)
     }
     else
     {
@@ -70,7 +81,7 @@ app.post("/deleteTutorial", async(req, res) => {
         res.sendStatus(401)
     }
 })
-//edit a  tutorial
+//edit a tutorial
 app.post("/editTutorial", async(req, res) => {
     let newTutorial = req.body
     if(await verifyToken(req))
@@ -79,23 +90,29 @@ app.post("/editTutorial", async(req, res) => {
     }
     else
     {
-        res.status(401).send()
+        res.sendStatus(401)
     }
 })
+
 //create Category
 app.post("/createCategory", async(req, res) => {
     let categoryData = req.body
     console.log("received upload: " + JSON.stringify(categoryData))
     if(await verifyToken(req))
     {
-        let createdCategory = await db.createCategory(categoryData)
+        await db.createCategory(categoryData)
+            .then((createCategoryStatus)=>{
+                res.sendStatus(createCategoryStatus)
+            })
+
     }
     else
     {
-        res.status(401).send()
+        res.sendStatus(401)
     }
 
 })
+
 //delete Category
 app.post("/deleteCategory", async(req, res) => {
     let categoryData = req.body
@@ -106,7 +123,7 @@ app.post("/deleteCategory", async(req, res) => {
     }
     else
     {
-        res.status(401).send()
+        res.sendStatus(401)
     }
 
 })
@@ -123,6 +140,7 @@ app.post("/editCategory", async(req, res) => {
         res.status(401).send()
     }
 })
+//login user
 app.post("/login", async(req, res) => {
     let credentials = req.body
     console.log("hit login")
@@ -138,6 +156,7 @@ app.post("/login", async(req, res) => {
         console.log("login failed")
     }
 })
+//log out user
 app.post('/logout', async (req, res) => {
     console.log("logout request made")
     const tokenValid = await verifyToken(req)
@@ -145,15 +164,27 @@ app.post('/logout', async (req, res) => {
     {
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
-        //returns 201 if successful, 500 if there was a server/database error blacklisting the token
-        return await db.logout(token)
+        //returns 200 if successful, 500 if there was a server/database error blacklisting the token
+        let logout = await db.logout(token)
+        if(logout===200)
+        {
+            console.log("logout successful")
+            //database error proccessing logout
+            res.sendStatus(200)
+        }
+        else
+        {
+            console.log("logout unsuccessful")
+            res.sendStatus(500)
+        }
     }
     else
     {
         //token was not valid, so logout anyway
-        res.status(401).send()
+        res.sendStatus(401)
     }
 })
+
 app.listen(port, () => {
     console.log(`Portfolio Server listening on port ${port}`)
 })

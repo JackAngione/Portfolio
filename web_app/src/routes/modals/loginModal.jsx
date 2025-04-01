@@ -3,13 +3,15 @@ import axios from "axios";
 import {serverAddress} from "../serverInfo.jsx";
 import Cookies from 'js-cookie';
 import {useNavigate} from "react-router-dom";
+import {login} from "../../useAuth.jsx";
 
 function LoginModal(props) {
     const [loginFail, setLoginFail] = useState("");
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
-    const navigate = useNavigate()
+
+    //close modal
     if(!props.open)
     {
         return null
@@ -17,19 +19,9 @@ function LoginModal(props) {
     const toggleShowPassword = () => {
         setShowPassword(prevShowPassword => !prevShowPassword);
     };
-    async function process_login() {
-        let login_credentials = {"username": username, "password": password}
-        await axios.post(serverAddress + "/login", login_credentials)
-            .then(function (response) {
-                if (response.status === 200) {
-                    const token = response.data.token; // Ensure your server sends the JWT as "token" in the response body
-                    Cookies.set('LoginToken', token, { expires: 1 }); // Expires after 1 day
-                    console.log("cookie set sucessfully")
-                    window.location.reload()
-                } else {
-                    setLoginFail("")
-                }
-            })
+    async function handleLogin() {
+        let loginStatus = await login(username, password)
+        setLoginFail(loginStatus)
     }
     return(
         <>
@@ -53,7 +45,7 @@ function LoginModal(props) {
                 {showPassword ? 'Hide' : 'Show'} Password
             </button>
 
-            <button onClick={process_login}> Submit </button>
+            <button onClick={handleLogin}> Submit </button>
         </>
     )
 

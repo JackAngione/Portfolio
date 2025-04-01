@@ -78,7 +78,10 @@ function Upload() {
                 }
             })
                 .then(({response}) => {
-                    //console.log(response.data)
+                    alert("New Resource created successfully!")
+                })
+                .catch((error) => {
+                    alert("Error creating new Resource!")
                 })
         }
     }, [inputKeywords, submitFlag])
@@ -102,6 +105,7 @@ function Upload() {
 
     //SEND the form to database
     function submitUpload(e) {
+        e.preventDefault();
         let finalArray = []
         for(let i=0;i<reactKeywords.length;i++)
         {
