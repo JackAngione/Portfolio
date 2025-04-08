@@ -15,3 +15,6 @@ mediaServer/.DS_Store
 /web_app/dist
 web_app/package-lock.json
 package-lock.json
+
+/web_app/src/HDRPHOTOS/
+/web_app/public/fonts

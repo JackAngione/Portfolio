@@ -1,19 +1,17 @@
 @import "tailwindcss";
-.animation
-{
-    display: flex;
-    flex-direction: row;
-    top: 0;
-    left: 0;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    overflow: hidden;
-    justify-content: center;
+.animation {
+  display: flex;
+  flex-direction: row;
+  top: 0;
+  left: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+  justify-content: center;
 }
-.AIimage
-{
-    width: 100%;
-    z-index: -1;
+.AIimage {
+  width: 100%;
+  z-index: -1;
 }

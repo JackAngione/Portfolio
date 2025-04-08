@@ -1,36 +1,20 @@
 @import "tailwindcss";
+@import "../main.css";
 
-@tailwind utilities;
-@layer base{
-    h1{
-        @apply font-bold;
-    }
+.project {
+  @apply rounded-[10px] bg-PrimaryGradient;
+  /* @apply bg-[#CED3DC] rounded-[10px];*/
+  padding: 14px 60px 14px;
+  margin-bottom: 100px;
+  max-width: 1000px;
 }
-.projects{
+.project ul {
+  list-style: none;
+}
 
-}
-
-.project
-{
-    border-radius: 10px;
-    background: #BF1363;
-    padding: 14px 60px 14px;
-    margin-bottom: 100px;
-    color: #FBFEF9;
-    max-width: 1000px;
-}
-.project ul
-{
-    list-style: none;
-}
-.project a
-{
-    color: #E8E9ED;
-}
-.project ul li
-{
-    border-top: 1px solid #E8E9ED;
-    border-bottom: 1px solid #E8E9ED;
-    padding-bottom: 4px;
-    margin-bottom: 10px;
+.project ul li {
+  border-top: 1px solid #e8e9ed;
+  border-bottom: 1px solid #e8e9ed;
+  padding-bottom: 4px;
+  margin-bottom: 10px;
 }

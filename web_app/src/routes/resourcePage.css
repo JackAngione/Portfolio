@@ -1,50 +1,51 @@
 @import "tailwindcss";
+@import "../main.css";
 
-@layer base{
-    h3{
-        @apply font-bold;
-    }
-    .ais-RefinementList-checkbox{
-        @apply mr-0.5;
-    }
-    .ais-RefinementList-count{
-        @apply ml-2;
-        @apply px-0.5;
-        margin-top: -2px;
-        border: 1px solid #BF1363;
-        border-radius: 3px;
-    }
-    .ais-RefinementList-item{
-        @apply mb-0.5;
-        @apply uppercase;
-    }
-    .ais-SearchBox-input{
-        @apply border-2 rounded-md;
-    }
-}
-.searchResults ol
-{
-    padding: 40px;
-    list-style: none;
-    height: 60vh;
-    overflow-y: auto;
-    /*outline: 2px solid #4e2393;*/
-    /* Hide scrollbar for IE, Edge, and Firefox */
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-}
-.ais-SearchBox-submit{
-    display: none;
-}
-.ais-SearchBox-reset{
-    margin-left: 10px;
-    border-radius: 2px;
+.ais-RefinementList-count {
+  @apply ml-2;
+  @apply px-0.5;
+  margin-top: -2px;
+  @apply border-1;
 
+  border-radius: 3px;
+}
+.ais-RefinementList-checkbox {
+  @apply appearance-none bg-primary relative border-0 rounded-[2px] h-3 w-3 mr-2;
+}
+.ais-RefinementList-checkbox:checked {
+  @apply bg-tertiary;
+}
+.ais-RefinementList-item {
+  @apply mb-0.5;
+  @apply uppercase;
+}
+.ais-SearchBox-input {
+  @apply border-2 rounded-md;
+}
+
+.searchResults ol {
+  list-style: none;
+  height: 60vh;
+
+  @apply justify-center lg:w-[600px];
+  overflow-y: auto;
+  /*outline: 2px solid #4e2393;*/
+  /* Hide scrollbar for IE, Edge, and Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.ais-SearchBox-submit {
+  display: none;
+}
+.ais-SearchBox-reset {
+  margin: 10px;
 }
 /* hides scroll bar in search results for Chrome,Safari */
-.searchResults ol::-webkit-scrollbar
-{  display: none; }
+.searchResults ol::-webkit-scrollbar {
+  display: none;
+}
 
 /* remove the "x" from inside the sarchbar */
 input[type="search"]::-webkit-search-cancel-button {
-    display: none;}
+  display: none;
+}

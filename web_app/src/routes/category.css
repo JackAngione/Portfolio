@@ -1,60 +1,50 @@
-#categoryForm input
-{
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 40px;
-}
-#categoryForm label
-{
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+@import "tailwindcss";
+@import "../main.css";
+#categoryForm input {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 40px;
+
 }
 
-#categoryForm select
-{
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 40px;
+#categoryForm select {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 40px;
 }
 
-#spacer
-{
-    margin-bottom: 100px;
-    margin-top: 100px;
+#spacer {
+  margin-bottom: 100px;
+  margin-top: 100px;
 }
-#editForm input
-{
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 40px;
-}
-#editForm label
-{
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+#editForm input {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 40px;
+  @apply border-primary border-1;
 }
 
-#editForm select
-{
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 40px;
+
+#editForm select {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 40px;
 }
-#confirmDelete label
-{
-    padding-top: 20px;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    margin: auto;
+#confirmDelete label {
+
+  padding-top: 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: auto;
 }
-.SVG_icon
-{
-    width: 25px;
+.react-select-container {
+  @apply rounded-[6px] text-background;
+}
+.SVG_icon {
+  width: 25px;
 }

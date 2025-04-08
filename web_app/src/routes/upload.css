@@ -1,22 +1,15 @@
-#uploadForm input
-{
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 40px;
+@import "tailwindcss";
+@import "../main.css";
+#uploadForm input {
+  display: block;
 }
-#uploadForm textarea
-{
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 40px;
+#uploadForm textarea {
+  display: block;
 }
-#uploadForm
-{
-    display: inline-flex;
-    flex-direction: column;
+.react-select-container {
+  @apply rounded-[6px] text-background;
+}
+#uploadForm {
+  @apply flex flex-col  items-center  gap-4;
 
-    /*border: 3px solid #19f800;*/
 }
-

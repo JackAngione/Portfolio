@@ -1,52 +1,43 @@
+#softwareList {
+  display: flex;
 
-#softwareList
-{
-    display: flex;
-
-   column-count: 2;
+  column-count: 2;
   /*border: 3px solid #19f800;*/
-    align-items: center;
-    justify-content: center;
-    color: #FBFEF9;
+  align-items: center;
+  justify-content: center;
+  color: #fbfef9;
 }
-#softwareList ul
-{
-    list-style: none;
-    align-items: center;
-    justify-content: center;
-    height: 200px;
-
+#softwareList ul {
+  list-style: none;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
 }
-.logo
-{
-    width: 50px;
-    height: 50px;
-    padding-right: 10px;
+.logo {
+  width: 50px;
+  height: 50px;
+  padding-right: 10px;
 }
-#softwareList ul li
-{
-    display: flex;
-    align-items: center;
-    align-content: center;
-    padding-bottom: 15px;
-    transform: translate(-20px);
-    color: #E8E9ED;
+#softwareList ul li {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  padding-bottom: 15px;
+  transform: translate(-20px);
+  color: #e8e9ed;
 }
 
-.centerPhotos
-{
-    display: flex;
-    justify-content: center;
+.centerPhotos {
+  display: flex;
+  justify-content: center;
 }
-.flickrPhotos
-{
-    column-count: 2;
-    column-gap: 0;
-
+.flickrPhotos {
+  column-count: 2;
+  column-gap: 0;
 }
 .flickrPhotos img {
-    width: 100%;
-    height: auto;
-    margin-bottom: -3px;
-    margin-top: -3px;
+  width: 100%;
+  height: auto;
+  margin-bottom: -3px;
+  margin-top: -3px;
 }

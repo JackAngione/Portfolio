@@ -1,0 +1,52 @@
+@import "../../main.css";
+.overlay {
+    background-color: rgba(0, 0, 0, 0.8);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: fixed;
+    z-index: 1;
+
+}
+.pageContent
+{
+    z-index: -1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow-y: hidden;
+
+}
+
+.modalContent{
+    padding: 40px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    max-height: calc(100vh - 60px);
+    transform: translate(-50%,-50%);
+    z-index: 2;
+    gap: 10px;
+    @apply bg-background flex flex-col mt-4 ;
+    overflow-y: auto;
+}
+.modalContent{
+    @apply border-2 rounded-[4px] border-secondary ;
+}
+.selectBox{
+    @apply border-2 border-red-600  bg-red-500 rounded-lg shadow-md;
+}
+.react-select-container {
+    @apply rounded-[6px] text-background;
+}
+.editForm label
+{
+    @apply flex flex-col mb-[40px] ;
+}
+
+.SVG_icon
+{
+    width: 25px;
+}

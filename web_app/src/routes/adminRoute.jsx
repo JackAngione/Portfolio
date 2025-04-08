@@ -1,13 +1,13 @@
-import { Navigate } from "react-router-dom";
-import AuthProvider, {AuthContext} from "../useAuth.jsx";
-import {useContext} from "react";
+import { Navigate } from "react-router";
+import { AuthContext } from "../useAuth.jsx";
+import { useContext } from "react";
 
 export const AdminRoute = ({ children }) => {
+  const { loggedIn } = useContext(AuthContext);
 
-    const authenticated = useContext(AuthContext).loggedIn;
-    if(authenticated){
-        return (children)
-    }
-    else{return <Navigate to="/" />;}
-
+  if (loggedIn) {
+    return children;
+  } else {
+    return <Navigate to={"/resources"} />;
+  }
 };

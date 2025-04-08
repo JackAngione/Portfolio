@@ -1,65 +1,73 @@
 @import "tailwindcss";
+
+@theme {
+  --font-primary: "Matisse_Standard";
+  --color-background: #141414;
+  --color-primary: #fcf7f8;
+  --color-secondary: oklch(0.6 0.2774 300.55);
+  /* --color-secondary: oklch(0.72 0.2466 360);*/
+  --color-sunny: oklch(0.84 0.1224 2.11);
+  --color-tertiary: oklch(0.84 0.1224 48.45);
+  /*--color-tertiary: #79b791;*/
+  --color-chalk: #ced3dc;
+  --font-secondary: "Helvetica";
+  --font-fancy: "Emeritus";
+}
+@utility bg-PrimaryGradient {
+  @apply bg-linear-to-br from-sunny to-secondary;
+}
+@font-face {
+  font-family: "Emeritus";
+  font-weight: 400;
+  src: url("../public/fonts/Emeritus-Trial-Display.otf") format("opentype");
+}
+@font-face {
+  font-family: "Surt";
+  font-weight: 400;
+  src: url("../public/fonts/surt-trial/Surt-Normal-Regular-TRIAL.otf")
+    format("opentype");
+}
+@font-face {
+  font-family: Helvetica;
+}
+
+body {
+  @apply p-0 text-primary font-secondary bg-[#141414];
+}
+h1 {
+  @apply text-[60px] text-primary font-primary font-bold bg-clip-text p-0;
+}
+h2 {
+  @apply p-0 text-5xl text-secondary font-bold font-fancy;
+}
+h3 {
+  @apply p-0 text-2xl text-tertiary font-bold font-primary;
+}
+
 :root {
   margin: 0;
   padding: 0;
   text-align: center;
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color: #FBFEF9;
-  color-scheme: light dark;
-
-  background-color: #FBFEF9;
 }
 
-a {
-  font-weight: 500;
-
-  text-decoration: inherit;
-}
 a:hover {
-  color: #0E79B2;
-}
-
-body {
-  margin: 0;
-
-  padding: 0;
-
-  color: #BF1363;
-}
-
-
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  @apply text-secondary;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: border-color 0.2s;
+  @apply text-primary rounded-md px-6 py-3
+  bg-PrimaryGradient;
 }
 button:hover {
-  border-color: #BF1363;
+  @apply border-secondary;
 }
 button:focus,
 button:focus-visible {
-  outline: 2px auto -webkit-focus-ring-color;
+  @apply outline-2 outline-secondary;
 }
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #ffffff;
-    background-color: #ffffff;
-  }
-
-
-
+input:focus,
+input:focus-visible {
+  @apply outline-2 outline-secondary;
 }
