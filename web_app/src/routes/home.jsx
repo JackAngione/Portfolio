@@ -4,7 +4,6 @@ import { jwtDecode } from "jwt-decode";
 import BackgroundAnim from "./backgroundAnimation.jsx";
 import LogosMarquee from "./logosMarquee.jsx";
 import { AuthContext, logout } from "../useAuth.jsx";
-import "../grain.css";
 function Home() {
   const [openModal, setOpenModal] = useState(false);
   const [username, setUsername] = useState(null);

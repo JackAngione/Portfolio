@@ -2,7 +2,6 @@ import { Link, Outlet } from "react-router";
 import "./navigationBar.css";
 import { useContext } from "react";
 import AuthProvider, { AuthContext } from "../useAuth.jsx";
-import GrainOverlay from "../GrainOverlay.jsx";
 //BASICALLY THE NAVIGATION BAR
 export default function NavigationBar() {
   const authenticated = useContext(AuthContext).loggedIn;

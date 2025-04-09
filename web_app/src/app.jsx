@@ -1,6 +1,11 @@
 import React, { Component } from "react";
 import NavigationBar from "./routes/navigationBar.jsx";
-import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
+import {
+  createBrowserRouter,
+  Navigate,
+  Outlet,
+  RouterProvider,
+} from "react-router";
 import Home from "./routes/home.jsx";
 import CodeProjects from "./skills/codeProjects.jsx";
 import Music from "./skills/MUSIC/music.jsx";
@@ -8,10 +13,11 @@ import ResourcesPage from "./routes/resourcesPage.jsx";
 import Upload from "./routes/upload.jsx";
 import HDRPhotos from "./skills/hdrPhotos.jsx";
 import AuthProvider from "./useAuth.jsx";
-import GrainOverlay from "./GrainOverlay.jsx";
+
 import Category from "./routes/category.jsx";
 import { AdminRoute } from "./routes/adminRoute.jsx";
 import * as path from "node:path";
+import GrainCanvas from "./GrainCanvas.jsx";
 
 function App() {
   const router = createBrowserRouter([
@@ -20,8 +26,9 @@ function App() {
       element: (
         <>
           <AuthProvider>
-            <GrainOverlay />
-            <NavigationBar />
+            <GrainCanvas>
+              <NavigationBar />
+            </GrainCanvas>
           </AuthProvider>
         </>
       ),
@@ -70,6 +77,11 @@ function App() {
           ),
         },*/
       ],
+    },
+    {
+      //re-routes any invalid paths to homepage
+      path: "*",
+      element: <Navigate to="/" />,
     },
   ]);
   return (

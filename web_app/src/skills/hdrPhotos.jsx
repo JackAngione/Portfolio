@@ -108,7 +108,7 @@ function HDRPhotos() {
         </ul>
       </div>
       <div className="flex justify-center">
-        <div className="z-2 columns-2 gap-0 [@media(min-aspect-ratio:1/1)]:columns-3">
+        <div className="z-3 columns-2 gap-0 [@media(min-aspect-ratio:1/1)]:columns-3">
           {Object.entries(lowres_images).map(([path, module], index) =>
             console.log("../../src/HDRPHOTOS/" + path.substring(13)),
           )}
