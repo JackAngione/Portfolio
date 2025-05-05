@@ -1,5 +1,4 @@
-import React from "react";
-import { LazyLoadImage } from "react-lazy-load-image-component";
+import React, { useEffect, useState } from "react";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import CaptureOneLogo from "./softwareLogos/CAPTURE_ONE_LOGO.svg";
 import PhotoshopLogo from "./softwareLogos/adobe-photoshop-2.svg";
@@ -8,29 +7,40 @@ import DavinciLogo from "./softwareLogos/DaVinci_Resolve_logo.svg";
 import PremiereProLogo from "./softwareLogos/premiere-pro-cc.svg";
 import AfterEffectsLogo from "./softwareLogos/after-effects-1.svg";
 import "./hdrPhotos.css";
+import PhotoCategory from "./PhotoCategory.jsx";
 
-// Import all images from the 'images' folder
-const images = import.meta.glob(
-  "../../src/HDRPHOTOS/*.{png,jpg,jpeg,svg,avif}",
-  { eager: true },
-);
-const lowres_images = import.meta.glob(
-  "../../src/HDRPHOTOS/lowres/*.{png,jpg,jpeg,avif,webp}",
-  { eager: true },
-);
 function HDRPhotos() {
-  //const portrait = window.matchMedia("(orientation: portrait)").matches;
-  const handleImageClick = (imagePath) => {
-    alert("Image clicked!");
-  };
+  const [photoCategories, setPhotoCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  useEffect(() => {
+    //TODO Delete getImagePaths function!
 
+    async function getCategories() {
+      const response = await fetch(
+        "http://192.168.1.242:2121/getPhotoCategories",
+      );
+      let list = await response.json();
+      setPhotoCategories(list.sort());
+    }
+
+    getCategories().then((r) => {});
+    //getImagePaths().then((r) => console.log("JACK" + imagePaths));
+  }, []);
+
+  const handleCategorySelect = (category) => {
+    console.log(category);
+    setSelectedCategory(category);
+  };
   return (
     <div className="">
-      <h1 className="mt-14 font-bold">HDR PHOTOS</h1>
-      <h2 className="mb-12">(View this webpage on an HDR capable display!)</h2>
-      <p className="my-4">
-        8+ years of experience in photography/videography, with expertise in:
+      <h1 className="mt-14 font-bold">PHOTOGRAPHY</h1>
+      <p className="">
+        All images are in HDR. View this webpage on an HDR capable
+        display/browser!
       </p>
+      <h3 className="my-4 mt-12">
+        Over 9 years of experience in photography/videography
+      </h3>
       <div className="mb-12 flex items-center justify-center gap-24">
         <ul className="flex flex-col gap-2">
           <a
@@ -87,7 +97,11 @@ function HDRPhotos() {
             rel="noopener noreferrer"
           >
             <li className="flex items-center">
-              <img src={PremiereProLogo} className="logo" />
+              <img
+                src={PremiereProLogo}
+                className="logo"
+                alt="premiere pro logo"
+              />
               Premiere Pro
             </li>
           </a>
@@ -107,29 +121,25 @@ function HDRPhotos() {
           </a>
         </ul>
       </div>
-      <div className="flex justify-center">
-        <div className="z-3 columns-2 gap-0 [@media(min-aspect-ratio:1/1)]:columns-3">
-          {Object.entries(lowres_images).map(([path, module], index) =>
-            console.log("../../src/HDRPHOTOS/" + path.substring(13)),
-          )}
-          {/*LOOP THROUGH IMAGES A DISPLAY THEM*/}
-          {Object.entries(images).map(([path, module], index) => (
-            <LazyLoadImage
-              className="-my-0.75 h-auto w-full cursor-pointer"
-              key={index}
-              src={"../../src/HDRPHOTOS/" + path.substring(13)}
-              alt={`img-${index}`}
-              //onLoad={}
-              effect="blur"
-              onClick={() =>
-                handleImageClick(
-                  "../../src/HDRPHOTOS/lowres/" + path.substring(13),
-                )
-              }
+      <h2>Categories</h2>
+      {/* [@media(min-aspect-ratio:1/1)]:*/}
+      <div className="mx-16 my-8 flex flex-wrap justify-center">
+        {photoCategories.map((category, index) => (
+          <label
+            className={`${selectedCategory === category ? "bg-PrimaryGradient text-black" : "bg-background"} text-primary m-2 rounded-md border-2 px-6 py-3`}
+          >
+            <input
+              className={`hidden appearance-none text-white shadow-md ring-blue-300`}
+              type="radio"
+              name="Categories"
+              value={category}
+              onChange={() => handleCategorySelect(category)}
             />
-          ))}
-        </div>
+            {category.charAt(0).toUpperCase() + category.slice(1)}
+          </label>
+        ))}
       </div>
+      <PhotoCategory category={selectedCategory} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { Link, Outlet } from "react-router";
 import "./navigationBar.css";
 import { useContext } from "react";
-import AuthProvider, { AuthContext } from "../useAuth.jsx";
+import { AuthContext } from "../useAuth.jsx";
 //BASICALLY THE NAVIGATION BAR
 export default function NavigationBar() {
   const authenticated = useContext(AuthContext).loggedIn;
@@ -14,9 +14,9 @@ export default function NavigationBar() {
             SKILLS
           </Link>
           <div className="dropDownList">
-            <Link to="/code"> /PROGRAMMING</Link>
-            <Link to="/hdrphotos"> /HDR_PHOTOS </Link>
-            <Link to="/music"> /MUSIC </Link>
+            <Link to="/code"> PROGRAMMING</Link>
+            <Link to="/hdrphotos"> PHOTOGRAPHY </Link>
+            <Link to="/music"> MUSIC </Link>
           </div>
         </div>
         |
@@ -26,7 +26,7 @@ export default function NavigationBar() {
         |
         <div className="navDropdown">
           <Link className="mainDropdownResources" to="/resources">
-            /RESOURCES
+            RESOURCES
           </Link>
           {authenticated ? (
             <div className="dropDownList">

@@ -72,7 +72,11 @@ function EditModal({ open, tutorialData, onClose }) {
           },
         })
         .then(({ response }) => {
-          //console.log(response.data)
+          alert("Resource edited successfully!");
+        })
+        .catch((error) => {
+          console.log(error);
+          alert("Error editing Resource!");
         });
       onClose();
     }
@@ -180,6 +184,7 @@ function EditModal({ open, tutorialData, onClose }) {
       </>
     );
   }
+
   const handleKeyDown = (event) => {
     if (!inputValue) return;
     switch (event.key) {
@@ -302,4 +307,5 @@ function EditModal({ open, tutorialData, onClose }) {
     </>
   );
 }
+
 export default EditModal;

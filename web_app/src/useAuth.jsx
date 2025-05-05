@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { serverAddress } from "./routes/serverInfo.jsx";
 import Cookies from "js-cookie";
 import axios from "axios";
+
 export const AuthContext = createContext({ loggedIn: false, token: "" });
 
 export async function login(username, password) {
@@ -57,6 +58,7 @@ function AuthProvider({ children }) {
   const [authenticated, setAuthenticated] = useState(false);
   const [token, setToken] = useState("");
   const browserToken = Cookies.get("LoginToken");
+
   useEffect(() => {
     async function handleAuthenticate() {
       if (browserToken != null && authenticated === false) {
@@ -78,6 +80,7 @@ function AuthProvider({ children }) {
           .catch((err) => console.log("Authentication failed"));
       }
     }
+
     handleAuthenticate().then((r) => {
       setAuthLoaded(true);
     });
@@ -94,4 +97,5 @@ function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
+
 export default AuthProvider;

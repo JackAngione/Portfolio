@@ -1,21 +1,16 @@
-import { motion, useAnimation } from "motion/react";
-import { useEffect } from "react";
+import { motion } from "motion/react";
 import "./codeProjects.css";
+import CodeMarquee from "./CodeMarquee.jsx";
+
 function CodeProjects() {
-  const controls = useAnimation();
-
-  useEffect(() => {
-    const sequence = async () => {
-      controls.start({ width: "100%" });
-      controls.start({ opacity: 1 });
-    };
-    sequence();
-  }, []);
   return (
-    <>
-      <h1 className="my-14">CODING PROJECTS</h1>
+    <div className="justify-center">
+      <div className="fixed inset-0 flex items-center justify-center blur-xs">
+        <CodeMarquee columns={10}></CodeMarquee>
+      </div>
+      <h1 className="my-14 mix-blend-difference">CODING PROJECTS</h1>
 
-      <div className="flex-col flex items-center">
+      <div className="flex flex-col items-center">
         <div className="project">
           <motion.h2
             className=""
@@ -72,11 +67,8 @@ function CodeProjects() {
               MuZe
             </a>
           </motion.h2>
-          <h3>
-            {" "}
-            Offline Music Player Application for Android made with Jetpack
-            Compose and Kotlin
-          </h3>
+          <h3> Offline Music Player Application for Android</h3>
+          <p>Made with Jetpack Compose and Kotlin</p>
           <h3>Features</h3>
           <ul>
             <li>View and play music files on the device</li>
@@ -93,16 +85,19 @@ function CodeProjects() {
             whileHover={{ scale: 1.1 }}
             transition={{ duration: 0.25 }}
           >
-            <a href={"https://github.com/JackAngione/Media-Platform"}>
+            <a
+              href={"https://github.com/JackAngione/Media-Platform"}
+              target="_blank"
+            >
               "Media Platform"
             </a>
           </motion.h2>
           <h3> Platform for uploading/downloading artistic media</h3>
           <p>
             {" "}
-            Users can upload and view the content of others on the platform
+            Users can upload and view the content (video, audio, or images) of
+            others on the platform
           </p>
-          <p> Video, audio, or imagery can be uploaded</p>
           <p>
             {" "}
             Users can download another users upload at the full original
@@ -124,11 +119,11 @@ function CodeProjects() {
           >
             <a href={"/resources"}>"Resources"</a>
           </motion.h2>
-          <h3> A collection of tutorials/sources of topics I've come across</h3>
+          <h3> A collection of informative sources</h3>
           <p>
             {" "}
             Allows for easy access to a quality source when referencing
-            something I've previously learned
+            previously learned information, or learning a new topic.
           </p>
           <p>
             The database can be conveniently searched by title, description,
@@ -138,7 +133,7 @@ function CodeProjects() {
           <h3>Features</h3>
           <ul>
             <li>Closely interfaces with MongoDB database</li>
-            <li>Utilities for uploading, editing, and deleting sources</li>
+            <li>Utilities for uploading, editing, and deleting resources</li>
             <li>Create/edit/delete categories</li>
             <li>
               Search Resources with MeiliSearch/InstantSearch implementation
@@ -153,7 +148,10 @@ function CodeProjects() {
             whileHover={{ scale: 1.1 }}
             transition={{ duration: 0.25 }}
           >
-            <a href={"https://github.com/JackAngione/jack_chess_application"}>
+            <a
+              href={"https://github.com/JackAngione/jack_chess_application"}
+              target="_blank"
+            >
               "Console Chess Game"
             </a>
           </motion.h2>
@@ -168,10 +166,9 @@ function CodeProjects() {
             <li>Only allows valid moves</li>
             <li>Check, Checkmate</li>
           </ul>
-          <p></p>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "../main.css";
-.logo{
-  @apply w-14;
+
+.logo {
+    @apply w-10 mr-2;
 }

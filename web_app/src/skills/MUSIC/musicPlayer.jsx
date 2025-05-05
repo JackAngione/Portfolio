@@ -1,14 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useWavesurfer } from "@wavesurfer/react";
+import { Slider } from "@heroui/react";
 
-function MusicPlayer({ songURL }) {
+function MusicPlayer({ song }) {
   //initialize WaveSurfer
   const containerRef = useRef(null);
   const { wavesurfer, isReady, isPlaying, currentTime } = useWavesurfer({
     container: containerRef,
-    url: songURL,
-    waveColor: "#000000",
-    progressColor: "#BF1363",
+    url:
+      "http://192.168.1.242:2121/stream/" + song.artist_id + "/" + song.song_id,
+    waveColor: "#fcf7f8",
+    progressColor: "oklch(0.6 0.2774 300.55)",
     height: 40,
     // Set a bar width
     barWidth: 1,
@@ -40,50 +42,98 @@ function MusicPlayer({ songURL }) {
     return `${minutes}:${seconds}`;
   }
 
-  const changeVolume = (e) => {
+  const changeVolume = (value) => {
     //makes new volume exponential
-    const volumeExp = Math.pow(e.target.value, 2);
+    const volumeExp = Math.pow(value, 2);
     wavesurfer.setVolume(volumeExp);
-    setVolume(e.target.value);
+    setVolume(value);
   };
 
-  const handleSeekChange = (e) => {
-    wavesurfer.seekTo(e.target.value);
+  const handleSeekChange = (value) => {
+    wavesurfer.seekTo(value);
     wavesurfer.setTime(songProgress);
-    setSongProgress(e.target.value);
+    setSongProgress(value);
   };
 
   return (
-    <div className="bg-white fixed bottom-0 left-1/2 -translate-x-1/2 w-full">
-      <div className="flex flex-col justify-center">
-        <h2>{`${songURL}`}</h2>
+    <div className="bg-background fixed bottom-0 z-2 w-full">
+      <div className="flex flex-col items-center">
+        <h3 className="">{`${song.artist_name} - ${song.song_title}`}</h3>
 
-        <div className="songControls">
-          <button onClick={onPlayPause}>{isPlaying ? "Pause" : "Play"}</button>
-          <input
-            className="w-20"
-            type="range"
-            min={0}
-            max={1}
-            step="any"
+        <div className="w-[70vw]" ref={containerRef} />
+
+        <div className="text-primary flex items-center">
+          <button
+            className="mx-4 flex scale-70 items-center justify-center p-0 outline-2 outline-amber-700"
+            onClick={onPlayPause}
+          >
+            {isPlaying ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 5.25v13.5m-7.5-13.5v13.5"
+                />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+                />
+              </svg>
+            )}
+          </button>
+
+          <Slider
+            classNames={{
+              base: "w-20 gap-3",
+              track: "bg-primary",
+              filler: "bg-PrimaryGradient",
+              thumb: "bg-PrimaryGradient",
+            }}
+            aria-label={"volume slider"}
+            minValue={0}
+            maxValue={1}
+            step={0.01}
             value={volume}
-            onChange={(e) => changeVolume(e)}
+            onChange={changeVolume}
           />
+          <div className="mx-4 flex content-center items-center justify-center gap-2">
+            {/*{secondsToMinutes(currentTime)}*/}
+            {secondsToMinutes(currentTime)}
 
-          {/*{secondsToMinutes(currentTime)}*/}
-          {secondsToMinutes(currentTime)}
-
-          <input
-            className="musicSlider"
-            type="range"
-            min={0}
-            max={songDuration}
-            step=".01"
-            value={currentTime}
-            onChange={(e) => handleSeekChange(e)}
-          />
-          {secondsToMinutes(songDuration)}
-          <div className="p-4" ref={containerRef} />
+            <Slider
+              classNames={{
+                base: "w-40 gap-3",
+                track: "bg-primary",
+                filler: "bg-PrimaryGradient",
+                thumb: "bg-PrimaryGradient",
+              }}
+              aria-label={"song position slider"}
+              minValue={0}
+              maxValue={songDuration}
+              step={0.01}
+              value={currentTime}
+              onChange={handleSeekChange}
+            />
+            {secondsToMinutes(songDuration)}
+          </div>
         </div>
       </div>
     </div>

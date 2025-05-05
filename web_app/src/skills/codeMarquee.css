@@ -1,0 +1,6 @@
+@import "tailwindcss";
+@import "../main.css";
+
+.marquee {
+    @apply flex flex-col items-center justify-center whitespace-nowrap  outline-amber-100;
+}

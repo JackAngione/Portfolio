@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import "./resourcePage.css";
 import EditModal from "./modals/editModal.jsx";
 import DeleteModal from "./modals/deleteModal.jsx";
@@ -6,19 +6,15 @@ import trashIcon from "../svgIcons/trashIcon.svg";
 import { meiliSearch_Search_Key } from "../API_Keys";
 import { searchServer } from "./serverInfo.jsx";
 import {
-  InstantSearch,
   ClearRefinements,
-  SearchBox,
-  Hits,
   Highlight,
+  Hits,
+  InstantSearch,
   RefinementList,
-  HierarchicalMenu,
+  SearchBox,
 } from "react-instantsearch";
 import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
-import { Outlet } from "react-router";
 import { AuthContext } from "../useAuth.jsx";
-import editModal from "./modals/editModal.jsx";
-import deleteModal from "./modals/deleteModal.jsx";
 
 function ResourcesPage() {
   const authenticated = useContext(AuthContext).loggedIn;
@@ -27,15 +23,6 @@ function ResourcesPage() {
     meiliSearch_Search_Key,
     { placeholderSearch: false },
   );
-  //THE USER'S SEARCH QUERY
-  const [searchText, updateSearchText] = useState("");
-  //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (in json format)
-  const [categories, setCategories] = useState();
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (just the titles)
-  //WHICH CATEGORIES THE USER IS FILTERING BY
-  const [chosenCategories, setChosenCategory] = useState([]);
-  //SEARCH RESULTS ARE AN ARRAY OF MONGODB DOCUMENTS IN JSON FORMAT
 
   //EDITOR MODAL
   const [openEditModal, setOpenEditModal] = useState(false);
@@ -51,6 +38,7 @@ function ResourcesPage() {
       />
     );
   }
+
   function runDeleteModal() {
     {
       //TODO only run on authentication
@@ -67,7 +55,7 @@ function ResourcesPage() {
   const Hit = ({ hit }) => {
     //hit is basically a json object of the meilisearch document
     return (
-      <div className="m-8 flex flex-col items-center outline-2">
+      <div className="m-8 flex flex-col items-center">
         <button
           onClick={() => {
             window.open(`${hit.source}`);
@@ -96,7 +84,6 @@ function ResourcesPage() {
             </button>
             <button
               onClick={() => {
-                console.log("hitme!baby one more time");
                 setTutorialToEdit(hit);
                 setOpenDeleteModal(!openDeleteModal);
               }}
@@ -126,26 +113,29 @@ function ResourcesPage() {
       {runDeleteModal()}
       <div className="lg:mr-44 lg:flex lg:justify-center">
         <InstantSearch indexName="resources" searchClient={searchClient}>
-          <div className="text-primary block justify-center sm:flex lg:block">
-            <div className="sm:text-left">
-              <h3 className="pb-2 font-bold">Categories</h3>
-              <RefinementList
-                className=""
-                title="Category"
-                attribute="category"
-                sortBy={["name"]}
-              />
-
-              <h3 className="pb-2 font-bold">SubCategories</h3>
-              <RefinementList
-                className=""
-                title="SubCategories"
-                attribute="subCategories"
-                sortBy={["name"]}
-              />
+          <div className="text-primary justify-center sm:flex lg:block">
+            <div className="sm:flex sm:gap-6 sm:text-left lg:flex-col">
+              <div>
+                <h3 className="pb-2 font-bold">Categories</h3>
+                <RefinementList
+                  className=""
+                  title="Category"
+                  attribute="category"
+                  sortBy={["name"]}
+                />
+              </div>
+              <div>
+                <h3 className="pb-2 font-bold">SubCategories</h3>
+                <RefinementList
+                  className=""
+                  title="SubCategories"
+                  attribute="subCategories"
+                  sortBy={["name"]}
+                />
+              </div>
             </div>
 
-            <ClearRefinements className="text-primary mt-4 content-center font-bold sm:ml-4 lg:m-0 lg:mt-4" />
+            <ClearRefinements className="text-primary mt-4 content-center font-bold sm:ml-6 lg:m-0 lg:mt-4" />
           </div>
           <div className="searchResults">
             <SearchBox autoFocus={true} className="text-primary py-4" />

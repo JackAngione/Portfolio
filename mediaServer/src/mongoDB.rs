@@ -1,26 +1,14 @@
-use std::fs::exists;
-use std::path::Path;
 use crate::AxumState;
 use axum::extract::{Path as axum_path, State};
-use axum::{Json, debug_handler};
-use axum::body::Body;
-use axum::http::{header, StatusCode};
-use axum::response::{IntoResponse, Response};
+use axum::Json;
 use mongodb::{bson, bson::doc, Collection};
-use mongodb::bson::Bson;
-use mongodb::bson::Bson::Document;
 use rand::{rng, Rng};
 use serde::{Deserialize, Serialize};
-use tokio::io::BufReader;
 use tokio_stream::StreamExt;
-use tokio_util::io::ReaderStream;
-use tower::ServiceExt;
-use tower_http::services::ServeFile;
 
-enum IDType
-{
+enum IDType {
     Song,
-    Artist
+    Artist,
 }
 #[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct Song {
@@ -39,39 +27,45 @@ pub(crate) struct Artist {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     id: Option<bson::oid::ObjectId>, // MongoDB ObjectId
     artist_name: String,
-    artist_id: String
+    artist_id: String,
 }
-async fn id_generator(database:mongodb::Database, id_type: IDType) -> String{
-    let id_length:i32= 5;
+async fn id_generator(database: mongodb::Database, id_type: IDType) -> String {
+    let id_length: i32 = 5;
     let song_collection = database.collection::<Song>("songs");
     let artist_collection = database.collection::<Artist>("artists");
 
-
     let mut rng = rng();
-    const URL_SAFE_CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    const URL_SAFE_CHARS: &[u8] =
+        b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
     loop {
         let mut final_id: String = "".to_string();
-        for i in 0..id_length
-        {
+        for i in 0..id_length {
             let index = rng.random_range(0..URL_SAFE_CHARS.len());
             let next = URL_SAFE_CHARS[index] as char;
             final_id.push(next)
         }
-        match id_type
-        {
+        match id_type {
             IDType::Song => {
-                if song_collection.find_one(doc! {"song_id": &final_id}).await.unwrap().is_some()
+                if song_collection
+                    .find_one(doc! {"song_id": &final_id})
+                    .await
+                    .unwrap()
+                    .is_some()
                 {
                     return final_id;
                 }
-                continue
-            },
+                continue;
+            }
             IDType::Artist => {
-                if artist_collection.find_one(doc! {"artist_id": &final_id}).await.unwrap().is_some()
+                if artist_collection
+                    .find_one(doc! {"artist_id": &final_id})
+                    .await
+                    .unwrap()
+                    .is_some()
                 {
                     return final_id;
                 }
-                continue
+                continue;
             }
         };
     }
@@ -122,11 +116,10 @@ pub(crate) async fn get_artist_songs(
 }
 
 //get list of artists
-pub(crate) async fn get_artists(
-    State(state): State<AxumState>) -> Json<Vec<Artist>>{
-    let artist_collection:Collection<Artist> = state.mongo_database.collection("artists");
+pub(crate) async fn get_artists(State(state): State<AxumState>) -> Json<Vec<Artist>> {
+    let artist_collection: Collection<Artist> = state.mongo_database.collection("artists");
     println!("Retrieving artists");
-    let mut artist_documents = artist_collection.find(doc! { }).await.unwrap();
+    let mut artist_documents = artist_collection.find(doc! {}).await.unwrap();
     //get all songs in music collection
     let mut artist_list: Vec<Artist> = vec![];
     while let Some(result) = artist_documents.try_next().await.unwrap() {
@@ -136,4 +129,3 @@ pub(crate) async fn get_artists(
 
     Json(artist_list)
 }
-

@@ -16,5 +16,10 @@ mediaServer/.DS_Store
 web_app/package-lock.json
 package-lock.json
 
-/web_app/src/HDRPHOTOS/
 /web_app/public/fonts
+/mediaServer/hdrImages
+/mediaServer/High Res Album Covers
+/Tools/.idea
+/Tools/downscaled_images
+/Tools/high_res_album_covers
+/mediaServer/fav_album_covers

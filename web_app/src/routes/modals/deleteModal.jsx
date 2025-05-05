@@ -4,12 +4,14 @@ import axios from "axios";
 import { serverAddress } from "../serverInfo.jsx";
 import trashIcon from "../../svgIcons/trashIcon.svg";
 import { AuthContext } from "../../useAuth.jsx";
+
 function DeleteModal({ open, tutorialData, onClose }) {
   const [isChecked, setIsChecked] = useState(false);
   const { token } = useContext(AuthContext); //get token from auth
   if (!open) {
     return null;
   }
+
   function deleteTutorial() {
     let inputs = {
       title: tutorialData.title,
@@ -27,6 +29,7 @@ function DeleteModal({ open, tutorialData, onClose }) {
       });
     onClose();
   }
+
   return (
     <>
       <div className="overlay">
@@ -53,4 +56,5 @@ function DeleteModal({ open, tutorialData, onClose }) {
     </>
   );
 }
+
 export default DeleteModal;

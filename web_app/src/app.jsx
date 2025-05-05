@@ -1,11 +1,6 @@
-import React, { Component } from "react";
+import React from "react";
 import NavigationBar from "./routes/navigationBar.jsx";
-import {
-  createBrowserRouter,
-  Navigate,
-  Outlet,
-  RouterProvider,
-} from "react-router";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
 import Home from "./routes/home.jsx";
 import CodeProjects from "./skills/codeProjects.jsx";
 import Music from "./skills/MUSIC/music.jsx";
@@ -16,7 +11,8 @@ import AuthProvider from "./useAuth.jsx";
 
 import Category from "./routes/category.jsx";
 import { AdminRoute } from "./routes/adminRoute.jsx";
-import * as path from "node:path";
+import { HeroUIProvider } from "@heroui/react";
+import CommandK from "./routes/commandK.jsx";
 import GrainCanvas from "./GrainCanvas.jsx";
 
 function App() {
@@ -25,11 +21,19 @@ function App() {
       path: "/",
       element: (
         <>
-          <AuthProvider>
-            <GrainCanvas>
-              <NavigationBar />
-            </GrainCanvas>
-          </AuthProvider>
+          <HeroUIProvider>
+            <AuthProvider>
+              <CommandK>
+                <GrainCanvas>
+                  {/*   <FilmGrainScene>*/}
+                  {/* <SVGGRAIN>*/}
+                  <NavigationBar />
+                  {/*  </SVGGRAIN>*/}
+                  {/*  </FilmGrainScene>*/}
+                </GrainCanvas>
+              </CommandK>
+            </AuthProvider>
+          </HeroUIProvider>
         </>
       ),
       children: [
@@ -86,40 +90,9 @@ function App() {
   ]);
   return (
     <>
-      {/*<BrowserRouter>
-        <AuthProvider>
-          <GrainOverlay>
-            <NavigationBar />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="photography" element={<Photography />} />
-              <Route path="hdrphotos" element={<HDRPhotos />} />
-              <Route path="/code" element={<CodeProjects />} />
-              <Route path="/music" element={<Music />} />
-              <Route path="/resources" element={<ResourcesPage />} />
-              <Route
-                path="/upload"
-                element={
-                  <AdminRoute>
-                    <Upload />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/category"
-                element={
-                  <AdminRoute>
-                    <Category />
-                  </AdminRoute>
-                }
-              />
-            </Routes>
-          </GrainOverlay>
-        </AuthProvider>
-      </BrowserRouter>*/}
-
       <RouterProvider router={router} />
     </>
   );
 }
+
 export default App;

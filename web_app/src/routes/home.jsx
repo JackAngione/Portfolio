@@ -4,6 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import BackgroundAnim from "./backgroundAnimation.jsx";
 import LogosMarquee from "./logosMarquee.jsx";
 import { AuthContext, logout } from "../useAuth.jsx";
+
 function Home() {
   const [openModal, setOpenModal] = useState(false);
   const [username, setUsername] = useState(null);
@@ -40,6 +41,7 @@ function Home() {
             onClick={() => {
               setOpenModal(!openModal);
             }}
+            className="m-2"
           >
             Login
           </button>
@@ -53,4 +55,5 @@ function Home() {
     </>
   );
 }
+
 export default Home;

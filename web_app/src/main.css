@@ -1,73 +1,100 @@
 @import "tailwindcss";
 
+@source '../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
+@plugin "./hero.ts";
+
 @theme {
-  --font-primary: "Matisse_Standard";
-  --color-background: #141414;
-  --color-primary: #fcf7f8;
-  --color-secondary: oklch(0.6 0.2774 300.55);
-  /* --color-secondary: oklch(0.72 0.2466 360);*/
-  --color-sunny: oklch(0.84 0.1224 2.11);
-  --color-tertiary: oklch(0.84 0.1224 48.45);
-  /*--color-tertiary: #79b791;*/
-  --color-chalk: #ced3dc;
-  --font-secondary: "Helvetica";
-  --font-fancy: "Emeritus";
+    --font-primary: "Matisse_Standard";
+
+    --color-background: oklch(0.19 0 0);
+    --color-primary: oklch(0.98 0.0293 146.88);
+    --color-secondary: oklch(0.6 0.2774 332.09);
+    --color-tertiary: oklch(0.49 0.2392 326.73);
+    /* --color-secondary: oklch(0.72 0.2466 360);*/
+    --color-sunny: #FFC759;
+    --color-sherbert: #FF7B9C;
+
+    /*--font-secondary: "Sinoreta";*/
+    --font-secondary: "Helvetica";
+    /*--font-fancy: "Emeritus";*/
+    --font-fancy: "Peste";
 }
 @utility bg-PrimaryGradient {
-  @apply bg-linear-to-br from-sunny to-secondary;
+    @apply bg-linear-to-br from-sunny to-sherbert;
 }
 @font-face {
-  font-family: "Emeritus";
-  font-weight: 400;
-  src: url("../public/fonts/Emeritus-Trial-Display.otf") format("opentype");
+    font-family: "Emeritus";
+    font-weight: 400;
+    src: url("../public/fonts/Emeritus-Trial-Display.otf") format("opentype");
 }
+
 @font-face {
-  font-family: "Surt";
-  font-weight: 400;
-  src: url("../public/fonts/surt-trial/Surt-Normal-Regular-TRIAL.otf")
-    format("opentype");
+    font-family: "Surt";
+    font-weight: 400;
+    src: url("../public/fonts/surt-trial/Surt-Normal-Regular-TRIAL.otf") format("opentype");
 }
+
 @font-face {
-  font-family: Helvetica;
+    font-family: Helvetica;
+}
+
+@font-face {
+    font-family: "Peste";
+    font-weight: 800;
+    src: url("../public/fonts/PesteTRIAL-Regular.otf") format("opentype");
+}
+
+@font-face {
+    font-family: "Sinoreta";
+    src: url("../public/fonts/Sinoreta_PERSONAL_USE_ONLY.otf") format("opentype");
 }
 
 body {
-  @apply p-0 text-primary font-secondary bg-[#141414];
+    @apply p-0 text-primary font-secondary bg-background;
 }
+
 h1 {
-  @apply text-[60px] text-primary font-primary font-bold bg-clip-text p-0;
+    @apply text-[60px] text-primary font-primary font-bold bg-clip-text p-0;
 }
+
 h2 {
-  @apply p-0 text-5xl text-secondary font-bold font-fancy;
+    @apply p-0 text-5xl text-secondary  font-bold font-fancy;
 }
+
 h3 {
-  @apply p-0 text-2xl text-tertiary font-bold font-primary;
+    @apply p-0 text-2xl text-secondary font-bold font-primary;
 }
 
 :root {
-  margin: 0;
-  padding: 0;
-  text-align: center;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    scrollbar-color: #fcf7f8 #141414;
+    @apply bg-background;
 }
 
 a:hover {
-  @apply text-secondary;
+    @apply text-secondary;
 }
 
 button {
-  cursor: pointer;
-  transition: border-color 0.2s;
-  @apply text-primary rounded-md px-6 py-3
-  bg-PrimaryGradient;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    @apply text-primary rounded-md px-6 py-3
+    bg-PrimaryGradient;
 }
+
 button:hover {
-  @apply border-secondary;
+    @apply border-secondary;
 }
+
 button:focus,
 button:focus-visible {
-  @apply outline-2 outline-secondary;
+    @apply outline-2 outline-secondary;
 }
+
 input:focus,
 input:focus-visible {
-  @apply outline-2 outline-secondary;
+    @apply outline-2 outline-secondary;
 }
+
