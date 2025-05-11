@@ -35,9 +35,9 @@ pub(crate) async fn get_artwork(
     let mut pathbuilder;
     //IF SONG IS PART OF AN ALBUM, USE THE ALBUM ARTWORK
     if song.album != "" {
-        pathbuilder = format!("artists/{}/{}", song.artist_id, song.album);
+        pathbuilder = format!("server_files/artists/{}/{}", song.artist_id, song.album);
     } else {
-        pathbuilder = format!("artists/{}/{}", song.artist_id, song.song_id);
+        pathbuilder = format!("server_files/artists/{}/{}", song.artist_id, song.song_id);
     }
 
     let extensions = [".png", ".jpg", ".jpeg", ".webp", ".avif"];
@@ -92,7 +92,7 @@ pub(crate) async fn stream_song(
     axum_path((artist_id, song_id)): axum_path<(String, String)>,
     req: axum::extract::Request,
 ) -> Result<Response, String> {
-    let mut pathbuilder: String = format!("artists/{}/{}", artist_id, song_id);
+    let mut pathbuilder: String = format!("server_files/artists/{}/{}", artist_id, song_id);
 
     let extensions = [".wav", ".mp3", ".AAC", ".AIFF"];
     for ext in extensions.iter() {
@@ -112,7 +112,7 @@ pub(crate) async fn stream_song(
 }
 
 pub(crate) async fn get_categories(req: axum::extract::Request) -> Json<Vec<String>> {
-    let path = Path::new("./hdrImages");
+    let path = Path::new("./server_files/hdrImages");
     let mut hdr_images_folder = tokio::fs::read_dir(path).await.unwrap();
     let mut image_files: Vec<String> = Vec::new();
     while let Some(category) = hdr_images_folder.next_entry().await.unwrap() {
@@ -130,7 +130,7 @@ pub(crate) async fn get_categories(req: axum::extract::Request) -> Json<Vec<Stri
 pub(crate) async fn get_category_photos(
     axum_path((category)): axum_path<(String)>,
 ) -> Result<Json<Vec<String>>, StatusCode> {
-    let pathbuilder = format!("./hdrImages/{}", category);
+    let pathbuilder = format!("./server_files/hdrImages/{}", category);
     let path = Path::new(&pathbuilder);
     //if given invalid category, return NOT FOUND status code
     let mut category_folder = match tokio::fs::read_dir(path).await {
@@ -154,7 +154,7 @@ pub(crate) async fn get_category_photos(
 
 pub(crate) async fn get_album_covers() -> Result<Json<Vec<String>>, StatusCode> {
     println!("Getting album covers");
-    let path = Path::new("./fav_album_covers");
+    let path = Path::new("./server_files/fav_album_covers");
     //if given invalid category, return NOT FOUND status code
     let mut album_covers_folder = match tokio::fs::read_dir(path).await {
         Ok(dir) => dir,
@@ -172,4 +172,38 @@ pub(crate) async fn get_album_covers() -> Result<Json<Vec<String>>, StatusCode> 
     let mut rng = rng();
     album_covers.shuffle(&mut rng);
     Ok(Json(album_covers))
+}
+pub(crate) async fn get_resume() -> Response<Body> {
+    /* println!("Path with Extension: {}", pathbuilder);*/
+    let path = Path::new("./server_files/jack_angione_resume.pdf");
+    let file = tokio::fs::File::open(path).await;
+    //catches file opening errors
+    match file {
+        Ok(file) => {
+            let metadata = file.metadata().await.unwrap();
+
+            let reader = BufReader::new(file);
+            // Convert the file into a stream
+            let stream = ReaderStream::new(reader);
+
+            // convert the `Stream` into an `axum::body::HttpBody`
+            let body = Body::from_stream(stream);
+
+            let response = axum::http::Response::builder()
+                .status(StatusCode::OK)
+                .header(header::CONTENT_TYPE, "application/pdf")
+                .header(header::CONTENT_LENGTH, metadata.len())
+                .body(body)
+                .unwrap();
+            response
+        }
+        Err(..) => {
+            println!("Resume file not not found: {}", path.to_str().unwrap());
+            let response = axum::http::Response::builder()
+                .status(StatusCode::NOT_FOUND)
+                .body(Body::empty())
+                .unwrap();
+            response
+        }
+    }
 }

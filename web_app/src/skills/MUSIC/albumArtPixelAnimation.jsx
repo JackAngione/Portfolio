@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { media_server_address } from "../../serverInfo.jsx";
 
 function AlbumArtPixelAnimation() {
   const [albumCovers, setAlbumCovers] = useState([]);
@@ -15,7 +16,7 @@ function AlbumArtPixelAnimation() {
 
   async function getAlbumArt() {
     console.log("GEtTInG AlBuM ART");
-    const response = await fetch("http://192.168.1.242:2121/getAlbumCovers");
+    const response = await fetch(media_server_address + "/getAlbumCovers");
     let list = await response.json();
     setAlbumCovers(list);
   }
@@ -101,7 +102,8 @@ function AlbumArtPixelAnimation() {
                 <div>
                   <img
                     src={
-                      "http://192.168.1.242:2121/album_covers/" +
+                      media_server_address +
+                      "/album_covers/" +
                       albumCovers[Math.floor(index / 2) % albumCovers.length]
                     }
                     key={index}
@@ -111,17 +113,8 @@ function AlbumArtPixelAnimation() {
               ) : (
                 <div className="bg-background h-full w-full"></div>
               )}
-              {/*  <img
-                src={
-                  "http://192.168.1.242:2121/album_covers/" +
-                  albumCovers[index % albumCovers.length]
-                }
-                key={index}
-                alt=""
-              />*/}
             </>
           ))}
-          {/*{console.log(tileCount.width)}*/}
         </div>
       </div>
     </>

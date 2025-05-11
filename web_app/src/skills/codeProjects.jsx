@@ -10,7 +10,7 @@ function CodeProjects() {
       </div>
       <h1 className="my-14 mix-blend-difference">CODING PROJECTS</h1>
 
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center justify-center">
         <div className="project">
           <motion.h2
             className=""

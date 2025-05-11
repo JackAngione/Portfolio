@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
+import { media_server_address } from "../../serverInfo.jsx";
 
 const ArtistDisplay = ({ artist, sendSelectedSong }) => {
   // State to track which accordion item is open (null means all closed)
@@ -16,9 +17,8 @@ const ArtistDisplay = ({ artist, sendSelectedSong }) => {
   }, [artist]);
   const fetchSongs = async (artist) => {
     try {
-      // Replace with your API endpoint
       const response = await fetch(
-        `http://192.168.1.242:2121/artist/${artist.artist_id}`,
+        media_server_address + `/artist/${artist.artist_id}`,
       );
 
       if (!response.ok) {
@@ -36,22 +36,23 @@ const ArtistDisplay = ({ artist, sendSelectedSong }) => {
   if (artist === "") return <></>;
   else
     return (
-      <div className="grid w-max min-w-full grid-cols-3 items-center justify-center">
-        {songList.map((song, index) => (
-          <div className="m-4 flex w-40 flex-col items-center justify-center">
-            <button
-              className=""
-              key={index}
-              onClick={() => handleSongClick(song)}
-            >
-              <LazyLoadImage
-                src={`http://192.168.1.242:2121/artwork/${song.song_id}`}
-                className="w-40"
-              />
-              {song.song_title}
-            </button>
-          </div>
-        ))}
+      <div className="flex justify-center overflow-x-scroll">
+        <div className="grid w-max grid-cols-2 sm:grid-cols-3">
+          {songList.map((song, index) => (
+            <div className="m-4 flex w-40 flex-col items-center justify-center xl:w-50">
+              <button
+                className=""
+                key={index}
+                onClick={() => handleSongClick(song)}
+              >
+                <LazyLoadImage
+                  src={media_server_address + `/artwork/${song.song_id}`}
+                />
+                {song.song_title}
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
     );
 };

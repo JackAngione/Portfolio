@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useWavesurfer } from "@wavesurfer/react";
 import { Slider } from "@heroui/react";
+import { media_server_address } from "../../serverInfo.jsx";
 
 function MusicPlayer({ song }) {
   //initialize WaveSurfer
@@ -8,7 +9,7 @@ function MusicPlayer({ song }) {
   const { wavesurfer, isReady, isPlaying, currentTime } = useWavesurfer({
     container: containerRef,
     url:
-      "http://192.168.1.242:2121/stream/" + song.artist_id + "/" + song.song_id,
+      media_server_address + "/stream/" + song.artist_id + "/" + song.song_id,
     waveColor: "#fcf7f8",
     progressColor: "oklch(0.6 0.2774 300.55)",
     height: 40,

@@ -5,21 +5,22 @@ backend/resources.json
 node_modules
 backend/data.json
 /.idea
+/backend/.env
 /mediaServer/.idea
 /backend/node_modules
 /backend/.idea
-/mediaServer/artists
 /web_app/.idea
 mediaServer/.DS_Store
 .DS_Store
 /web_app/dist
 web_app/package-lock.json
 package-lock.json
-
+.env
 /web_app/public/fonts
-/mediaServer/hdrImages
-/mediaServer/High Res Album Covers
 /Tools/.idea
 /Tools/downscaled_images
 /Tools/high_res_album_covers
-/mediaServer/fav_album_covers
+/mediaServer/server_files
+production/.env
+backend/README.md
+/Tools

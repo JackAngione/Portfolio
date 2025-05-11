@@ -1,20 +1,22 @@
 import { useContext, useState } from "react";
 
 import axios from "axios";
-import { serverAddress } from "../serverInfo.jsx";
+import { backend_address } from "../../serverInfo.jsx";
 import "../category.css";
 import trashIcon from "../../svgIcons/trashIcon.svg";
 import { AuthContext } from "../../useAuth.jsx";
+
 function DeleteCategoryModal(props) {
   const [isChecked, setIsChecked] = useState(false);
   //CCOOOOOKKIEEEEE
   const { token } = useContext(AuthContext);
+
   function deleteTutorial() {
     let inputs = {
       title: props.categoryData,
     };
     axios
-      .post(serverAddress + "/deleteCategory", inputs, {
+      .post(backend_address + "/deleteCategory", inputs, {
         headers: {
           authorization: `Bearer ${token}`, // Pass JWT in Authorization header
         },
@@ -23,6 +25,7 @@ function DeleteCategoryModal(props) {
         //console.log(response.data)
       });
   }
+
   return (
     <>
       <div id="confirmDelete">
@@ -45,4 +48,5 @@ function DeleteCategoryModal(props) {
     </>
   );
 }
+
 export default DeleteCategoryModal;

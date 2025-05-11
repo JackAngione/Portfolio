@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
 function GrainCanvas({ children, intensity = 0.08, fps = 12 }) {
   const canvasRef = useRef(null);

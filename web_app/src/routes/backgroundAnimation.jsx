@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "motion/react";
+import {
+  motion,
+  useMotionValueEvent,
+  useScroll,
+  useTransform,
+} from "motion/react";
 import "ldrs/square";
 import "./backgroundAnimation.css";
-import NavigationBar from "./navigationBar.jsx";
-import { LazyLoadImage } from "react-lazy-load-image-component";
 
 function BackgroundAnim(props) {
   const [imageSpeed, setImageSpeed] = useState(100);
@@ -12,11 +15,22 @@ function BackgroundAnim(props) {
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { scrollYProgress } = useScroll();
+  const [isClickable, setIsClickable] = useState(true);
+
   const opacity = useTransform(
     scrollYProgress,
-    [0, 0.4], // When scrollYProgress is between 0 and 0.5...
+    [0, 0.25], // When scrollYProgress is between 0 and 0.5...
     [1, 0], // ...opacity maps from 1 to 0
   );
+  const blurAmount = useTransform(
+    scrollYProgress,
+    [0, 0.25], // When scrollYProgress is between 0 and 0.5...
+    [0, 10], // ...opacity maps from 1 to 0
+  );
+  // Monitor the opacity value and update clickability
+  useMotionValueEvent(opacity, "change", (latest) => {
+    setIsClickable(latest >= 0.3);
+  });
   // Function to preload an array of image URLs
   const cacheImages = async (imageUrls) => {
     const promises = await imageUrls.map((src) => {
@@ -77,6 +91,7 @@ function BackgroundAnim(props) {
     setImageSpeedSelection((imageSpeedSelection + 1) % 3);
     setImageSpeed(speedMap[(imageSpeedSelection + 1) % 3]);
   }
+
   if (loading) {
     /*loading screen*/
     return (
@@ -94,21 +109,43 @@ function BackgroundAnim(props) {
   }
 
   return (
-    <>
+    <div
+      className={`fixed inset-0 z-1 ${isClickable ? "cursor-pointer" : "pointer-events-none"}`}
+    >
       <motion.div
         style={{
           opacity,
+          filter: `blur(${blurAmount.get()}px)`,
         }}
-        className="flex h-lvh w-full flex-col justify-center overflow-y-hidden [@media(min-aspect-ratio:1/1)]:flex-row [@media(min-aspect-ratio:1/1)]:overflow-x-hidden"
+        className={`flex items-center justify-center`}
         onClick={() => {
           toggleImageSpeed();
         }}
       >
-        <img className="" src={images[currentImageIndex]} alt="slideshow2" />
-        <img className="" src={images[currentImageIndex]} alt="slideshow" />
-        <img className="" src={images[currentImageIndex]} alt="slideshow" />
-        <img className="" src={images[currentImageIndex]} alt="slideshow" />
-        <img className="" src={images[currentImageIndex]} alt="slideshow" />
+        {/*<img className="absolute top-180 w-40" src={downArrowIcon} alt="" />*/}
+        <div className="bg-background/10 absolute bottom-4 w-16 rounded-xl backdrop-blur-md">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="1.5"
+            stroke="white"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m4.5 5.25 7.5 7.5 7.5-7.5m-15 6 7.5 7.5 7.5-7.5"
+            />
+          </svg>
+        </div>
+        <div className="flex h-lvh w-full flex-col justify-center overflow-y-hidden [@media(min-aspect-ratio:1/1)]:flex-row [@media(min-aspect-ratio:1/1)]:overflow-x-hidden">
+          <img className="" src={images[currentImageIndex]} alt="slideshow2" />
+          <img className="" src={images[currentImageIndex]} alt="slideshow" />
+          <img className="" src={images[currentImageIndex]} alt="slideshow" />
+          <img className="" src={images[currentImageIndex]} alt="slideshow" />
+          <img className="" src={images[currentImageIndex]} alt="slideshow" />
+        </div>
+
         {/*
           this seems to help with images staying in cache properly,
           cache issues seem to exist when throttling internet speed in dev server,
@@ -120,9 +157,7 @@ function BackgroundAnim(props) {
           ))}
         </div>
       </motion.div>
-
-      <p> (imagery made with stable diffusion and control net extension) </p>
-    </>
+    </div>
   );
 }
 

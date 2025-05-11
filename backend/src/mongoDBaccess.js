@@ -1,12 +1,12 @@
-const { connectionString } = require("./secret_keys");
-const { MongoClient } = require("mongodb");
-const jwt = require("jsonwebtoken");
+import { MongoClient } from "mongodb";
+import { decode, verify } from "jsonwebtoken";
+import { createHash } from "crypto";
+import { unix } from "moment";
+import { addResource, deleteResource, updateResource } from "./searchServer.js";
+
+const connectionString = Bun.env.MONGODB_CONNECTION_STRING;
+const JWT_Key = process.env.JWT_KEY;
 const client = new MongoClient(connectionString);
-const { JWT_Key } = require("./secret_keys");
-const crypto = require("crypto");
-const moment = require("moment");
-const meiliSearch = require("./searchServer");
-const res = require("express/lib/response");
 
 //GENERATE resourceID for a new resource
 async function generateResourceID() {
@@ -159,8 +159,7 @@ async function uploadTutorial(tutorialInfo) {
     });
 
   //ADD TO MEILISEARCH
-  await meiliSearch
-    .addResource(tutorialInfo)
+  await addResource(tutorialInfo)
     .catch((err) => {
       console.log(err);
       uploadError = true;
@@ -175,7 +174,7 @@ async function uploadTutorial(tutorialInfo) {
       .catch((err) => {
         console.log("already deleted");
       });
-    await meiliSearch.deleteResource(tutorialInfo.resource_id).catch((err) => {
+    await deleteResource(tutorialInfo.resource_id).catch((err) => {
       console.log("already deleted");
     });
     console.log("deleted the unsynced resource");
@@ -210,7 +209,7 @@ async function editTutorial(updatedTutorial) {
       console.log(err);
       editError = true;
     });
-  await meiliSearch.updateResource(updateJSON).catch((err) => {
+  await updateResource(updateJSON).catch((err) => {
     console.log(err);
     editError = true;
   });
@@ -226,7 +225,7 @@ async function deleteTutorial(tutorialInfo) {
       title: tutorialInfo.title,
       source: tutorialInfo.source,
     });
-    await meiliSearch.deleteResource(tutorialInfo.resource_id);
+    await deleteResource(tutorialInfo.resource_id);
   } catch (e) {}
 
   console.log("deleted!");
@@ -249,7 +248,7 @@ async function login(loginInfo) {
 }
 
 function sha256Hash(input) {
-  const hash = crypto.createHash("sha256");
+  const hash = createHash("sha256");
   hash.update(input);
   return hash.digest("hex");
 }
@@ -259,7 +258,7 @@ async function verify_token(token) {
   //verifies the token against the secret key
   try {
     //console.log("JWT TOKEN IS: " + token)
-    const verified = jwt.verify(token, JWT_Key);
+    const verified = verify(token, JWT_Key);
     /*
     const currentTime = Math.floor(Date.now() / 1000); // Get current time in seconds
 
@@ -292,8 +291,8 @@ async function verify_token(token) {
 }
 
 async function logout(token) {
-  let decoded_token = jwt.decode(token);
-  let expirationDate = moment.unix(decoded_token.exp).utc();
+  let decoded_token = decode(token);
+  let expirationDate = unix(decoded_token.exp).utc();
   // You can format the date however you like
   expirationDate = expirationDate.format("YYYY-MM-DD, HH:mm:ss");
 
@@ -314,7 +313,7 @@ async function logout(token) {
   }
 }
 
-module.exports = {
+export default {
   logout,
   verify_token,
   searchTutorials,

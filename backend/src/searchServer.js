@@ -1,25 +1,24 @@
-const { MeiliSearch } = require('meilisearch')
+import { MeiliSearch } from "meilisearch";
 
-const resources = require("./resources.json")
-const newdata = require("./data.json")
-const {meiliSearch_Master_Key} = require("./secret_keys.js")
+/*const resources = require("./resources.json")
+const newdata = require("./data.json")*/
+const meiliSearch_Master_Key = process.env.MEILISEARCH_MASTER_KEY;
 const searchClient = new MeiliSearch({
-    host: 'https://jackangione.com/search',
-    apiKey: meiliSearch_Master_Key
-})
-async function addResource(resourceJSON) {
-    await searchClient.index('resources').addDocuments(resourceJSON)
-}
-async function deleteResource(resource_id)
-{
-    await searchClient.index('resources').deleteDocument(resource_id)
-}
-async function updateResource(resource)
-{
-    await searchClient.index('resources').updateDocuments(resource)
+  host: "https://jackangione.com/search",
+  apiKey: meiliSearch_Master_Key,
+});
+
+export async function addResource(resourceJSON) {
+  await searchClient.index("resources").addDocuments(resourceJSON);
 }
 
+export async function deleteResource(resource_id) {
+  await searchClient.index("resources").deleteDocument(resource_id);
+}
 
+export async function updateResource(resource) {
+  await searchClient.index("resources").updateDocuments(resource);
+}
 
 /*
 searchClient.index('resources').addDocuments(resources)
@@ -49,4 +48,4 @@ searchClient.createKey({
     expiresAt: null
 })
 */
-module.exports = {addResource, deleteResource, updateResource}
+export default { addResource, deleteResource, updateResource };

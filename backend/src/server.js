@@ -1,10 +1,10 @@
-const express = require("express");
-const cors = require("cors");
-const db = require("./mongoDBaccess.js");
-const jwt = require("jsonwebtoken");
-const expressJwt = require("express-jwt");
-const { JWT_Key } = require("./secret_keys");
+import express from "express";
 
+const cors = require("cors");
+const db = require("./mongoDBaccess.js").default;
+const jwt = require("jsonwebtoken");
+
+const JWT_Key = process.env.JWT_KEY;
 const port = 3000;
 const app = express();
 app.use(

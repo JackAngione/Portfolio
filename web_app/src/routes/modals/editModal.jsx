@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import axios from "axios";
-import { serverAddress } from "../serverInfo.jsx";
+import { backend_address } from "../../serverInfo.jsx";
 import "./editModal.css";
 import { AuthContext } from "../../useAuth.jsx";
 
@@ -34,7 +34,7 @@ function EditModal({ open, tutorialData, onClose }) {
   const { token } = useContext(AuthContext); //get token from auth
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(serverAddress + "/categories");
+      const response = await fetch(backend_address + "/categories");
       const result = await response.json();
       let tempCategoryTitle = [];
       setCategories(result);
@@ -66,7 +66,7 @@ function EditModal({ open, tutorialData, onClose }) {
       };
 
       axios
-        .post(serverAddress + "/editTutorial", inputs, {
+        .post(backend_address + "/editTutorial", inputs, {
           headers: {
             authorization: `Bearer ${token}`, // Pass JWT in Authorization header
           },

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import MusicPlayer from "./musicPlayer.jsx";
 import ArtistDisplay from "./ArtistDisplay.jsx";
 import AlbumArtPixelAnimation from "./albumArtPixelAnimation.jsx";
+import { media_server_address } from "../../serverInfo.jsx";
 
 function Music() {
   // State to store the music data from API
@@ -22,7 +23,7 @@ function Music() {
     const fetchItems = async () => {
       try {
         // Replace with your API endpoint
-        const response = await fetch("http://192.168.1.242:2121/artists");
+        const response = await fetch(media_server_address + "/artists");
 
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -50,11 +51,11 @@ function Music() {
       {playingSong == null ? <></> : <MusicPlayer song={playingSong} />}
 
       <div className="flex h-[90vh] justify-center">
-        <div className="bg-background/20 outline-background/40 relative z-1 mt-14 overflow-y-scroll rounded-[10px] px-4 outline-2 backdrop-blur-xl">
+        <div className="bg-background/20 outline-background/40 scrollbar-hide relative z-1 mt-14 overflow-x-auto overflow-y-scroll rounded-[10px] px-4 backdrop-blur-xl xl:w-[60vw]">
           <h1 className="mb-4 font-bold">MUSIC</h1>
           <p>
-            Advanced knowledge of audio engineering across all areas of digital
-            music production.
+            Extensive knowledge of audio engineering across every stage of
+            digital music production.
           </p>
 
           <p className="mt-12">
@@ -88,6 +89,7 @@ function Music() {
               ))}
             </ul>
           </div>
+
           <ArtistDisplay
             sendSelectedSong={handleSongClick}
             artist={selectedArtist}

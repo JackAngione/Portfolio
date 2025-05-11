@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import "./editModal.css";
 import axios from "axios";
-import { serverAddress } from "../serverInfo.jsx";
+import { backend_address } from "../../serverInfo.jsx";
 import trashIcon from "../../svgIcons/trashIcon.svg";
 import { AuthContext } from "../../useAuth.jsx";
 
@@ -19,7 +19,7 @@ function DeleteModal({ open, tutorialData, onClose }) {
       resource_id: tutorialData.resource_id,
     };
     axios
-      .post(serverAddress + "/deleteTutorial", inputs, {
+      .post(backend_address + "/deleteTutorial", inputs, {
         headers: {
           authorization: `Bearer ${token}`, // Pass JWT in Authorization header
         },

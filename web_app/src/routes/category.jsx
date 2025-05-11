@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import "./category.css";
 import axios from "axios";
 import CreatableSelect from "react-select/creatable";
-import { serverAddress } from "./serverInfo.jsx";
+import { backend_address } from "../serverInfo.jsx";
 import Select from "react-select";
 import DeleteCategoryModal from "./modals/deleteCategoryModal.jsx";
 import { AuthContext } from "../useAuth.jsx";
@@ -38,7 +38,7 @@ function Category() {
   const { token } = useContext(AuthContext);
   //GET CATEGORIES LIST FROM DATABASE
   useEffect(() => {
-    axios.get(serverAddress + "/categories").then(function (response) {
+    axios.get(backend_address + "/categories").then(function (response) {
       setCategories(response.data);
       let tempCategoryTitle = [];
       for (let i = 0; i < response.data.length; i++) {
@@ -88,7 +88,7 @@ function Category() {
         subCategories: subCategories,
       };
       axios
-        .post(serverAddress + "/createCategory", categoryFinal, {
+        .post(backend_address + "/createCategory", categoryFinal, {
           headers: {
             authorization: `Bearer ${token}`, // Pass JWT in Authorization header
           },
@@ -115,7 +115,7 @@ function Category() {
         "EDITING CATEGORIES" + JSON.stringify(editCategoryFinal.subCategories),
       );
       axios
-        .post(serverAddress + "/editCategory", editCategoryFinal, {
+        .post(backend_address + "/editCategory", editCategoryFinal, {
           headers: {
             authorization: `Bearer ${token}`, // Pass JWT in Authorization header
           },
@@ -143,6 +143,7 @@ function Category() {
     }
     setEditSubCategories(subCategoryList);
   }, [categoryToEdit]);
+
   //FINALIZE CREATE CATEGORY and trigger http push
   function submitCreateForm(e) {
     e.preventDefault();
@@ -163,6 +164,7 @@ function Category() {
     setFinalEditSubCategories(finalEditSubCategories);
     setSubmitEditCategory(true);
   }
+
   //DEBUGGING---DISPLAY REACT SELECT KEYWORDS
   function DisplayKeywords() {
     return (

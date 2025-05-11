@@ -8,23 +8,21 @@ import PremiereProLogo from "./softwareLogos/premiere-pro-cc.svg";
 import AfterEffectsLogo from "./softwareLogos/after-effects-1.svg";
 import "./hdrPhotos.css";
 import PhotoCategory from "./PhotoCategory.jsx";
+import { media_server_address } from "../serverInfo.jsx";
 
 function HDRPhotos() {
   const [photoCategories, setPhotoCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   useEffect(() => {
-    //TODO Delete getImagePaths function!
-
     async function getCategories() {
       const response = await fetch(
-        "http://192.168.1.242:2121/getPhotoCategories",
+        media_server_address + "/getPhotoCategories",
       );
       let list = await response.json();
       setPhotoCategories(list.sort());
     }
 
     getCategories().then((r) => {});
-    //getImagePaths().then((r) => console.log("JACK" + imagePaths));
   }, []);
 
   const handleCategorySelect = (category) => {
@@ -32,16 +30,17 @@ function HDRPhotos() {
     setSelectedCategory(category);
   };
   return (
-    <div className="">
+    <div className="mx-4 flex flex-col items-center justify-center">
       <h1 className="mt-14 font-bold">PHOTOGRAPHY</h1>
       <p className="">
         All images are in HDR. View this webpage on an HDR capable
         display/browser!
       </p>
-      <h3 className="my-4 mt-12">
+      <h3 className="mt-12">
         Over 9 years of experience in photography/videography
       </h3>
-      <div className="mb-12 flex items-center justify-center gap-24">
+      <h3 className="mb-4"> (and a little graphic design)</h3>
+      <div className="mb-12 flex items-center justify-center gap-6">
         <ul className="flex flex-col gap-2">
           <a
             href="https://www.captureone.com/en"
@@ -123,7 +122,7 @@ function HDRPhotos() {
       </div>
       <h2>Categories</h2>
       {/* [@media(min-aspect-ratio:1/1)]:*/}
-      <div className="mx-16 my-8 flex flex-wrap justify-center">
+      <div className="z-6 mx-8 my-8 flex flex-wrap justify-center">
         {photoCategories.map((category, index) => (
           <label
             className={`${selectedCategory === category ? "bg-PrimaryGradient text-black" : "bg-background"} text-primary m-2 rounded-md border-2 px-6 py-3`}

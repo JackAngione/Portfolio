@@ -14,10 +14,10 @@ function LogosMarquee() {
   //alter length to change the number of logos generated
   const logoArray = Array.from({ length: 12 }, (_, index) => index);
   return (
-    <>
+    <div className="relative">
       {/*Text that is cuttoff is hidden as window scales*/}
-      <div className="flex h-10 justify-center">
-        <div className="flex justify-center flex-wrap  whitespace-nowrap overflow-hidden text-4xl font-primary text-secondary font-bold">
+      <div className="ml-10 flex h-10 text-center">
+        <div className="font-primary text-secondary flex flex-wrap justify-center overflow-hidden text-4xl font-bold whitespace-nowrap">
           {logoArray.map((item, index) => (
             <div key={index}>
               <p className="pr-12">POWERED BY</p>
@@ -30,22 +30,22 @@ function LogosMarquee() {
         </div>
       </div>
 
-      <div className="relative">
+      <div className="z-0">
         <Marquee
           pauseOnHover={true}
           pauseOnClick={true}
           speed={22}
-          className="items-center -mb-4"
+          className="-mb-4 items-center"
         >
           {logoArray.map((item, index) => (
-            <div className="flex justify-center items-center " key={index}>
+            <div className="flex items-center justify-center" key={index}>
               <a
                 href="https://vite.dev/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-4"
               >
-                <li className="flex items-center justify-center ">
+                <li className="flex items-center justify-center">
                   <img src={vitelogo} className="mr-2 w-12" alt="vite logo" />
                 </li>
               </a>
@@ -81,7 +81,7 @@ function LogosMarquee() {
                 href="https://bun.sh/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 "
+                className="p-2"
               >
                 <li className="flex items-center justify-center">
                   <img src={BunLogo} className="mr-2 w-12" alt="vite logo" />
@@ -143,7 +143,8 @@ function LogosMarquee() {
           ))}
         </Marquee>
       </div>
-    </>
+    </div>
   );
 }
+
 export default LogosMarquee;

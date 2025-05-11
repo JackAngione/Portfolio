@@ -34,7 +34,7 @@ async fn init_mongo_client() -> AxumState {
     // Set up MongoDB client
     let client_options = ClientOptions::parse(&mongoDB_connection_string.unwrap())
         .await
-        .unwrap();
+        .expect("MongoDB connection string is invalid");
     let mongo_client = Client::with_options(client_options).unwrap();
     // Get the music collection
     let mongo_database = mongo_client.database("KNOWLEDGE");
@@ -60,10 +60,10 @@ async fn main() {
     let state = init_mongo_client().await;
 
     //STATIC FILE SERVING PATHS
-    let images_path = Path::new("./hdrImages");
+    let images_path = Path::new("./server_files/hdrImages");
     let serve_images = ServeDir::new(images_path);
 
-    let album_covers = Path::new("./fav_album_covers");
+    let album_covers = Path::new("./server_files/fav_album_covers");
     let serve_album_covers = ServeDir::new(album_covers);
     //
     // Configure CORS middleware to allow all origins
@@ -89,6 +89,7 @@ async fn main() {
             get(file_test::get_category_photos),
         )
         .route("/getAlbumCovers", get(file_test::get_album_covers))
+        .route("/resume", get(file_test::get_resume))
         .nest_service("/photo", serve_images) // Static file route
         .nest_service("/album_covers", serve_album_covers)
         .layer(middleware::from_fn(log_ip_middleware))
@@ -97,10 +98,8 @@ async fn main() {
         .with_state(state);
 
     // Run it with hyper on localhost:3000
-    let listener = tokio::net::TcpListener::bind("192.168.1.242:2121")
-        .await
-        .unwrap();
-    println!("Server running on 192.168.1.242:2121");
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:2121").await.unwrap();
+    println!("Server running on localhost:2121");
     axum::serve(
         listener,
         app.into_make_service_with_connect_info::<SocketAddr>(),

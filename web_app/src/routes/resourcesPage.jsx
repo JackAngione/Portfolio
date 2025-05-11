@@ -4,7 +4,7 @@ import EditModal from "./modals/editModal.jsx";
 import DeleteModal from "./modals/deleteModal.jsx";
 import trashIcon from "../svgIcons/trashIcon.svg";
 import { meiliSearch_Search_Key } from "../API_Keys";
-import { searchServer } from "./serverInfo.jsx";
+import { search_server } from "../serverInfo.jsx";
 import {
   ClearRefinements,
   Highlight,
@@ -19,7 +19,7 @@ import { AuthContext } from "../useAuth.jsx";
 function ResourcesPage() {
   const authenticated = useContext(AuthContext).loggedIn;
   const { searchClient } = instantMeiliSearch(
-    searchServer,
+    search_server,
     meiliSearch_Search_Key,
     { placeholderSearch: false },
   );

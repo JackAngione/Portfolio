@@ -54,7 +54,7 @@ body {
 }
 
 h1 {
-    @apply text-[60px] text-primary font-primary font-bold bg-clip-text p-0;
+    @apply text-[45px] sm:text-[60px] text-primary font-primary font-bold bg-clip-text p-0;
 }
 
 h2 {

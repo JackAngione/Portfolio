@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
-import { serverAddress } from "./routes/serverInfo.jsx";
+import { backend_address } from "./serverInfo.jsx";
 import Cookies from "js-cookie";
 import axios from "axios";
 
@@ -8,7 +8,7 @@ export const AuthContext = createContext({ loggedIn: false, token: "" });
 export async function login(username, password) {
   let loginStatus = "login failed";
   let login_credentials = { username: username, password: password };
-  const response = await fetch(serverAddress + "/login", {
+  const response = await fetch(backend_address + "/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(login_credentials),
@@ -28,7 +28,7 @@ export async function logout() {
   const token = Cookies.get("LoginToken");
   try {
     await axios
-      .post(serverAddress + "/logout", token, {
+      .post(backend_address + "/logout", token, {
         headers: {
           authorization: `Bearer ${token}`, // Pass JWT in Authorization header
         },
@@ -62,7 +62,7 @@ function AuthProvider({ children }) {
   useEffect(() => {
     async function handleAuthenticate() {
       if (browserToken != null && authenticated === false) {
-        await fetch(serverAddress + "/auth", {
+        await fetch(backend_address + "/auth", {
           headers: {
             authorization: `Bearer ${browserToken}`, // Pass JWT in Authorization header
           },
@@ -71,7 +71,6 @@ function AuthProvider({ children }) {
             if (r.status === 200) {
               setAuthenticated(true);
               setToken(browserToken);
-              console.log("AUTHRUNNING");
             }
             if (r.status === 401) {
               setAuthenticated(false);

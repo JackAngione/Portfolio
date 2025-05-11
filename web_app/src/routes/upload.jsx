@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import "./upload.css";
 import axios from "axios";
 import CreatableSelect from "react-select/creatable";
-import { serverAddress } from "./serverInfo.jsx";
+import { backend_address } from "../serverInfo.jsx";
 import Select from "react-select";
 import { AuthContext } from "../useAuth.jsx";
 
@@ -32,7 +32,7 @@ function Upload() {
   //GET CATEGORIES LIST FROM DATABASE
   useEffect(() => {
     console.log("get categories use effect running!!!");
-    axios.get(serverAddress + "/categories").then(function (response) {
+    axios.get(backend_address + "/categories").then(function (response) {
       setCategories(response.data);
       let tempCategoryTitle = [];
       for (let i = 0; i < response.data.length; i++) {
@@ -83,7 +83,7 @@ function Upload() {
       //const token = Cookies.get("LoginToken"); // Get JWT from cookies
 
       axios
-        .post(serverAddress + "/upload", inputs, {
+        .post(backend_address + "/upload", inputs, {
           headers: {
             authorization: `Bearer ${token}`, // Pass JWT in Authorization header
           },
@@ -235,4 +235,5 @@ function Upload() {
     </div>
   );
 }
+
 export default Upload;

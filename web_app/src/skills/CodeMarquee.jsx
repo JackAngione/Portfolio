@@ -46,7 +46,7 @@ function CodeMarquee({ columns }) {
     //must put [...array] to create a new one, to avoid making copies by reference
     symbol_lists[i] = shuffle([...original_symbol_list]);
   }
-  console.log(symbol_lists);
+
   //init a random speed for each column
   for (let i = 0; i < columns; i++) {
     staticTimings[i] = timings[Math.floor(Math.random() * timings.length)];
@@ -66,7 +66,7 @@ function CodeMarquee({ columns }) {
   };
 
   return (
-    <div className="z-0 h-[100vh] content-center items-center overflow-hidden overflow-y-hidden overscroll-x-none">
+    <div className="z-0 h-[100vh] content-center items-center overflow-hidden overflow-y-hidden">
       {/*rendering two of the motion divs makes the animation run smoothly (idek know why)*/}
 
       {Array.from({ length: 2 }).map((_, index) => (
