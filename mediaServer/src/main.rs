@@ -90,6 +90,7 @@ async fn main() {
         )
         .route("/getAlbumCovers", get(file_test::get_album_covers))
         .route("/resume", get(file_test::get_resume))
+        .route("/f2q", get(file_test::get_f2q))
         .nest_service("/photo", serve_images) // Static file route
         .nest_service("/album_covers", serve_album_covers)
         .layer(middleware::from_fn(log_ip_middleware))

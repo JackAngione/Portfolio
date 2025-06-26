@@ -33,7 +33,7 @@ function Home() {
 
       <div className="mt-[50vh] flex flex-col items-center justify-center gap-4 p-10">
         <div>
-          <h1>ASPIRING SOFTWARE DEVELOPER </h1>
+          <h1>SOFTWARE DEVELOPER </h1>
           <h1>AND</h1>
           <h1 className="text-black">HOBBYIST CREATIVE</h1>
         </div>

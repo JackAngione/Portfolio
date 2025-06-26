@@ -63,7 +63,7 @@ function BackgroundAnim(props) {
     const imageURLs = Object.values(imageModules).map(
       (module) => module.default,
     );
-    console.log(imageURLs);
+    /*console.log(imageURLs);*/
     setImages(imageURLs);
     cacheImages(imageURLs).then((r) => {
       setLoading(false);

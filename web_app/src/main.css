@@ -5,6 +5,12 @@
 
 @theme {
     --font-primary: "Matisse_Standard";
+    /*--font-secondary: "Sinoreta";*/
+    --font-secondary: "Helvetica";
+    /*--font-fancy: "Emeritus";*/
+    --font-fancy: "Peste";
+    --font-modak: "Modak";
+
 
     --color-background: oklch(0.19 0 0);
     --color-primary: oklch(0.98 0.0293 146.88);
@@ -14,10 +20,7 @@
     --color-sunny: #FFC759;
     --color-sherbert: #FF7B9C;
 
-    /*--font-secondary: "Sinoreta";*/
-    --font-secondary: "Helvetica";
-    /*--font-fancy: "Emeritus";*/
-    --font-fancy: "Peste";
+
 }
 @utility bg-PrimaryGradient {
     @apply bg-linear-to-br from-sunny to-sherbert;
@@ -26,6 +29,11 @@
     font-family: "Emeritus";
     font-weight: 400;
     src: url("../public/fonts/Emeritus-Trial-Display.otf") format("opentype");
+}
+
+@font-face {
+    font-family: "Modak";
+    src: url("../public/fonts/Modak-Regular.ttf") format("truetype");
 }
 
 @font-face {
@@ -80,8 +88,7 @@ a:hover {
 button {
     cursor: pointer;
     transition: border-color 0.2s;
-    @apply text-primary rounded-md px-6 py-3
-    bg-PrimaryGradient;
+    @apply text-primary rounded-md px-6 py-3 bg-PrimaryGradient;
 }
 
 button:hover {

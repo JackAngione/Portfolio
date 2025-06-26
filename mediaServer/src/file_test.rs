@@ -207,3 +207,41 @@ pub(crate) async fn get_resume() -> Response<Body> {
         }
     }
 }
+pub(crate) async fn get_f2q() -> Response<Body> {
+    /* println!("Path with Extension: {}", pathbuilder);*/
+    let path = Path::new("./server_files/Filters2ProQ_v1.0.0.zip");
+    let file = tokio::fs::File::open(path).await;
+    //catches file opening errors
+    match file {
+        Ok(file) => {
+            let metadata = file.metadata().await.unwrap();
+
+            let reader = BufReader::new(file);
+            // Convert the file into a stream
+            let stream = ReaderStream::new(reader);
+
+            // convert the `Stream` into an `axum::body::HttpBody`
+            let body = Body::from_stream(stream);
+
+            let response = axum::http::Response::builder()
+                .status(StatusCode::OK)
+                .header(header::CONTENT_TYPE, "application/octet-stream")
+                .header(
+                    header::CONTENT_DISPOSITION,
+                    "attachment; filename=Filters2ProQ_v1.0.0.zip",
+                )
+                .header(header::CONTENT_LENGTH, metadata.len())
+                .body(body)
+                .unwrap();
+            response
+        }
+        Err(..) => {
+            println!("F2Q app not not found: {}", path.to_str().unwrap());
+            let response = axum::http::Response::builder()
+                .status(StatusCode::NOT_FOUND)
+                .body(Body::empty())
+                .unwrap();
+            response
+        }
+    }
+}

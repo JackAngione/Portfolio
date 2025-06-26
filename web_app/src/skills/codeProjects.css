@@ -14,8 +14,7 @@
 }
 
 .project ul li {
-    border-top: 1px solid #e8e9ed;
-    border-bottom: 1px solid #e8e9ed;
+    @apply border-b-1 border-primary;
     padding-bottom: 4px;
     margin-bottom: 10px;
 }

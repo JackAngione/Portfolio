@@ -5,7 +5,7 @@ backend/resources.json
 node_modules
 backend/data.json
 /.idea
-/backend/.env
+/backend/src/.env
 /mediaServer/.idea
 /backend/node_modules
 /backend/.idea

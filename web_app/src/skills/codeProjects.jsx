@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import "./codeProjects.css";
 import CodeMarquee from "./CodeMarquee.jsx";
+import { website_address } from "../serverInfo.jsx";
 
 function CodeProjects() {
   return (
@@ -25,7 +26,6 @@ function CodeProjects() {
               The Middle Place
             </a>
           </motion.h2>
-          <h2></h2>
           <h3>Algorithmic NFT Artwork</h3>
           <p>
             A collaboration with artist Josh Landis to create a line of
@@ -50,6 +50,34 @@ function CodeProjects() {
             </li>
             <li>Randomly generate a look</li>
             <li>Link to buy NFT</li>
+          </ul>
+        </div>
+
+        <div className="project">
+          <motion.h2
+            className=""
+            whileHover={{ scale: 1.1 }}
+            transition={{ duration: 0.25 }}
+          >
+            <a
+              href={website_address + "/f2q"}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Filters<sub>2</sub>ProQ
+            </a>
+          </motion.h2>
+          <h2></h2>
+          <h3>Generate a FabFilter Pro-Q4 Preset From Parametric EQ Filters</h3>
+          <p>MacOS App created with Swift </p>
+
+          <h3>Features</h3>
+          <ul>
+            <li>
+              Correct frequency response of headphones or individual L/R speaker
+              channels
+            </li>
+            <li>Convert REW or AutoEQ filter files to a Pro-Q4 preset</li>
           </ul>
         </div>
 
@@ -119,24 +147,23 @@ function CodeProjects() {
           >
             <a href={"/resources"}>"Resources"</a>
           </motion.h2>
-          <h3> A collection of informative sources</h3>
+          <h3> A collection of informative resources</h3>
           <p>
             {" "}
-            Allows for easy access to a quality source when referencing
-            previously learned information, or learning a new topic.
+            Allows for easy access to quality sources from a broad range of
+            topics.
           </p>
-          <p>
-            The database can be conveniently searched by title, description,
-            source link, or keywords and results can be filtered by
-            category{" "}
-          </p>
+
           <h3>Features</h3>
           <ul>
             <li>Closely interfaces with MongoDB database</li>
-            <li>Utilities for uploading, editing, and deleting resources</li>
+            <li>
+              Admin utilities for uploading, editing, and deleting resources
+            </li>
             <li>Create/edit/delete categories</li>
             <li>
-              Search Resources with MeiliSearch/InstantSearch implementation
+              Comprehensively search Resources with MeiliSearch/InstantSearch
+              implementation
             </li>
           </ul>
           <p></p>
@@ -163,7 +190,7 @@ function CodeProjects() {
           <p> WIP: No pawn promotion</p>
           <h3>Features</h3>
           <ul>
-            <li>Only allows valid moves</li>
+            <li>Move Validation</li>
             <li>Check, Checkmate</li>
           </ul>
         </div>
