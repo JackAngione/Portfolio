@@ -13,6 +13,10 @@
     list-style: none;
 }
 
+.project h2 {
+    @apply pb-2;
+}
+
 .project ul li {
     @apply border-b-1 border-primary;
     padding-bottom: 4px;

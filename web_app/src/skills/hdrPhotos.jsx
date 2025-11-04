@@ -120,12 +120,12 @@ function HDRPhotos() {
           </a>
         </ul>
       </div>
-      <h2>Categories</h2>
+      <h2>CATEGORIES</h2>
       {/* [@media(min-aspect-ratio:1/1)]:*/}
       <div className="z-6 mx-8 my-8 flex flex-wrap justify-center">
         {photoCategories.map((category, index) => (
           <label
-            className={`${selectedCategory === category ? "bg-PrimaryGradient text-black" : "bg-background"} text-primary m-2 rounded-md border-2 px-6 py-3`}
+            className={`${selectedCategory === category ? "bg-PrimaryGradient text-black" : "bg-transparent"} text-primary m-2 rounded-md border-2 px-6 py-3`}
           >
             <input
               className={`hidden appearance-none text-white shadow-md ring-blue-300`}

@@ -15,7 +15,6 @@ function AlbumArtPixelAnimation() {
   const [totalTileCount, setTotalTileCount] = useState(0);
 
   async function getAlbumArt() {
-    console.log("GEtTInG AlBuM ART");
     const response = await fetch(media_server_address + "/getAlbumCovers");
     let list = await response.json();
     setAlbumCovers(list);

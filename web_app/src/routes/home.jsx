@@ -32,10 +32,10 @@ function Home() {
       <BackgroundAnim />
 
       <div className="mt-[50vh] flex flex-col items-center justify-center gap-4 p-10">
-        <div>
-          <h1>SOFTWARE DEVELOPER </h1>
-          <h1>AND</h1>
-          <h1 className="text-black">HOBBYIST CREATIVE</h1>
+        <div className="!-mx-4">
+          <h1 className="!-mx-4">SOFTWARE DEVELOPER </h1>
+          <h1 className="!-mx-4">AND</h1>
+          <h1 className="!-mx-4">HOBBYIST CREATIVE</h1>
         </div>
 
         <motion.div
@@ -69,7 +69,7 @@ function Home() {
           </button>
         </motion.div>
 
-        <p>Contact: 8jk.ang8@gmail.com</p>
+        <p>contact: 8jk.ang8@gmail.com</p>
       </div>
       <div className="mt-[200px] mb-4">
         {username ? (

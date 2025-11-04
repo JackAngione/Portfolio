@@ -4,7 +4,7 @@
 @plugin "./hero.ts";
 
 @theme {
-    --font-primary: "Matisse_Standard";
+    --font-primary: "EVA-Matisse_Classic";
     /*--font-secondary: "Sinoreta";*/
     --font-secondary: "Helvetica";
     /*--font-fancy: "Emeritus";*/
@@ -14,17 +14,24 @@
 
     --color-background: oklch(0.19 0 0);
     --color-primary: oklch(0.98 0.0293 146.88);
-    --color-secondary: oklch(0.6 0.2774 332.09);
-    --color-tertiary: oklch(0.49 0.2392 326.73);
-    /* --color-secondary: oklch(0.72 0.2466 360);*/
-    --color-sunny: #FFC759;
-    --color-sherbert: #FF7B9C;
-
-
+    /*duplicate color with diff name because i want a single text color theme
+    dont feel like changing all the instances of the old color c*/
+    --color-secondary: oklch(0.98 0.0293 146.88);
+    /*--color-secondary: oklch(0.6 0.2774 332.09);*/
+    --color-tertiary: oklch(0.72 0.2466 360);
+    --color-bunny: oklch(0.72 0.2466 360);
+    --color-sunny: oklch(0.8598 0.1572 77.29);
 }
+
 @utility bg-PrimaryGradient {
-    @apply bg-linear-to-br from-sunny to-sherbert;
+    @apply bg-linear-to-br from-sunny from-15% to-bunny to-85%;
 }
+@font-face {
+    font-family: "EVA-Matisse_Classic";
+    font-weight: 400;
+    src: url("../public/fonts/EVA-Matisse_Classic.ttf") format("truetype");
+}
+
 @font-face {
     font-family: "Emeritus";
     font-weight: 400;
@@ -62,15 +69,19 @@ body {
 }
 
 h1 {
-    @apply text-[45px] sm:text-[60px] text-primary font-primary font-bold bg-clip-text p-0;
+    @apply text-6xl sm:text-8xl text-primary font-primary font-bold scale-x-65 p-0;
 }
 
 h2 {
-    @apply p-0 text-5xl text-secondary  font-bold font-fancy;
+    @apply p-0 text-5xl sm:text-6xl text-secondary scale-x-65 font-bold font-primary;
 }
 
 h3 {
-    @apply p-0 text-2xl text-secondary font-bold font-primary;
+    @apply p-0 text-xl text-secondary font-bold font-primary;
+}
+
+::selection {
+    @apply bg-bunny text-primary;
 }
 
 :root {

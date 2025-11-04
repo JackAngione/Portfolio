@@ -13,8 +13,7 @@ backend/data.json
 mediaServer/.DS_Store
 .DS_Store
 /web_app/dist
-web_app/package-lock.json
-package-lock.json
+
 .env
 /web_app/public/fonts
 /Tools/.idea

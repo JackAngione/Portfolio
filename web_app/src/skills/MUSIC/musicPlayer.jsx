@@ -11,7 +11,7 @@ function MusicPlayer({ song }) {
     url:
       media_server_address + "/stream/" + song.artist_id + "/" + song.song_id,
     waveColor: "#fcf7f8",
-    progressColor: "oklch(0.6 0.2774 300.55)",
+    progressColor: "oklch(0.72 0.2466 360)",
     height: 40,
     // Set a bar width
     barWidth: 1,

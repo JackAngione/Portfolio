@@ -67,15 +67,15 @@ function CodeProjects() {
               Filters<sub>2</sub>ProQ
             </a>
           </motion.h2>
-          <h2></h2>
+
           <h3>Generate a FabFilter Pro-Q4 Preset From Parametric EQ Filters</h3>
           <p>MacOS App created with Swift </p>
 
           <h3>Features</h3>
           <ul>
             <li>
-              Correct frequency response of headphones or individual L/R speaker
-              channels
+              Use to correct frequency response of headphones or individual L/R
+              speaker channels
             </li>
             <li>Convert REW or AutoEQ filter files to a Pro-Q4 preset</li>
           </ul>

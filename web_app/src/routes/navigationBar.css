@@ -13,7 +13,7 @@
     flex-wrap: wrap;
     justify-content: center;
     z-index: 6;
-    @apply font-bold border-1 bg-background/40 border-secondary;
+    @apply font-bold border-1 bg-background/40 border-primary;
     border-radius: 5px;
     min-width: 280px;
 }
@@ -24,7 +24,7 @@
 
 .navigationDark li a {
     padding: 10px;
-    color: #bf1363;
+    color: oklch(0.72 0.2466 360);
 }
 
 .mainDropdown {
@@ -68,7 +68,7 @@
 }
 
 .dropDownList a:hover {
-    @apply rounded-md bg-secondary text-primary;
+    @apply rounded-md bg-bunny text-primary;
 }
 
 /* Show the dropdown menu on hover */

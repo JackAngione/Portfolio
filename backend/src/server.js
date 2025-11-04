@@ -1,7 +1,7 @@
 import express from "express";
 
 const cors = require("cors");
-const db = require("./mongoDBaccess.js").default;
+const db = require("./mongoDBaccess.js");
 const jwt = require("jsonwebtoken");
 
 const JWT_Key = process.env.JWT_KEY;
