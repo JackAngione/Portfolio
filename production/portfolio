@@ -1,9 +1,9 @@
 upstream apiUpstream {
-    server localhost:3000;
+    server 192.168.0.2:3000;
     keepalive 64;
 }
 upstream searchUpstream {
-    server localhost:7701;
+    server 192.168.0.2:7700;
     keepalive 64;
 }
 server {

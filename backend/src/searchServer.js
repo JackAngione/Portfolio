@@ -4,7 +4,7 @@ import { MeiliSearch } from "meilisearch";
 const newdata = require("./data.json")*/
 const meiliSearch_Master_Key = process.env.MEILISEARCH_MASTER_KEY;
 const searchClient = new MeiliSearch({
-  host: "https://jackangione.com/search",
+  host: process.env.MEILISEARCH_HOST || "http://192.168.0.2:7700/",
   apiKey: meiliSearch_Master_Key,
 });
 

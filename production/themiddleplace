@@ -3,7 +3,7 @@ server {
 
 	location / {
 		root /var/www/themiddleplace;
-		proxy_pass http://localhost:3021; # The address of your Express.js app
+		proxy_pass http://192.168.0.2:3021; # The address of your Express.js app
 		proxy_http_version 1.1;
 		proxy_set_header Upgrade $http_upgrade;
 		proxy_set_header Connection 'upgrade';

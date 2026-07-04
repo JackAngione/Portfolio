@@ -1,11 +1,12 @@
 import express from "express";
+import db from "./mongoDBaccess.js";
+import jwt from "jsonwebtoken";
 
-const cors = require("cors");
-const db = require("./mongoDBaccess.js");
-const jwt = require("jsonwebtoken");
+import cors from "cors";
 
 const JWT_Key = process.env.JWT_KEY;
 const port = 3000;
+const host = "0.0.0.0";
 const app = express();
 app.use(
   cors({
@@ -155,6 +156,6 @@ app.post("/logout", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Portfolio Server listening on port ${port}`);
+app.listen(port, host, () => {
+  console.log(`Portfolio Server listening on ${host}:${port}`);
 });

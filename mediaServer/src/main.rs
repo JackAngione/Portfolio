@@ -98,9 +98,9 @@ async fn main() {
         .layer(cors)
         .with_state(state);
 
-    // Run it with hyper on localhost:3000
+    // Bind all interfaces so the reverse proxy can reach this host at 192.168.0.2.
     let listener = tokio::net::TcpListener::bind("0.0.0.0:2121").await.unwrap();
-    println!("Server running on localhost:2121");
+    println!("Server running on 0.0.0.0:2121");
     axum::serve(
         listener,
         app.into_make_service_with_connect_info::<SocketAddr>(),
