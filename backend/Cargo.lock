@@ -188,6 +188,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "backend"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "dotenvy",
+ "hex",
+ "http-body-util",
+ "jsonwebtoken",
+ "meilisearch-sdk",
+ "mongodb",
+ "rand 0.10.0-rc.0",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "tokio",
+ "tokio-stream",
+ "tokio-util",
+ "tower",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "base64"
 version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1405,30 +1429,6 @@ checksum = "d89e7ee0cfbedfc4da3340218492196241d89eefb6dab27de5df917a6d2e78cf"
 dependencies = [
  "cfg-if",
  "digest 0.10.7",
-]
-
-[[package]]
-name = "mediaServer"
-version = "0.1.0"
-dependencies = [
- "axum",
- "dotenvy",
- "hex",
- "http-body-util",
- "jsonwebtoken",
- "meilisearch-sdk",
- "mongodb",
- "rand 0.10.0-rc.0",
- "serde",
- "serde_json",
- "sha2 0.11.0",
- "tokio",
- "tokio-stream",
- "tokio-util",
- "tower",
- "tower-http",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]

@@ -1,4 +1,4 @@
-mediaServer/.env
+backend/.env
 backend/secret_keys.js
 web_app/src/API_Keys.jsx
 backend/resources.json
@@ -6,11 +6,11 @@ node_modules
 backend/data.json
 /.idea
 /backend/src/.env
-/mediaServer/.idea
+/backend/.idea
 /backend/node_modules
 /backend/.idea
 /web_app/.idea
-mediaServer/.DS_Store
+backend/.DS_Store
 .DS_Store
 /web_app/dist
 
@@ -22,6 +22,7 @@ mediaServer/.DS_Store
 /Tools/.idea
 /Tools/downscaled_images
 /Tools/high_res_album_covers
-/mediaServer/server_files
+/backend/server_files
 production/.env
 /Tools
+/backend/target

@@ -1,6 +1,6 @@
 // Initializes the KNOWLEDGE database for local development.
 // Runs automatically (via mongosh) the first time the dev MongoDB container
-// starts with an empty data volume. Schema mirrors what mediaServer/src
+// starts with an empty data volume. Schema mirrors what backend/src
 // expects.
 
 const db = new Mongo().getDB("KNOWLEDGE");
@@ -47,7 +47,7 @@ db.createCollection("users", {
       required: ["username", "password"],
       properties: {
         username: { bsonType: "string" },
-        // sha256 hex digest — see login() in mediaServer/src/knowledge.rs
+        // sha256 hex digest — see login() in backend/src/knowledge.rs
         password: { bsonType: "string" },
       },
     },
@@ -68,7 +68,7 @@ db.createCollection("BLACKLISTED_TOKENS", {
   },
 });
 
-// Used by mediaServer (Rust) — every field is required for deserialization.
+// Used by backend (Rust) — every field is required for deserialization.
 db.createCollection("songs", {
   validator: {
     $jsonSchema: {

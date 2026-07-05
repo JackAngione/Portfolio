@@ -4,16 +4,16 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-IMAGE_NAME="registry.gitlab.com/8jk.ang8/portfolio/media_server"
+IMAGE_NAME="registry.gitlab.com/8jk.ang8/portfolio/backend"
 IMAGE_TAG="${VERSION_TAG:-v1.0}"
-CONTAINER_NAME="Portfolio_Media_Server"
+CONTAINER_NAME="Portfolio_Backend"
 HOST_PORT="${HOST_PORT:-3000}"
 CONTAINER_PORT="${CONTAINER_PORT:-3000}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 PUSH_TO_GITLAB="${PUSH_TO_GITLAB:-false}"
 
 DOCKERFILE_PATH="$SCRIPT_DIR/Dockerfile"
-BUILD_CONTEXT="$REPO_ROOT/mediaServer"
+BUILD_CONTEXT="$REPO_ROOT/backend"
 FULL_IMAGE_NAME="$IMAGE_NAME:$IMAGE_TAG"
 
 load_env() {

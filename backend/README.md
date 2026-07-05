@@ -1,4 +1,4 @@
-# mediaServer
+# backend
 
 Unified Rust/Axum backend. Serves the media API (music streaming, artwork,
 photos) and the knowledge/portfolio API (tutorials, categories, auth) that

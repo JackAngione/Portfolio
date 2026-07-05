@@ -31,7 +31,7 @@ struct AxumState {
 //set up the mongoDB client
 async fn init_mongo_client() -> AxumState {
     // APP_ENV=development loads the committed .env.development (local Docker
-    // dev stack, see mediaServer/README.md); otherwise the gitignored .env is used.
+    // dev stack, see backend/README.md); otherwise the gitignored .env is used.
     if env::var("APP_ENV").is_ok_and(|v| v == "development") {
         dotenvy::from_filename(".env.development").ok();
     } else {
