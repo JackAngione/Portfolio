@@ -79,6 +79,17 @@ async fn main() {
     //allows the mongo client or collection to be passed among route functions
     let state = init_mongo_client().await;
 
+    //mongo is the source of truth; rebuild the search index on startup so any
+    //drift (failed dual-writes, meilisearch data loss) heals itself. runs in
+    //the background so a slow or unreachable meilisearch can't block serving
+    let reindex_state = state.clone();
+    tokio::spawn(async move {
+        match knowledge::reindex_meilisearch(&reindex_state).await {
+            Ok(()) => println!("startup meilisearch reindex complete"),
+            Err(err) => println!("startup meilisearch reindex failed: {err}"),
+        }
+    });
+
     //STATIC FILE SERVING PATHS
     let images_path = Path::new("./server_files/hdrImages");
     let serve_images = ServeDir::new(images_path);
@@ -123,6 +134,7 @@ async fn main() {
         .route("/upload", post(knowledge::upload_tutorial))
         .route("/editTutorial", post(knowledge::edit_tutorial))
         .route("/deleteTutorial", post(knowledge::delete_tutorial))
+        .route("/reindex", post(knowledge::reindex))
         .nest_service("/photo", serve_images) // Static file route
         .nest_service("/album_covers", serve_album_covers)
         .layer(middleware::from_fn(log_ip_middleware))
