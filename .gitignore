@@ -16,6 +16,8 @@ mediaServer/.DS_Store
 
 .env
 .env.*
+# dev env files hold no secrets and must be committed for the dev stack to work
+!.env.development
 /web_app/public/fonts
 /Tools/.idea
 /Tools/downscaled_images

@@ -9,7 +9,7 @@ services:
     volumes:
       - mongo_data:/data/db
       # Scripts in here only run the first time the container starts with an
-      # empty data volume. Run `bun run dev:db:reset` (backend/) to re-seed.
+      # empty data volume. Wipe the volume (`down -v`) to re-seed.
       - ./mongo-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand('ping').ok"]

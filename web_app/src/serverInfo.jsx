@@ -1,8 +1,9 @@
 //dev
-export const website_address = "http://192.168.0.2:5173";
-export const media_server_address = "http://192.168.0.2:2121";
-export const backend_address = "http://192.168.0.2:3000";
-export const search_server = "http://192.168.0.2:7700/";
+export const website_address = "http://0.0.0.0:5173";
+//one unified axum backend: media and api share a single server/port
+export const media_server_address = "http://0.0.0.0:3000";
+export const backend_address = "http://0.0.0.0:3000";
+export const search_server = "http://0.0.0.0:7700/";
 //production
 /*export const search_server = "https://jackangione.com/search/";
 export const website_address = "https://jackangione.com";
