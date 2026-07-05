@@ -1,0 +1,43 @@
+name: knowledge-dev
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: knowledge-dev-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      # Scripts in here only run the first time the container starts with an
+      # empty data volume. Run `bun run dev:db:reset` (backend/) to re-seed.
+      - ./mongo-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.15
+    container_name: knowledge-dev-meilisearch
+    ports:
+      - "7700:7700"
+    environment:
+      MEILI_MASTER_KEY: dev_master_key
+      MEILI_ENV: development
+    volumes:
+      - meili_data:/meili_data
+
+  # One-shot job: creates the "resources" index the backend writes to.
+  meilisearch-init:
+    image: curlimages/curl:8.13.0
+    depends_on:
+      - meilisearch
+    restart: "no"
+    volumes:
+      - ./meili-init.sh:/meili-init.sh:ro
+    entrypoint: ["sh", "/meili-init.sh"]
+
+volumes:
+  mongo_data:
+  meili_data:

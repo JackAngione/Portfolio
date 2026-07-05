@@ -20,5 +20,10 @@
     "mongodb": "^6.16.0"
   },
   "scripts": {
+    "start": "bun --env-file=src/.env src/server.js",
+    "dev": "bun run dev:db && bun --env-file=src/.env.development src/server.js",
+    "dev:db": "docker compose -f ../dev/docker-compose.dev.yml up -d",
+    "dev:db:reset": "docker compose -f ../dev/docker-compose.dev.yml down -v && docker compose -f ../dev/docker-compose.dev.yml up -d",
+    "dev:db:stop": "docker compose -f ../dev/docker-compose.dev.yml down"
   }
 }

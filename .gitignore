@@ -15,11 +15,11 @@ mediaServer/.DS_Store
 /web_app/dist
 
 .env
+.env.*
 /web_app/public/fonts
 /Tools/.idea
 /Tools/downscaled_images
 /Tools/high_res_album_covers
 /mediaServer/server_files
 production/.env
-backend/README.md
 /Tools

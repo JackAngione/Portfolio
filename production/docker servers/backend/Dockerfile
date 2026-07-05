@@ -19,4 +19,4 @@ COPY . .
 EXPOSE 3000
 
 # Run the server when the container launches
-CMD ["bun" ,"run","src/index.js"]
+CMD ["bun", "run", "start"]

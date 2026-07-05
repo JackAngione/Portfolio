@@ -1,12 +1,20 @@
 import { MongoClient } from "mongodb";
 import { decode, verify } from "jsonwebtoken";
 import { createHash } from "crypto";
-import { unix } from "moment";
 import { addResource, deleteResource, updateResource } from "./searchServer.js";
 
 const connectionString = Bun.env.MONGODB_CONNECTION_STRING;
 const JWT_Key = process.env.JWT_KEY;
 const client = new MongoClient(connectionString);
+
+// auto-delete blacklisted tokens once their expiration Date passes
+client
+  .db("KNOWLEDGE")
+  .collection("BLACKLISTED_TOKENS")
+  .createIndex({ expiration: 1 }, { expireAfterSeconds: 0 })
+  .catch((err) => {
+    console.log("failed to create blacklist TTL index: " + err);
+  });
 
 //GENERATE resourceID for a new resource
 async function generateResourceID() {
@@ -292,15 +300,14 @@ async function verify_token(token) {
 
 async function logout(token) {
   let decoded_token = decode(token);
-  let expirationDate = unix(decoded_token.exp).utc();
-  // You can format the date however you like
-  expirationDate = expirationDate.format("YYYY-MM-DD, HH:mm:ss");
+  // stored as a Date so the TTL index purges the token once it expires
+  const expirationDate = new Date(decoded_token.exp * 1000);
 
   try {
     //BLACKLISTED TOKENS COLLECTION
     const blt_collection = client
-      .db("mediaPlatform")
-      .collection("blacklisted_tokens");
+      .db("KNOWLEDGE")
+      .collection("BLACKLISTED_TOKENS");
     //blacklists the token by inserting it into the blacklisted database
     await blt_collection.insertOne({
       token: token,
