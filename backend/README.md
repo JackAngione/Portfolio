@@ -56,13 +56,13 @@ fresh database after you've messed things up, use `dev:db:reset`.
 
 ### mediaServer (Rust)
 
-The mediaServer reads `MONGODB_CONNECTION_STRING` from its environment or a
-`mediaServer/.env` file (gitignored). To run it against the dev database:
+Same dev/prod split as the backend: `APP_ENV=development` makes it load the
+committed `mediaServer/.env.development` (points at the local dev stack);
+otherwise it loads the gitignored `mediaServer/.env` (production).
 
 ```bash
 cd ../mediaServer
-echo 'MONGODB_CONNECTION_STRING=mongodb://localhost:27017/KNOWLEDGE' > .env
-cargo run
+./dev.sh   # starts the Docker dev stack, then runs APP_ENV=development cargo run
 ```
 
 The dev database is seeded with one artist and one song so `/getSongs` and

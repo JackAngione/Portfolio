@@ -27,8 +27,13 @@ struct AxumState {
 }
 //set up the mongoDB client
 async fn init_mongo_client() -> AxumState {
-    // Load .env file
-    dotenv().ok();
+    // APP_ENV=development loads the committed .env.development (local Docker
+    // dev stack, see backend/README.md); otherwise the gitignored .env is used.
+    if env::var("APP_ENV").is_ok_and(|v| v == "development") {
+        dotenvy::from_filename(".env.development").ok();
+    } else {
+        dotenv().ok();
+    }
     let mongoDB_connection_string = env::var("MONGODB_CONNECTION_STRING");
 
     // Set up MongoDB client
