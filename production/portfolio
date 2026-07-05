@@ -1,4 +1,5 @@
 upstream apiUpstream {
+    # the unified axum backend (media + api on one port)
     server 192.168.0.2:3000;
     keepalive 64;
 }

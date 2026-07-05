@@ -1,7 +1,7 @@
 // Initializes the KNOWLEDGE database for local development.
 // Runs automatically (via mongosh) the first time the dev MongoDB container
-// starts with an empty data volume. Schema mirrors what backend/src and
-// mediaServer/src expect.
+// starts with an empty data volume. Schema mirrors what mediaServer/src
+// expects.
 
 const db = new Mongo().getDB("KNOWLEDGE");
 
@@ -34,7 +34,7 @@ db.createCollection("tutorials", {
         source: { bsonType: "string" },
         category: { bsonType: "string" },
         subCategories: { bsonType: "array", items: { bsonType: "string" } },
-        keywords: { bsonType: "string" },
+        keywords: { bsonType: "array", items: { bsonType: "string" } },
       },
     },
   },
@@ -47,7 +47,7 @@ db.createCollection("users", {
       required: ["username", "password"],
       properties: {
         username: { bsonType: "string" },
-        // sha256 hex digest — see login() in backend/src/mongoDBaccess.js
+        // sha256 hex digest — see login() in mediaServer/src/knowledge.rs
         password: { bsonType: "string" },
       },
     },
@@ -143,7 +143,7 @@ db.tutorials.insertMany([
     source: "https://www.mongodb.com/docs/",
     category: "Programming",
     subCategories: ["Databases"],
-    keywords: "mongodb database nosql",
+    keywords: ["mongodb", "database", "nosql"],
   },
   {
     resource_id: "DEV0002",
@@ -152,7 +152,7 @@ db.tutorials.insertMany([
     source: "https://doc.rust-lang.org/book/",
     category: "Programming",
     subCategories: ["Rust"],
-    keywords: "rust systems programming",
+    keywords: ["rust", "systems", "programming"],
   },
   {
     resource_id: "DEV0003",
@@ -161,7 +161,7 @@ db.tutorials.insertMany([
     source: "https://example.com/synthesis",
     category: "Music Production",
     subCategories: ["Synthesis"],
-    keywords: "synth oscillator filter",
+    keywords: ["synth", "oscillator", "filter"],
   },
 ]);
 

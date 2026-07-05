@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Runs the mediaServer against the local dev database (mirrors `bun run dev`
-# in backend/). Starts the shared Docker dev stack, then runs a dev build
-# with the committed .env.development config.
+# Runs the mediaServer against the local dev database. Starts the shared
+# Docker dev stack, then runs a dev build with the committed
+# .env.development config.
 set -euo pipefail
 cd "$(dirname "$0")"
 

@@ -1,6 +1,7 @@
 //dev
 export const website_address = "http://0.0.0.0:5173";
-export const media_server_address = "http://0.0.0.0:2121";
+//one unified axum backend: media and api share a single server/port
+export const media_server_address = "http://0.0.0.0:3000";
 export const backend_address = "http://0.0.0.0:3000";
 export const search_server = "http://0.0.0.0:7700/";
 //production
