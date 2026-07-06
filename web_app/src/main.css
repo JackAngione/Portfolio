@@ -4,7 +4,7 @@
 @plugin "./hero.ts";
 
 @theme {
-    --font-primary: "EVA-Matisse_Classic";
+    --font-primary: "BentonModDisp";
     /*--font-secondary: "Sinoreta";*/
     --font-secondary: "Helvetica";
     /*--font-fancy: "Emeritus";*/
@@ -27,9 +27,9 @@
     @apply bg-linear-to-br from-sunny from-15% to-bunny to-85%;
 }
 @font-face {
-    font-family: "EVA-Matisse_Classic";
-    font-weight: 400;
-    src: url("../public/fonts/EVA-Matisse_Classic.ttf") format("truetype");
+    font-family: "BentonModDisp";
+    font-weight: 700;
+    src: url("../public/fonts/BentonModDisp-Bold.otf") format("opentype");
 }
 
 @font-face {
@@ -69,11 +69,11 @@ body {
 }
 
 h1 {
-    @apply text-6xl sm:text-8xl text-primary font-primary font-bold scale-x-65 p-0;
+    @apply text-6xl sm:text-8xl text-primary font-primary font-bold p-0;
 }
 
 h2 {
-    @apply p-0 text-5xl sm:text-6xl text-secondary scale-x-65 font-bold font-primary;
+    @apply p-0 text-5xl sm:text-6xl text-secondary font-bold font-primary;
 }
 
 h3 {
