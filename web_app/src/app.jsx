@@ -14,7 +14,7 @@ import Category from "./routes/category.jsx";
 import { AdminRoute } from "./routes/adminRoute.jsx";
 import { HeroUIProvider } from "@heroui/react";
 import CommandK from "./routes/commandK.jsx";
-import GrainCanvas from "./GrainCanvas.jsx";
+import FilmGrain from "./FilmGrain.jsx";
 import Filters2ProQ from "./skills/Filters2ProQ.jsx";
 import EpilepsyWarningModal from "./routes/modals/epilepsyWarningModal.jsx";
 
@@ -28,13 +28,9 @@ function App() {
           <HeroUIProvider>
             <AuthProvider>
               <CommandK>
-                <GrainCanvas>
-                  {/*   <FilmGrainScene>*/}
-                  {/* <SVGGRAIN>*/}
+                <FilmGrain>
                   <NavigationBar />
-                  {/*  </SVGGRAIN>*/}
-                  {/*  </FilmGrainScene>*/}
-                </GrainCanvas>
+                </FilmGrain>
               </CommandK>
             </AuthProvider>
           </HeroUIProvider>

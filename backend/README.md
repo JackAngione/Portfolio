@@ -19,6 +19,40 @@ Reads env vars from the gitignored `.env`. Required vars:
 - `MEILISEARCH_MASTER_KEY` — used to sync tutorial uploads into the
   `resources` index
 
+## Deploying to production
+
+Build and push the image with [`production/deploy_backend.sh`](../production/deploy_backend.sh):
+
+```bash
+cd production
+GITLAB_USERNAME=... GITLAB_PASSWORD=... PUSH_TO_GITLAB=true ./deploy_backend.sh
+```
+
+`GITLAB_USERNAME`/`GITLAB_PASSWORD` can also be set in a gitignored
+`production/.env` instead of the environment. This builds
+`registry.gitlab.com/8jk.ang8/portfolio/backend:v1.0` (override with
+`VERSION_TAG`) for `linux/amd64` and, if `PUSH_TO_GITLAB=true`, pushes it to
+the GitLab registry. It stops/removes any existing `Portfolio_Backend`
+container but does **not** start a new one.
+
+On the production server (TrueNAS), pull the new image and start the
+container manually, injecting env vars at `docker run` time (they are not
+baked into the image or read from a file on the server):
+
+```bash
+docker pull registry.gitlab.com/8jk.ang8/portfolio/backend:v1.0
+docker run -d \
+  --name Portfolio_Backend \
+  -p 3000:3000 \
+  -e MONGODB_CONNECTION_STRING=... \
+  -e JWT_KEY=... \
+  -e MEILISEARCH_HOST=http://0.0.0.0:7700/ \
+  -e MEILISEARCH_MASTER_KEY=... \
+  registry.gitlab.com/8jk.ang8/portfolio/backend:v1.0
+```
+
+Meilisearch on the production host is always reachable at `0.0.0.0:7700`.
+
 ## Running against a local dev environment
 
 For local development you don't need to touch the production database —
