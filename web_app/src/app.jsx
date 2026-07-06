@@ -7,6 +7,7 @@ import Music from "./skills/MUSIC/music.jsx";
 import ResourcesPage from "./routes/resourcesPage.jsx";
 import Upload from "./routes/upload.jsx";
 import HDRPhotos from "./skills/hdrPhotos.jsx";
+import PhotoCategory from "./skills/PhotoCategory.jsx";
 import AuthProvider from "./useAuth.jsx";
 
 import Category from "./routes/category.jsx";
@@ -40,6 +41,7 @@ function App() {
       children: [
         { index: true, Component: Home },
         { path: "/hdrphotos", Component: HDRPhotos },
+        { path: "/hdrphotos/:category", Component: PhotoCategory },
         { path: "/code", Component: CodeProjects },
         { path: "/music", Component: Music },
         {

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import "react-lazy-load-image-component/src/effects/blur.css";
+import { Link } from "react-router";
+import { motion } from "motion/react";
+import "ldrs/square";
 import CaptureOneLogo from "./softwareLogos/CAPTURE_ONE_LOGO.svg";
 import PhotoshopLogo from "./softwareLogos/adobe-photoshop-2.svg";
 import LightroomLogo from "./softwareLogos/Lightroom_logo.svg";
@@ -7,28 +9,29 @@ import DavinciLogo from "./softwareLogos/DaVinci_Resolve_logo.svg";
 import PremiereProLogo from "./softwareLogos/premiere-pro-cc.svg";
 import AfterEffectsLogo from "./softwareLogos/after-effects-1.svg";
 import "./hdrPhotos.css";
-import PhotoCategory from "./PhotoCategory.jsx";
 import { media_server_address } from "../serverInfo.jsx";
 
 function HDRPhotos() {
   const [photoCategories, setPhotoCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   useEffect(() => {
     async function getCategories() {
-      const response = await fetch(
-        media_server_address + "/getPhotoCategories",
-      );
-      let list = await response.json();
-      setPhotoCategories(list.sort());
+      try {
+        const response = await fetch(
+          media_server_address + "/getPhotoCategories",
+        );
+        let list = await response.json();
+        setPhotoCategories(list.sort());
+      } catch (e) {
+        setError(true);
+      }
+      setLoading(false);
     }
 
     getCategories().then((r) => {});
   }, []);
 
-  const handleCategorySelect = (category) => {
-    console.log(category);
-    setSelectedCategory(category);
-  };
   return (
     <div className="mx-4 flex flex-col items-center justify-center">
       <h1 className="mt-14 font-bold">PHOTOGRAPHY</h1>
@@ -120,25 +123,50 @@ function HDRPhotos() {
           </a>
         </ul>
       </div>
-      <h2>CATEGORIES</h2>
-      {/* [@media(min-aspect-ratio:1/1)]:*/}
-      <div className="z-6 mx-8 my-8 flex flex-wrap justify-center">
-        {photoCategories.map((category, index) => (
-          <label
-            className={`${selectedCategory === category ? "bg-PrimaryGradient text-black" : "bg-transparent"} text-primary m-2 rounded-md border-2 px-6 py-3`}
+      <h2>GALLERY</h2>
+      {loading && (
+        <div className="flex flex-col items-center justify-center gap-12 p-40">
+          <l-square
+            size="60"
+            stroke="2"
+            stroke-length="0.25"
+            bg-opacity="0.1"
+            speed="1.4"
+            color="white"
+          ></l-square>
+          <h2>LOADING CATEGORIES...</h2>
+        </div>
+      )}
+      {error && (
+        <div className="flex flex-col items-center justify-center gap-12 p-40">
+          <h2>Error loading categories :(</h2>
+        </div>
+      )}
+      {!loading && !error && (
+        <div className="z-6 my-8 flex flex-col text-center">
+          <motion.div
+            className="mb-4 text-sm"
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: 1,
+            }}
+            transition={{
+              opacity: { delay: 1, duration: 1 },
+            }}
           >
-            <input
-              className={`hidden appearance-none text-white shadow-md ring-blue-300`}
-              type="radio"
-              name="Categories"
-              value={category}
-              onChange={() => handleCategorySelect(category)}
-            />
-            {category.charAt(0).toUpperCase() + category.slice(1)}
-          </label>
-        ))}
-      </div>
-      <PhotoCategory category={selectedCategory} />
+            view by category
+          </motion.div>
+          {photoCategories.map((category, index) => (
+            <Link
+              to={`/hdrphotos/${category}`}
+              key={index}
+              className="text-4xl"
+            >
+              {category}
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
