@@ -16,6 +16,7 @@ import { HeroUIProvider } from "@heroui/react";
 import CommandK from "./routes/commandK.jsx";
 import GrainCanvas from "./GrainCanvas.jsx";
 import Filters2ProQ from "./skills/Filters2ProQ.jsx";
+import EpilepsyWarningModal from "./routes/modals/epilepsyWarningModal.jsx";
 
 function App() {
   const router = createBrowserRouter([
@@ -23,6 +24,7 @@ function App() {
       path: "/",
       element: (
         <>
+          <EpilepsyWarningModal />
           <HeroUIProvider>
             <AuthProvider>
               <CommandK>
