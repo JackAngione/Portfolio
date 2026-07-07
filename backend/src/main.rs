@@ -90,6 +90,10 @@ async fn main() {
         }
     });
 
+    //pre-generate any missing waveform caches in the background so no song
+    //pays the decode cost on its first play
+    tokio::spawn(file_test::pregenerate_waveforms());
+
     //STATIC FILE SERVING PATHS
     let images_path = Path::new("./server_files/hdrImages");
     let serve_images = ServeDir::new(images_path);
@@ -111,6 +115,7 @@ async fn main() {
     let app = Router::new()
         .route("/artwork/{song_id}", get(file_test::get_artwork))
         .route("/stream/{artist}/{songname}", get(file_test::stream_song))
+        .route("/waveform/{artist}/{songname}", get(file_test::get_waveform))
         .route("/getSongs", get(mongoDB::get_songs))
         .route("/artist/{artist_id}", get(mongoDB::get_artist_songs))
         .route("/artists", get(mongoDB::get_artists))

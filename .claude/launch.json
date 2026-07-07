@@ -8,6 +8,13 @@
       "cwd": "web_app",
       "port": 5173,
       "autoPort": true
+    },
+    {
+      "name": "backend",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["APP_ENV=development", "cargo", "run"],
+      "cwd": "backend",
+      "port": 3000
     }
   ]
 }

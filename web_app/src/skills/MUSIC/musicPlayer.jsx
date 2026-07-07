@@ -1,15 +1,51 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useWavesurfer } from "@wavesurfer/react";
 import { Slider } from "@heroui/react";
 import { media_server_address } from "../../serverInfo.jsx";
 
 function MusicPlayer({ song }) {
-  //initialize WaveSurfer
+  //pre-computed peaks from the server, so the waveform renders without
+  //downloading the whole audio file (playback then streams via the media element)
+  const [waveform, setWaveform] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    setWaveform(null);
+    fetch(
+      media_server_address + "/waveform/" + song.artist_id + "/" + song.song_id,
+    )
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        //fall back to client-side decoding if the endpoint fails
+        if (!cancelled) {
+          setWaveform(data ?? { peaks: null, duration: null });
+          if (data?.duration) setSongDuration(data.duration);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setWaveform({ peaks: null, duration: null });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [song.artist_id, song.song_id]);
+
+  //useWavesurfer recreates the player when any option changes identity, so
+  //the peaks array must be memoized to avoid an infinite recreate loop
+  const peaks = useMemo(
+    () => (waveform?.peaks ? [waveform.peaks] : undefined),
+    [waveform],
+  );
+
+  //initialize WaveSurfer (only once the peaks fetch has settled, otherwise
+  //wavesurfer would start downloading the full file to decode it itself)
   const containerRef = useRef(null);
   const { wavesurfer, isReady, isPlaying, currentTime } = useWavesurfer({
     container: containerRef,
-    url:
-      media_server_address + "/stream/" + song.artist_id + "/" + song.song_id,
+    url: waveform
+      ? media_server_address + "/stream/" + song.artist_id + "/" + song.song_id
+      : undefined,
+    peaks,
+    duration: waveform?.duration ?? undefined,
     waveColor: "#fcf7f8",
     progressColor: "oklch(0.72 0.2466 360)",
     height: 40,
@@ -24,9 +60,12 @@ function MusicPlayer({ song }) {
   };
   //THIS CODE RUNS WHEN WAVESURFER IS LOADED
   useEffect(() => {
-    wavesurfer && setSongDuration(wavesurfer.getDuration());
+    //the media element may not have loaded metadata yet, so fall back to the
+    //duration reported by the waveform endpoint
+    wavesurfer &&
+      setSongDuration(wavesurfer.getDuration() || waveform?.duration || 0);
     wavesurfer && wavesurfer.setVolume(0.0625);
-  }, [isReady]);
+  }, [isReady, wavesurfer]);
 
   const [volume, setVolume] = useState(0.25);
   const [songProgress, setSongProgress] = useState(0);
@@ -51,8 +90,8 @@ function MusicPlayer({ song }) {
   };
 
   const handleSeekChange = (value) => {
-    wavesurfer.seekTo(value);
-    wavesurfer.setTime(songProgress);
+    //value is in seconds (slider range is 0..songDuration)
+    wavesurfer.setTime(value);
     setSongProgress(value);
   };
 
