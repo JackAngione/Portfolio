@@ -5,7 +5,6 @@
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 40px;
-
 }
 
 #categoryForm select {
@@ -27,7 +26,6 @@
   @apply border-primary border-1;
 }
 
-
 #editForm select {
   display: block;
   margin-left: auto;
@@ -35,7 +33,6 @@
   margin-bottom: 40px;
 }
 #confirmDelete label {
-
   padding-top: 20px;
   display: flex;
   flex-direction: row;
@@ -43,7 +40,7 @@
   margin: auto;
 }
 .react-select-container {
-  @apply rounded-[6px] text-background;
+  @apply text-background rounded-[6px];
 }
 .SVG_icon {
   width: 25px;

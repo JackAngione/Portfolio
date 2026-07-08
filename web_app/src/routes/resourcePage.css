@@ -10,7 +10,7 @@
   border-radius: 3px;
 }
 .ais-RefinementList-checkbox {
-  @apply appearance-none bg-primary relative border-0 rounded-[2px] h-3 w-3 mr-2;
+  @apply bg-primary relative mr-2 h-3 w-3 appearance-none rounded-[2px] border-0;
 }
 .ais-RefinementList-checkbox:checked {
   @apply bg-tertiary;
@@ -20,7 +20,7 @@
   @apply uppercase;
 }
 .ais-SearchBox-input {
-  @apply border-2 rounded-md;
+  @apply rounded-md border-2;
 }
 
 .searchResults ol {

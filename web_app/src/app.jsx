@@ -1,22 +1,31 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import NavigationBar from "./routes/navigationBar.jsx";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
 import Home from "./routes/home.jsx";
-import CodeProjects from "./skills/codeProjects.jsx";
-import Music from "./skills/MUSIC/music.jsx";
-import ResourcesPage from "./routes/resourcesPage.jsx";
-import Upload from "./routes/upload.jsx";
-import HDRPhotos from "./skills/hdrPhotos.jsx";
-import PhotoCategory from "./skills/PhotoCategory.jsx";
 import AuthProvider from "./useAuth.jsx";
 
-import Category from "./routes/category.jsx";
 import { AdminRoute } from "./routes/adminRoute.jsx";
 import { HeroUIProvider } from "@heroui/react";
 import CommandK from "./routes/commandK.jsx";
 import FilmGrain from "./FilmGrain.jsx";
-import Filters2ProQ from "./skills/Filters2ProQ.jsx";
 import EpilepsyWarningModal from "./routes/modals/epilepsyWarningModal.jsx";
+
+const CodeProjects = lazy(() => import("./skills/codeProjects.jsx"));
+const Music = lazy(() => import("./skills/MUSIC/music.jsx"));
+const ResourcesPage = lazy(() => import("./routes/resourcesPage.jsx"));
+const Upload = lazy(() => import("./routes/upload.jsx"));
+const HDRPhotos = lazy(() => import("./skills/hdrPhotos.jsx"));
+const PhotoCategory = lazy(() => import("./skills/PhotoCategory.jsx"));
+const Category = lazy(() => import("./routes/category.jsx"));
+const Filters2ProQ = lazy(() => import("./skills/Filters2ProQ.jsx"));
+
+function withSuspense(Component) {
+  return (
+    <Suspense fallback={null}>
+      <Component />
+    </Suspense>
+  );
+}
 
 function App() {
   const router = createBrowserRouter([
@@ -38,19 +47,21 @@ function App() {
       ),
       children: [
         { index: true, Component: Home },
-        { path: "/hdrphotos", Component: HDRPhotos },
-        { path: "/hdrphotos/:category", Component: PhotoCategory },
-        { path: "/code", Component: CodeProjects },
-        { path: "/music", Component: Music },
+        { path: "/hdrphotos", element: withSuspense(HDRPhotos) },
+        { path: "/hdrphotos/:category", element: withSuspense(PhotoCategory) },
+        { path: "/code", element: withSuspense(CodeProjects) },
+        { path: "/music", element: withSuspense(Music) },
         {
           path: "/resources",
           children: [
-            { index: true, Component: ResourcesPage },
+            { index: true, element: withSuspense(ResourcesPage) },
             {
               path: "upload",
               element: (
                 <AdminRoute>
-                  <Upload />
+                  <Suspense fallback={null}>
+                    <Upload />
+                  </Suspense>
                 </AdminRoute>
               ),
             },
@@ -58,13 +69,15 @@ function App() {
               path: "category",
               element: (
                 <AdminRoute>
-                  <Category />
+                  <Suspense fallback={null}>
+                    <Category />
+                  </Suspense>
                 </AdminRoute>
               ),
             },
           ],
         },
-        { path: "/f2q", Component: Filters2ProQ },
+        { path: "/f2q", element: withSuspense(Filters2ProQ) },
         /*{
           path: "upload",
           element: (

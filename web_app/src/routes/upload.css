@@ -7,9 +7,8 @@
   display: block;
 }
 .react-select-container {
-  @apply rounded-[6px] text-background;
+  @apply text-background rounded-[6px];
 }
 #uploadForm {
-  @apply flex flex-col  items-center  gap-4;
-
+  @apply flex flex-col items-center gap-4;
 }

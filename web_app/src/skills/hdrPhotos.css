@@ -2,5 +2,5 @@
 @import "../main.css";
 
 .logo {
-    @apply w-10 mr-2;
+  @apply mr-2 w-10;
 }

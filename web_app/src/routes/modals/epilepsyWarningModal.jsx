@@ -33,8 +33,7 @@ function EpilepsyWarningModal() {
         </h2>
         <p>
           This site contains rapidly flashing images that may trigger seizures
-          for people with photosensitive epilepsy. Viewer discretion is
-          advised.
+          for people with photosensitive epilepsy. Viewer discretion is advised.
         </p>
         <button className="bg-background/70" onClick={dismiss} autoFocus>
           I understand, continue

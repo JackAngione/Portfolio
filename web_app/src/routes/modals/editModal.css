@@ -1,55 +1,53 @@
 @import "../../main.css";
 
 .overlay {
-    background-color: rgba(0, 0, 0, 0.8);
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    position: fixed;
-    z-index: 1;
-
+  background-color: rgba(0, 0, 0, 0.8);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position: fixed;
+  z-index: 1;
 }
 
 .pageContent {
-    z-index: -1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    overflow-y: hidden;
-
+  z-index: -1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow-y: hidden;
 }
 
 .modalContent {
-    padding: 40px;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    max-height: calc(100vh - 60px);
-    transform: translate(-50%, -50%);
-    z-index: 2;
-    gap: 10px;
-    @apply bg-background/20 backdrop-blur-lg flex flex-col justify-center items-center mt-4 ;
-    overflow-y: auto;
+  padding: 40px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  max-height: calc(100vh - 60px);
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  gap: 10px;
+  @apply bg-background/20 mt-4 flex flex-col items-center justify-center backdrop-blur-lg;
+  overflow-y: auto;
 }
 
 .modalContent {
-    @apply border-2 rounded-[4px] border-secondary ;
+  @apply border-secondary rounded-[4px] border-2;
 }
 
 .selectBox {
-    @apply border-2 border-red-600  bg-red-500 rounded-lg shadow-md;
+  @apply rounded-lg border-2 border-red-600 bg-red-500 shadow-md;
 }
 
 .react-select-container {
-    @apply rounded-[6px] text-background;
+  @apply text-background rounded-[6px];
 }
 
 .editForm label {
-    @apply flex flex-col mb-[40px] ;
+  @apply mb-[40px] flex flex-col;
 }
 
 .SVG_icon {
-    width: 25px;
+  width: 25px;
 }
