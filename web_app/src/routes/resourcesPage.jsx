@@ -16,13 +16,16 @@ import {
 import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 import { AuthContext } from "../useAuth.jsx";
 
+//created once at module scope: rebuilding the client on every render would
+//reset InstantSearch's cache and connection state each time a modal toggles
+const { searchClient } = instantMeiliSearch(
+  search_server,
+  meiliSearch_Search_Key,
+  { placeholderSearch: false },
+);
+
 function ResourcesPage() {
   const authenticated = useContext(AuthContext).loggedIn;
-  const { searchClient } = instantMeiliSearch(
-    search_server,
-    meiliSearch_Search_Key,
-    { placeholderSearch: false },
-  );
 
   //EDITOR MODAL
   const [openEditModal, setOpenEditModal] = useState(false);

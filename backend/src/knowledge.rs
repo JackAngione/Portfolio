@@ -333,6 +333,19 @@ async fn generate_resource_id(tutorials: &Collection<Tutorial>) -> String {
     }
 }
 
+//escape regex metacharacters so user input is matched literally; without this
+//a query like "c++" errors out and crafted patterns can hang the db (ReDoS)
+fn escape_regex(input: &str) -> String {
+    let mut escaped = String::with_capacity(input.len());
+    for c in input.chars() {
+        if c.is_ascii() && !c.is_ascii_alphanumeric() {
+            escaped.push('\\');
+        }
+        escaped.push(c);
+    }
+    escaped
+}
+
 //SEARCHES THE DATABASE BASED ON A USER'S QUERY
 pub(crate) async fn search_tutorials(
     State(state): State<AxumState>,
@@ -350,7 +363,7 @@ pub(crate) async fn search_tutorials(
         .collect();
     println!("search request made, query: {}", search_query);
 
-    let regex = doc! {"$regex": &search_query, "$options": "i"};
+    let regex = doc! {"$regex": escape_regex(&search_query), "$options": "i"};
     let text_match = doc! {"$or": [
         {"title": &regex},
         {"description": &regex},

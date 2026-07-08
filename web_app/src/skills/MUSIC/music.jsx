@@ -70,16 +70,20 @@ function Music() {
             ) : (
               <></>
             )}
-            <ul className="flex justify-center gap-4">
-              {artistList.map((artistObj, index) => (
+            <ul className="flex flex-wrap justify-center gap-3">
+              {artistList.map((artistObj) => (
                 // Assuming each item has an id and some properties
                 <label
-                  className={`${selectedArtist === artistObj ? "bg-PrimaryGradient text-black" : "bg-transparent"} text-primary m-2 rounded-md border-2 px-6 py-3`}
+                  key={artistObj.artist_id}
+                  className={`${
+                    selectedArtist === artistObj
+                      ? "bg-PrimaryGradient scale-105 border-transparent font-bold text-black shadow-lg"
+                      : "border-primary/30 text-primary/70 hover:border-primary/70 hover:text-primary bg-transparent"
+                  } cursor-pointer rounded-full border-2 px-5 py-2 transition-all`}
                 >
                   {artistObj.artist_name}
                   <input
-                    className={`hidden appearance-none text-white shadow-md ring-blue-300`}
-                    key={index}
+                    className={`hidden appearance-none`}
                     type="radio"
                     name="Artists"
                     value={artistObj.artist_name}
@@ -89,6 +93,16 @@ function Music() {
               ))}
             </ul>
           </div>
+
+          {selectedArtist !== "" && (
+            <div className="mt-10 mb-2 flex items-center gap-4 px-2">
+              <div className="via-primary/30 h-px grow bg-gradient-to-r from-transparent to-transparent" />
+              <p className="text-primary/60 text-sm tracking-[0.25em] uppercase">
+                Tracks
+              </p>
+              <div className="via-primary/30 h-px grow bg-gradient-to-r from-transparent to-transparent" />
+            </div>
+          )}
 
           <ArtistDisplay
             sendSelectedSong={handleSongClick}

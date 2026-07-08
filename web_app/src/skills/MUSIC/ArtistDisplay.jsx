@@ -11,8 +11,9 @@ const ArtistDisplay = ({ artist, sendSelectedSong }) => {
     setOpenIndex(openIndex === index ? null : index);
   };
   useEffect(() => {
-    if (artist !== null) {
-      fetchSongs(artist).then((r) => {});
+    //artist starts out as "" until one is clicked; don't fetch /artist/undefined
+    if (artist) {
+      fetchSongs(artist);
     }
   }, [artist]);
   const fetchSongs = async (artist) => {
@@ -36,19 +37,24 @@ const ArtistDisplay = ({ artist, sendSelectedSong }) => {
   if (artist === "") return <></>;
   else
     return (
-      <div className="flex justify-center overflow-x-scroll">
-        <div className="grid w-max grid-cols-2 sm:grid-cols-3">
-          {songList.map((song, index) => (
-            <div className="m-4 flex w-40 flex-col items-center justify-center xl:w-50">
+      <div className="flex justify-center">
+        <div className="grid w-max grid-cols-2 gap-6 sm:grid-cols-3">
+          {songList.map((song) => (
+            <div
+              key={song.song_id}
+              className="flex w-40 flex-col items-center xl:w-50"
+            >
               <button
-                className=""
-                key={index}
+                className="group bg-transparent! flex! w-full flex-col items-center gap-2 rounded-xl! p-0!"
                 onClick={() => handleSongClick(song)}
               >
                 <LazyLoadImage
+                  className="aspect-square w-full rounded-xl object-cover shadow-md transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-xl"
                   src={media_server_address + `/artwork/${song.song_id}`}
                 />
-                {song.song_title}
+                <span className="group-hover:text-primary text-primary/80 text-sm font-bold transition-colors">
+                  {song.song_title}
+                </span>
               </button>
             </div>
           ))}

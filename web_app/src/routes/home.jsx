@@ -18,9 +18,10 @@ function Home() {
       const decoded = jwtDecode(token);
       setUsername(decoded.username);
     } catch (e) {
-      //console.error("An error occurred while decoding the token:", e);
+      //not logged in / invalid token: leave username null
+      setUsername(null);
     }
-  }, []);
+  }, [token]);
 
   // Create a motion value that will continuously animate
 

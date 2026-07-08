@@ -15,7 +15,6 @@ function EditModal({ open, tutorialData, onClose }) {
   const [inputTitle, setInputTitle] = useState("");
   const [inputDesc, setInputDesc] = useState("");
   const [inputSource, setInputSource] = useState("");
-  const [inputKeywords, setInputKeywords] = useState([]);
   const [resource_id, setResource_id] = useState("");
   //REACT SELECT KEYWORDS
   const [inputValue, setInputValue] = useState("");
@@ -23,13 +22,10 @@ function EditModal({ open, tutorialData, onClose }) {
   //
 
   const [inputCategory, setInputCategory] = useState("");
-  const [inputSubCategories, setInputSubCategories] = useState([]);
   const [subCategoriesValue, setSubCategoriesValue] = useState([]);
   //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (just the titles)
   const [categoryTitles, setCategoryTitles] = useState([]);
   const [subCategoryTitles, setSubCategoryTitles] = useState([]);
-
-  const [submitFlag, setSubmitFlag] = useState(false);
 
   const { token } = useContext(AuthContext); //get token from auth
   useEffect(() => {
@@ -50,38 +46,6 @@ function EditModal({ open, tutorialData, onClose }) {
 
     fetchData().then((r) => {});
   }, []);
-  //SHOULD ONLY RUN ON SUBMIT
-  useEffect(() => {
-    if (submitFlag === true) {
-      let inputs = {
-        oldTitle: oldTitle,
-        oldSource: oldSource,
-        title: inputTitle,
-        description: inputDesc,
-        source: inputSource,
-        category: inputCategory,
-        subCategories: inputSubCategories,
-        keywords: inputKeywords,
-        resource_id: resource_id,
-      };
-
-      axios
-        .post(backend_address + "/editTutorial", inputs, {
-          headers: {
-            authorization: `Bearer ${token}`, // Pass JWT in Authorization header
-          },
-        })
-        .then(({ response }) => {
-          alert("Resource edited successfully!");
-        })
-        .catch((error) => {
-          console.log(error);
-          alert("Error editing Resource!");
-        });
-      onClose();
-    }
-  }, [inputKeywords, inputSubCategories, submitFlag]);
-
   useEffect(() => {
     if (tutorialData != null) {
       setOldTitle(tutorialData.title);
@@ -89,7 +53,6 @@ function EditModal({ open, tutorialData, onClose }) {
       setInputTitle(tutorialData.title);
       setInputDesc(tutorialData.description);
       setInputSource(tutorialData.source);
-      setInputKeywords(tutorialData.keywords);
       setInputCategory(tutorialData.category);
       setResource_id(tutorialData.resource_id);
       //init subcategories
@@ -151,38 +114,32 @@ function EditModal({ open, tutorialData, onClose }) {
   //SEND the form to database
   function submitUpload(e) {
     e.preventDefault();
-    //convert keywords from select to standard array format
-    let finalEditKeywords = [];
-    for (let i = 0; i < reactKeywords.length; i++) {
-      finalEditKeywords.push(reactKeywords[i].value);
-    }
-
-    //convert subcategories from select to standard array format
-    let finalEditSubCategories = [];
-    for (let i = 0; i < subCategoriesValue.length; i++) {
-      finalEditSubCategories.push(subCategoriesValue[i].value);
-    }
-    setInputSubCategories(finalEditSubCategories);
-    setInputKeywords(finalEditKeywords);
-    setSubmitFlag(true);
-  }
-
-  function DisplayEdited() {
-    return (
-      <>
-        {/*<p> {inputTitle} </p>
-                <p> {inputDesc} </p>
-                <p> {inputSource} </p>
-                <p> {inputCategory} </p>*/}
-
-        {inputSubCategories.map((result, index) => (
-          <li key={index}>{JSON.stringify(result)}</li>
-        ))}
-        {reactKeywords.map((result, index) => (
-          <li key={index}>{JSON.stringify(result)}</li>
-        ))}
-      </>
-    );
+    const inputs = {
+      oldTitle: oldTitle,
+      oldSource: oldSource,
+      title: inputTitle,
+      description: inputDesc,
+      source: inputSource,
+      category: inputCategory,
+      //convert selects to standard array format
+      subCategories: subCategoriesValue.map((subCategory) => subCategory.value),
+      keywords: reactKeywords.map((keyword) => keyword.value),
+      resource_id: resource_id,
+    };
+    axios
+      .post(backend_address + "/editTutorial", inputs, {
+        headers: {
+          authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+        },
+      })
+      .then(() => {
+        alert("Resource edited successfully!");
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("Error editing Resource!");
+      });
+    onClose();
   }
 
   const handleKeyDown = (event) => {
@@ -295,11 +252,13 @@ function EditModal({ open, tutorialData, onClose }) {
               />
             </label>
             <div className="modalButtons">
-              <button className="m-4" type="submit" onClick={submitUpload}>
+              <button className="m-4" type="submit">
                 Update Tutorial{" "}
               </button>
 
-              <button onClick={onClose}>Cancel</button>
+              <button type="button" onClick={onClose}>
+                Cancel
+              </button>
             </div>
           </form>
         </div>

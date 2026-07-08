@@ -12,7 +12,6 @@ function Upload() {
   //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (just the titles)
   const [categoryTitles, setCategoryTitles] = useState([]);
   const [subCategoryTitles, setSubCategoryTitles] = useState([]);
-  const [submitFlag, setSubmitFlag] = useState(false);
 
   //REACT SELECT KEYWORDS
   const [inputValue, setInputValue] = useState("");
@@ -20,7 +19,6 @@ function Upload() {
   const components = { DropdownIndicator: null };
   //
   //the JSON to be uploaded to database
-  const [inputKeywords, setInputKeywords] = useState([]);
   const [inputTitle, setInputTitle] = useState("");
   const [inputDesc, setInputDesc] = useState("");
   const [inputSource, setInputSource] = useState("");
@@ -67,36 +65,6 @@ function Upload() {
       }
     }
   }, [inputCategory]);
-  //Set the title, desc, source to what the user types in
-
-  //SHOULD ONLY RUN ON SUBMIT
-  useEffect(() => {
-    if (submitFlag === true) {
-      let inputs = {
-        title: inputTitle,
-        description: inputDesc,
-        source: inputSource,
-        category: inputCategory,
-        subCategories: inputSubCategories,
-        keywords: inputKeywords,
-      };
-      //const token = Cookies.get("LoginToken"); // Get JWT from cookies
-
-      axios
-        .post(backend_address + "/upload", inputs, {
-          headers: {
-            authorization: `Bearer ${token}`, // Pass JWT in Authorization header
-          },
-        })
-        .then(({ response }) => {
-          alert("New Resource created successfully!");
-        })
-        .catch((error) => {
-          alert("Error creating new Resource!");
-        });
-    }
-  }, [inputKeywords, submitFlag]);
-
   const createOption = (label) => ({
     label,
     value: label,
@@ -116,12 +84,26 @@ function Upload() {
   //SEND the form to database
   function submitUpload(e) {
     e.preventDefault();
-    let finalArray = [];
-    for (let i = 0; i < reactKeywords.length; i++) {
-      finalArray.push(reactKeywords[i].value);
-    }
-    setInputKeywords(finalArray);
-    setSubmitFlag(true);
+    const inputs = {
+      title: inputTitle,
+      description: inputDesc,
+      source: inputSource,
+      category: inputCategory,
+      subCategories: inputSubCategories,
+      keywords: reactKeywords.map((keyword) => keyword.value),
+    };
+    axios
+      .post(backend_address + "/upload", inputs, {
+        headers: {
+          authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+        },
+      })
+      .then(() => {
+        alert("New Resource created successfully!");
+      })
+      .catch(() => {
+        alert("Error creating new Resource!");
+      });
   }
 
   //DEBUGGING---DISPLAY REACT SELECT KEYWORDS
@@ -228,7 +210,7 @@ function Upload() {
           placeholder="Enter Keywords Here"
           value={reactKeywords}
         />
-        <button className="m-4" type="submit" onClick={submitUpload}>
+        <button className="m-4" type="submit">
           Upload
         </button>
       </form>

@@ -15,7 +15,6 @@ function Category() {
 
   //NEW CATEGORY---------------------
   const [categoryTitle, setCategoryTitle] = useState("");
-  const [submitCreateCategory, setSubmitCreateCategory] = useState(false);
   //REACT SELECT KEYWORDS
   const [inputValue, setInputValue] = useState("");
   const [subCategories, setSubCategories] = useState([]);
@@ -28,9 +27,6 @@ function Category() {
   //edited subcategories
   const [editSubCategories, setEditSubCategories] = useState([]);
   const [editInputValue, setEditInputValue] = useState("");
-  const [finalEditSubCategories, setFinalEditSubCategories] = useState([]);
-  //ready to submit?
-  const [submitEditCategory, setSubmitEditCategory] = useState(false);
 
   const components = { DropdownIndicator: null };
 
@@ -80,53 +76,6 @@ function Category() {
     }
   };
 
-  //SUBMIT NEW CATEGORY TO DATABASE
-  useEffect(() => {
-    if (submitCreateCategory === true) {
-      const categoryFinal = {
-        title: categoryTitle,
-        subCategories: subCategories,
-      };
-      axios
-        .post(backend_address + "/createCategory", categoryFinal, {
-          headers: {
-            authorization: `Bearer ${token}`, // Pass JWT in Authorization header
-          },
-        })
-        .then((res) => {
-          alert("New Category created successfully!");
-        })
-        .catch((error) => {
-          alert("Error creating new Category!");
-        });
-      setSubmitCreateCategory(false);
-    }
-  }, [subCategories, submitCreateCategory]);
-  //
-  //SUBMIT CATEGORY EDIT TO DATABASE
-  useEffect(() => {
-    if (submitEditCategory === true) {
-      const editCategoryFinal = {
-        oldTitle: categoryToEdit,
-        title: categoryTitleEdit,
-        subCategories: finalEditSubCategories,
-      };
-      console.log(
-        "EDITING CATEGORIES" + JSON.stringify(editCategoryFinal.subCategories),
-      );
-      axios
-        .post(backend_address + "/editCategory", editCategoryFinal, {
-          headers: {
-            authorization: `Bearer ${token}`, // Pass JWT in Authorization header
-          },
-        })
-        .then(({ response }) => {
-          //console.log(response.data)
-        });
-      setSubmitEditCategory(false);
-    }
-  }, [finalEditSubCategories, submitEditCategory]);
-  //
   //WHEN CATEGORY TO EDIT IS CHANGED, UPDATE THE SUBCATEGORIES TO EDIT
   useEffect(() => {
     let subCategoryList = [];
@@ -147,22 +96,44 @@ function Category() {
   //FINALIZE CREATE CATEGORY and trigger http push
   function submitCreateForm(e) {
     e.preventDefault();
-    let finalSubCategories = [];
-    for (let i = 0; i < subCategories.length; i++) {
-      finalSubCategories.push(subCategories[i].value);
-    }
-    setSubCategories(finalSubCategories);
-    setSubmitCreateCategory(true);
+    const categoryFinal = {
+      title: categoryTitle,
+      subCategories: subCategories.map((subCategory) => subCategory.value),
+    };
+    axios
+      .post(backend_address + "/createCategory", categoryFinal, {
+        headers: {
+          authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+        },
+      })
+      .then(() => {
+        alert("New Category created successfully!");
+      })
+      .catch(() => {
+        alert("Error creating new Category!");
+      });
   }
 
   //SUBMIT CATEGORY EDIT TO DATABASE
   function submitEditForm(e) {
-    let finalEditSubCategories = [];
-    for (let i = 0; i < editSubCategories.length; i++) {
-      finalEditSubCategories.push(editSubCategories[i].value);
-    }
-    setFinalEditSubCategories(finalEditSubCategories);
-    setSubmitEditCategory(true);
+    e.preventDefault();
+    const editCategoryFinal = {
+      oldTitle: categoryToEdit,
+      title: categoryTitleEdit,
+      subCategories: editSubCategories.map((subCategory) => subCategory.value),
+    };
+    axios
+      .post(backend_address + "/editCategory", editCategoryFinal, {
+        headers: {
+          authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+        },
+      })
+      .then(() => {
+        alert("Category edited successfully!");
+      })
+      .catch(() => {
+        alert("Error editing Category!");
+      });
   }
 
   //DEBUGGING---DISPLAY REACT SELECT KEYWORDS

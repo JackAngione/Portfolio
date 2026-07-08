@@ -43,7 +43,8 @@ export async function logout() {
         }
       });
   } catch (e) {
-    if (e.response.status === 401) {
+    //e.response is undefined on network errors, so use optional chaining
+    if (e.response?.status === 401) {
       //token was invalid, so logout anyways
       Cookies.remove("LoginToken");
       window.location.reload();
