@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "dev": "vp dev",
     "build": "vp build",
     "lint": "vp lint",
@@ -44,7 +45,9 @@
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.21",
     "babel-plugin-react-compiler": "^19.0.0-beta-aeaed83-20250323",
+    "baseline-browser-mapping": "^2.10.42",
     "eslint-plugin-react-compiler": "^19.0.0-beta-aeaed83-20250323",
+    "only-allow": "^1.2.2",
     "postcss": "^8.5.3",
     "tailwindcss": "^4.0.17",
     "vite": "npm:@voidzero-dev/vite-plus-core@0.2.3",
@@ -55,8 +58,7 @@
   },
   "devEngines": {
     "packageManager": {
-      "name": "npm",
-      "version": "11.18.0",
+      "name": "pnpm",
       "onFail": "download"
     }
   }

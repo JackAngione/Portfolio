@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "web_app",
-      "runtimeExecutable": "npm",
+      "runtimeExecutable": "pnpm",
       "runtimeArgs": ["run", "dev"],
       "cwd": "web_app",
       "port": 5173,

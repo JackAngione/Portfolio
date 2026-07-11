@@ -1,6 +1,6 @@
 ----SETUP FRONTEND----
 Switch server addresses (src/serverInfo.jsx) from dev to prod addresses
-npm run build
+pnpm run build
 copy items in dist folder to nginx folder with matching name
 ----SETUP BACKEND----
 TrueNAS Server Application setup:
