@@ -3,41 +3,88 @@ import { motion, useScroll, useTransform } from "motion/react";
 
 /*
   Full-viewport morphing marble background, adapted from
-  src/assets/marbledbutton.tsx. The same layered sine/cosine wave field
-  with identical frequencies and phase speeds, rendered at full
-  resolution, and colored through a cyclic palette LUT built from the
-  site theme instead of grayscale.
+  src/assets/marbledbutton.tsx. The same layered sine/cosine wave field,
+  evaluated per pixel in a WebGL fragment shader (identical math to the
+  old canvas-2D loop, but runs at full device resolution for free), and
+  colored through the cyclic site-theme palette. The cursor gently warps
+  the wave phases.
 */
 
 // Cyclic palette: dark -> deep violet -> bunny pink -> sunny gold -> back
-const PALETTE_STOPS = [
-  [16, 16, 20],
-  [40, 32, 82],
-  [148, 58, 122],
-  [196, 142, 60],
-  [148, 58, 122],
-  [40, 32, 82],
-  [16, 16, 20], // same as first stop so the gradient loops seamlessly
-];
+// (last stop equals the first so the gradient loops seamlessly)
+const VERT = `
+attribute vec2 a_pos;
+void main() {
+  gl_Position = vec4(a_pos, 0.0, 1.0);
+}
+`;
 
-function buildPaletteLUT(size = 512) {
-  const lut = new Uint8Array(size * 3);
-  const segments = PALETTE_STOPS.length - 1;
-  for (let i = 0; i < size; i++) {
-    const pos = (i / size) * segments;
-    const seg = Math.min(Math.floor(pos), segments - 1);
-    const f = pos - seg;
-    const from = PALETTE_STOPS[seg];
-    const to = PALETTE_STOPS[seg + 1];
-    lut[i * 3] = from[0] + (to[0] - from[0]) * f;
-    lut[i * 3 + 1] = from[1] + (to[1] - from[1]) * f;
-    lut[i * 3 + 2] = from[2] + (to[2] - from[2]) * f;
-  }
-  return lut;
+const FRAG = `
+precision highp float;
+
+uniform vec2 u_res;
+uniform float u_t;
+uniform vec2 u_pointer;
+
+vec3 palette(float x) {
+  const vec3 S0 = vec3(16.0, 16.0, 20.0) / 255.0;
+  const vec3 S1 = vec3(40.0, 32.0, 82.0) / 255.0;
+  const vec3 S2 = vec3(148.0, 58.0, 122.0) / 255.0;
+  const vec3 S3 = vec3(196.0, 142.0, 60.0) / 255.0;
+
+  float pos = fract(x) * 6.0;
+  vec3 c = mix(S0, S1, clamp(pos, 0.0, 1.0));
+  c = mix(c, S2, clamp(pos - 1.0, 0.0, 1.0));
+  c = mix(c, S3, clamp(pos - 2.0, 0.0, 1.0));
+  c = mix(c, S2, clamp(pos - 3.0, 0.0, 1.0));
+  c = mix(c, S1, clamp(pos - 4.0, 0.0, 1.0));
+  c = mix(c, S0, clamp(pos - 5.0, 0.0, 1.0));
+  return c;
 }
 
-// Render resolution: one wave sample per SCALE screen pixels
-const SCALE = 1;
+void main() {
+  // Normalized coordinates in -0.5..0.5, y increasing downward to match
+  // the original canvas-2D orientation
+  float nx = gl_FragCoord.x / u_res.x - 0.5;
+  float ny = 0.5 - gl_FragCoord.y / u_res.y;
+
+  float phaseX = u_t + u_pointer.x * 2.0;
+  float phaseY = u_t * 1.3 - u_pointer.y * 2.0;
+  float phaseD = u_t * 0.7 + (u_pointer.x + u_pointer.y);
+
+  // Identical wave math to marbledbutton.tsx: three sine/cosine layers
+  // oscillating at different frequencies (3, 3, 4) and speeds (1, 1.3, 0.7)
+  float v =
+    sin(nx * 3.0 + phaseX) +
+    cos(ny * 3.0 - phaseY) +
+    sin((nx + ny) * 4.0 + phaseD);
+
+  // Same mapping as the button's hue = (v * 60 + t * 40) % 360,
+  // normalized to a 0..1 palette index (fract in palette() handles wrap)
+  float idx = (v * 60.0 + u_t * 40.0) / 360.0;
+  gl_FragColor = vec4(palette(idx), 1.0);
+}
+`;
+
+function compileProgram(gl) {
+  const make = (type, src) => {
+    const sh = gl.createShader(type);
+    gl.shaderSource(sh, src);
+    gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+      throw new Error(gl.getShaderInfoLog(sh));
+    }
+    return sh;
+  };
+  const prog = gl.createProgram();
+  gl.attachShader(prog, make(gl.VERTEX_SHADER, VERT));
+  gl.attachShader(prog, make(gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    throw new Error(gl.getProgramInfoLog(prog));
+  }
+  return prog;
+}
 
 function MarbleField() {
   const canvasRef = useRef(null);
@@ -48,71 +95,94 @@ function MarbleField() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    const lut = buildPaletteLUT();
-    const lutSize = lut.length / 3;
+    // Note: keep the default alpha:true — an opaque (alpha:false) WebGL
+    // canvas gets promoted to a compositing layer that paints over the
+    // page content in Chromium. The shader always writes alpha 1.0.
+    const gl = canvas.getContext("webgl", {
+      antialias: false,
+      depth: false,
+      stencil: false,
+    });
+    if (!gl) return;
 
-    let w = 0;
-    let h = 0;
-    let img = null;
+    const prog = compileProgram(gl);
+    gl.useProgram(prog);
+
+    // Fullscreen triangle
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 3, -1, -1, 3]),
+      gl.STATIC_DRAW,
+    );
+    const aPos = gl.getAttribLocation(prog, "a_pos");
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes = gl.getUniformLocation(prog, "u_res");
+    const uT = gl.getUniformLocation(prog, "u_t");
+    const uPointer = gl.getUniformLocation(prog, "u_pointer");
 
     const resize = () => {
-      w = Math.max(2, Math.ceil(window.innerWidth / SCALE));
-      h = Math.max(2, Math.ceil(window.innerHeight / SCALE));
-      canvas.width = w;
-      canvas.height = h;
-      img = ctx.createImageData(w, h);
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.max(2, Math.ceil(window.innerWidth * dpr));
+      canvas.height = Math.max(2, Math.ceil(window.innerHeight * dpr));
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+    };
+
+    // Cursor position, normalized to -0.5..0.5 and eased in the rAF loop
+    let targetPX = 0;
+    let targetPY = 0;
+    let px = 0;
+    let py = 0;
+    const onPointerMove = (e) => {
+      targetPX = e.clientX / window.innerWidth - 0.5;
+      targetPY = e.clientY / window.innerHeight - 0.5;
     };
 
     let t = 0;
     let animationID;
+    let frames = 0;
 
     const draw = () => {
       t += 0.004;
+      px += (targetPX - px) * 0.03;
+      py += (targetPY - py) * 0.03;
 
-      const data = img.data;
+      gl.uniform1f(uT, t);
+      gl.uniform2f(uPointer, px, py);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
 
-      for (let y = 0; y < h; y++) {
-        const ny = y / h - 0.5;
-        const rowCos = Math.cos(ny * 3 - t * 1.3);
-        for (let x = 0; x < w; x++) {
-          const nx = x / w - 0.5;
-          const v =
-            Math.sin(nx * 3 + t) +
-            rowCos +
-            Math.sin((nx + ny) * 4 + t * 0.7);
+      // A viewport-sized WebGL canvas can get promoted to a hardware
+      // overlay that composites above the page content; a geometry
+      // change after the first composite demotes it. The extra 2px
+      // hang offscreen, so this is invisible.
+      if (++frames === 3) canvas.style.width = "calc(100% + 2px)";
 
-          // v is in [-3, 3]; normalize and drift through the cyclic LUT
-          let idx = ((v + 3) / 6 + t * 0.05) % 1;
-          if (idx < 0) idx += 1;
-          const li = (idx * lutSize) | 0;
-
-          const i = (y * w + x) * 4;
-          data[i] = lut[li * 3];
-          data[i + 1] = lut[li * 3 + 1];
-          data[i + 2] = lut[li * 3 + 2];
-          data[i + 3] = 255;
-        }
-      }
-
-      ctx.putImageData(img, 0, 0);
       animationID = requestAnimationFrame(draw);
     };
 
     resize();
     window.addEventListener("resize", resize);
+    window.addEventListener("pointermove", onPointerMove);
     animationID = requestAnimationFrame(draw);
 
     return () => {
       cancelAnimationFrame(animationID);
       window.removeEventListener("resize", resize);
+      window.removeEventListener("pointermove", onPointerMove);
     };
   }, []);
 
   return (
+    // -inset-px keeps the canvas from exactly matching the viewport;
+    // an exactly-fullscreen WebGL canvas can get promoted to a hardware
+    // overlay that composites above the rest of the page.
     <motion.div
       style={{ opacity }}
-      className="pointer-events-none fixed inset-0 z-0"
+      className="pointer-events-none fixed -inset-px z-0"
       aria-hidden="true"
     >
       <canvas ref={canvasRef} className="h-full w-full" />
