@@ -131,12 +131,6 @@ function Home() {
           className="flex flex-col items-center gap-6"
         >
           <MagneticResumeButton />
-          <a
-            href="mailto:8jk.ang8@gmail.com"
-            className="text-primary/70 hover:text-primary text-sm tracking-wide transition-colors"
-          >
-            contact: 8jk.ang8@gmail.com
-          </a>
         </motion.div>
 
         {/* scroll hint */}
