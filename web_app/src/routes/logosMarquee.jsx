@@ -1,4 +1,7 @@
-import Marquee from "react-fast-marquee";
+import MarqueeImport from "react-fast-marquee";
+
+// Vite+ dev CJS interop hands back the module exports object instead of its default
+const Marquee = MarqueeImport.default ?? MarqueeImport;
 
 import vitelogo from "../svgIcons/Vitejs-logo.svg";
 import reactlogo from "../svgIcons/React-icon.svg";

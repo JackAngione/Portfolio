@@ -123,7 +123,15 @@ function BackgroundAnim(props) {
         }}
       >
         {/*<img className="absolute top-180 w-40" src={downArrowIcon} alt="" />*/}
-        <div className="bg-background/10 absolute bottom-4 w-16 rounded-xl backdrop-blur-md">
+        <motion.div
+          className="bg-background/10 absolute bottom-4 w-16 rounded-xl backdrop-blur-md"
+          animate={{ y: [0, -8, 0] }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -137,7 +145,7 @@ function BackgroundAnim(props) {
               d="m4.5 5.25 7.5 7.5 7.5-7.5m-15 6 7.5 7.5 7.5-7.5"
             />
           </svg>
-        </div>
+        </motion.div>
         <div className="flex h-lvh w-full flex-col justify-center overflow-y-hidden [@media(min-aspect-ratio:1/1)]:flex-row [@media(min-aspect-ratio:1/1)]:overflow-x-hidden">
           <img className="" src={images[currentImageIndex]} alt="slideshow2" />
           <img className="" src={images[currentImageIndex]} alt="slideshow" />
