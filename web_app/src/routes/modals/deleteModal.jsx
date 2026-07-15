@@ -5,7 +5,7 @@ import { backend_address } from "../../serverInfo.jsx";
 import trashIcon from "../../svgIcons/trashIcon.svg";
 import { AuthContext } from "../../useAuth.jsx";
 
-function DeleteModal({ open, tutorialData, onClose }) {
+function DeleteModal({ open, tutorialData, onClose, onDeleted }) {
   const [isChecked, setIsChecked] = useState(false);
   const { token } = useContext(AuthContext); //get token from auth
   if (!open) {
@@ -24,8 +24,13 @@ function DeleteModal({ open, tutorialData, onClose }) {
           authorization: `Bearer ${token}`, // Pass JWT in Authorization header
         },
       })
-      .then(({ response }) => {
-        //console.log(response.data)
+      .then(() => {
+        if (onDeleted) {
+          onDeleted();
+        }
+      })
+      .catch((error) => {
+        console.error("failed to delete tutorial:", error);
       });
     onClose();
   }

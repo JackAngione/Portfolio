@@ -12,6 +12,7 @@ import {
   InstantSearch,
   RefinementList,
   SearchBox,
+  useInstantSearch,
 } from "react-instantsearch";
 import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 import { AuthContext } from "../useAuth.jsx";
@@ -29,27 +30,28 @@ function ResourcesPage() {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [tutorialToEdit, setTutorialToEdit] = useState({});
 
-  function runEditModal() {
+  //must render inside <InstantSearch> so useInstantSearch can refresh the hits
+  function Modals() {
+    const { refresh } = useInstantSearch();
     return (
-      <EditModal
-        open={openEditModal}
-        tutorialData={tutorialToEdit}
-        onClose={() => setOpenEditModal(!openEditModal)}
-      />
-    );
-  }
-
-  function runDeleteModal() {
-    {
-      //TODO only run on authentication
-      return (
+      <>
+        <EditModal
+          open={openEditModal}
+          tutorialData={tutorialToEdit}
+          onClose={() => setOpenEditModal(!openEditModal)}
+        />
         <DeleteModal
           open={openDeleteModal}
           tutorialData={tutorialToEdit}
           onClose={() => setOpenDeleteModal(!openDeleteModal)}
+          onDeleted={() => {
+            //meilisearch applies deletes as an async task; give it a moment
+            //before re-querying so the removed hit doesn't come back stale
+            setTimeout(refresh, 300);
+          }}
         />
-      );
-    }
+      </>
+    );
   }
 
   const Hit = ({ hit }) => {
@@ -109,10 +111,9 @@ function ResourcesPage() {
           onClose={() => setOpenEditModal(!openEditModal)}
         />
       ) : null}*/}
-      {runEditModal()}
-      {runDeleteModal()}
       <div className="lg:mr-44 lg:flex lg:justify-center">
         <InstantSearch indexName="resources" searchClient={searchClient}>
+          <Modals />
           <div className="text-primary justify-center sm:flex lg:block">
             <div className="sm:flex sm:gap-6 sm:text-left lg:flex-col">
               <div>

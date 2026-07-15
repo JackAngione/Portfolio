@@ -18,6 +18,15 @@ use tokio_stream::StreamExt;
 //THESE FUNCTIONS ARE THE KNOWLEDGE/PORTFOLIO API (tutorials, categories, auth),
 //merged in from the old express backend (backend/src/server.js)
 
+//delete only needs the identifying fields, not the full Tutorial payload
+#[derive(Debug, Deserialize)]
+pub(crate) struct DeleteTutorialRequest {
+    title: String,
+    source: String,
+    #[serde(default)]
+    resource_id: String,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct Tutorial {
     //never sent back to the client; mongo generates it on insert
@@ -571,7 +580,7 @@ pub(crate) async fn edit_tutorial(
 pub(crate) async fn delete_tutorial(
     State(state): State<AxumState>,
     headers: HeaderMap,
-    Json(tutorial): Json<Tutorial>,
+    Json(tutorial): Json<DeleteTutorialRequest>,
 ) -> StatusCode {
     if !verify_token(&state, &headers).await {
         //send unauthorized if user not admin
