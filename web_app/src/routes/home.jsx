@@ -45,7 +45,7 @@ function MagneticResumeButton() {
         transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
       />
       <button
-        className="relative tracking-widest focus:outline-none"
+        className="no-wash relative tracking-widest focus:outline-none"
         onClick={() => {
           window.open(media_server_address + "/resume", "_blank");
         }}
@@ -105,7 +105,7 @@ function Home() {
       <MarbleField />
 
       {/* hero */}
-      <section className="relative z-10 flex min-h-svh flex-col items-center justify-center gap-10 px-6 pt-10">
+      <section className="relative z-10 -mt-1 flex min-h-svh flex-col items-center justify-center gap-10 px-6 pt-10">
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -130,7 +130,7 @@ function Home() {
           transition={{ delay: 0.9, duration: 0.6 }}
           className="flex flex-col items-center gap-6"
         >
-          <MagneticResumeButton />
+          {/*<MagneticResumeButton />*/}
         </motion.div>
 
         {/* scroll hint */}

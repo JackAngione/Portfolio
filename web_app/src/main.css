@@ -96,19 +96,63 @@ a:hover {
   @apply text-secondary;
 }
 
+/* Buttons mimic the homepage explore cards: a translucent gradient wash
+   layered behind the label via ::before, with a hairline border and a
+   quiet lift on hover, so every button on the site reads as a small card. */
 button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   cursor: pointer;
-  transition: border-color 0.2s;
-  @apply text-primary bg-PrimaryGradient rounded-md px-6 py-3;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+  @apply text-primary rounded-2xl border border-white/20 px-6 py-3 font-bold;
 }
 
-button:hover {
-  @apply border-secondary;
+button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.88;
+  transition: opacity 0.3s ease;
+  @apply bg-linear-to-br from-sunny via-bunny/80 to-sunny;
+}
+
+button:hover:not(:disabled) {
+  @apply border-white/40;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.55);
+}
+
+button:hover:not(:disabled)::before {
+  opacity: 1;
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
 }
 
 button:focus,
 button:focus-visible {
   @apply outline-secondary outline-2;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* Escape hatch for bespoke buttons (e.g. the hero resume CTA) that need
+   to supply their own background instead of the card gradient wash. */
+button.no-wash {
+  @apply bg-PrimaryGradient rounded-lg border-0;
+}
+
+button.no-wash::before {
+  opacity: 0 !important;
 }
 
 input:focus,

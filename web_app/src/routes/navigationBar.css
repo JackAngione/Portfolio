@@ -2,73 +2,106 @@
 @import "../main.css";
 
 .navigation {
-  position: absolute;
-
+  position: fixed;
   left: 50%;
-  top: 30px;
-  transform: translate(-50%, -50%);
+  top: 24px;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: row;
+  align-items: center;
+  gap: 2px;
   list-style: none;
   flex-wrap: wrap;
   justify-content: center;
-  z-index: 6;
-  @apply bg-background/40 border-primary border-1 font-bold;
-  border-radius: 5px;
+  z-index: 50;
+  padding: 6px;
   min-width: 280px;
+  @apply bg-background/40 rounded-2xl border border-white/10 font-bold shadow-lg shadow-black/30 backdrop-blur-md;
 }
 
-.navigation li a {
-  padding: 10px;
-}
-
-.navigationDark li a {
-  padding: 10px;
-  color: oklch(0.72 0.2466 360);
-}
-
-.mainDropdown {
-  padding-right: 10px;
-  padding-left: 10px;
+.navLink {
+  position: relative;
+  isolation: isolate;
   display: block;
-  /*background-color: rgba(255, 12, 12, 0);*/
+  overflow: hidden;
+  padding: 10px 18px;
+  border-radius: 0.75rem;
+  transition: transform 0.3s ease;
 }
 
-.mainDropdownResources {
-  padding-right: 10px;
-  padding-left: 10px;
-  display: block;
+.navLink::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  @apply bg-linear-to-br from-sunny/50 via-bunny/40 to-sunny/50;
+}
 
-  background-color: rgba(255, 12, 12, 0);
+.navLink:hover {
+  transform: translateY(-1px);
+}
+
+.navLink:hover::before {
+  opacity: 1;
+}
+
+.navDivider {
+  width: 1px;
+  height: 20px;
+  align-self: center;
+  @apply bg-white/10;
 }
 
 .navDropdown {
   position: relative;
   display: inline-block;
-  height: 100%;
+  /* Padding (offset by an equal negative margin) extends this element's
+     own hoverable box past the visible pill, closing the gap to the
+     dropdown so the hover never lapses while crossing it. Using the
+     trigger's own box for this (rather than a bridge on the menu) means
+     the bridge exists even before the menu has ever opened. */
+  padding-bottom: 12px;
+  margin-bottom: -12px;
 }
 
 .dropDownList {
   display: none;
   position: absolute;
   left: 50%;
-  @apply bg-background/40 rounded-md;
+  top: 100%;
   transform: translateX(-50%);
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-
+  min-width: 180px;
+  padding: 6px;
   z-index: 1;
-  transition: all 0.5s ease;
+  @apply bg-background/80 rounded-2xl border border-white/10 shadow-xl shadow-black/40 backdrop-blur-md;
+  transition: all 0.3s ease;
 }
 
 .dropDownList a {
-  text-decoration: none;
+  position: relative;
+  isolation: isolate;
   display: block;
-  transition-duration: 0.5s;
+  overflow: hidden;
+  padding: 10px 14px;
+  border-radius: 0.75rem;
+  text-decoration: none;
+  transition: transform 0.3s ease;
 }
 
-.dropDownList a:hover {
-  @apply bg-bunny text-primary rounded-md;
+.dropDownList a::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  @apply bg-linear-to-br from-sunny/50 via-bunny/40 to-sunny/50;
+}
+
+.dropDownList a:hover::before {
+  opacity: 1;
 }
 
 /* Show the dropdown menu on hover */

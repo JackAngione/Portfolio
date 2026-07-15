@@ -10,31 +10,33 @@ export default function NavigationBar() {
     <>
       <nav className="navigation">
         <div className="navDropdown">
-          <Link className="mainDropdown" to="">
+          <Link className="navLink" to="">
             SKILLS
           </Link>
           <div className="dropDownList">
-            <Link to="/code"> PROGRAMMING</Link>
-            <Link to="/hdrphotos"> PHOTOGRAPHY </Link>
-            <Link to="/music"> MUSIC </Link>
+            <Link to="/code">PROGRAMMING</Link>
+            <Link to="/hdrphotos">PHOTOGRAPHY</Link>
+            <Link to="/music">MUSIC</Link>
           </div>
         </div>
-        |
-        <li className="home">
-          <Link to="/"> HOME </Link>
-        </li>
-        |
+
+        <span className="navDivider" aria-hidden="true" />
+
+        <Link className="navLink" to="/">
+          HOME
+        </Link>
+
+        <span className="navDivider" aria-hidden="true" />
+
         <div className="navDropdown">
-          <Link className="mainDropdownResources" to="/resources">
+          <Link className="navLink" to="/resources">
             RESOURCES
           </Link>
-          {authenticated ? (
+          {authenticated && (
             <div className="dropDownList">
               <Link to="/resources/upload">UPLOAD TUTORIAL</Link>
               <Link to="/resources/category">CATEGORY</Link>
             </div>
-          ) : (
-            <></>
           )}
         </div>
       </nav>
