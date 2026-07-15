@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
-import axios from "axios";
 import { backend_address } from "../../serverInfo.jsx";
 import "./editModal.css";
 import { AuthContext } from "../../useAuth.jsx";
@@ -65,13 +64,18 @@ function EditModal({ open, tutorialData, onClose }) {
         resource_id: resource_id,
       };
 
-      axios
-        .post(backend_address + "/editTutorial", inputs, {
-          headers: {
-            authorization: `Bearer ${token}`, // Pass JWT in Authorization header
-          },
-        })
-        .then(({ response }) => {
+      fetch(backend_address + "/editTutorial", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+        },
+        body: JSON.stringify(inputs),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("edit failed");
+          }
           alert("Resource edited successfully!");
         })
         .catch((error) => {

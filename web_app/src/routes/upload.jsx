@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react";
 import "./upload.css";
-import axios from "axios";
 import CreatableSelect from "react-select/creatable";
 import { backend_address } from "../serverInfo.jsx";
 import Select from "react-select";
@@ -32,21 +31,23 @@ function Upload() {
   //GET CATEGORIES LIST FROM DATABASE
   useEffect(() => {
     console.log("get categories use effect running!!!");
-    axios.get(backend_address + "/categories").then(function (response) {
-      setCategories(response.data);
-      let tempCategoryTitle = [];
-      for (let i = 0; i < response.data.length; i++) {
-        tempCategoryTitle[i] = {
-          value: response.data[i].title,
-          label: response.data[i].title,
-          selected: false,
-        };
-      }
-      setCategoryTitles([
-        { label: "None", value: "None" },
-        ...tempCategoryTitle,
-      ]);
-    });
+    fetch(backend_address + "/categories")
+      .then((response) => response.json())
+      .then(function (data) {
+        setCategories(data);
+        let tempCategoryTitle = [];
+        for (let i = 0; i < data.length; i++) {
+          tempCategoryTitle[i] = {
+            value: data[i].title,
+            label: data[i].title,
+            selected: false,
+          };
+        }
+        setCategoryTitles([
+          { label: "None", value: "None" },
+          ...tempCategoryTitle,
+        ]);
+      });
   }, []);
   //update subcategory options when a category is selected
   useEffect(() => {
@@ -82,13 +83,18 @@ function Upload() {
       };
       //const token = Cookies.get("LoginToken"); // Get JWT from cookies
 
-      axios
-        .post(backend_address + "/upload", inputs, {
-          headers: {
-            authorization: `Bearer ${token}`, // Pass JWT in Authorization header
-          },
-        })
-        .then(({ response }) => {
+      fetch(backend_address + "/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+        },
+        body: JSON.stringify(inputs),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("upload failed");
+          }
           alert("New Resource created successfully!");
         })
         .catch((error) => {

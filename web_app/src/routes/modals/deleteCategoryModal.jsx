@@ -1,6 +1,5 @@
 import { useContext, useState } from "react";
 
-import axios from "axios";
 import { backend_address } from "../../serverInfo.jsx";
 import "../category.css";
 import trashIcon from "../../svgIcons/trashIcon.svg";
@@ -15,15 +14,16 @@ function DeleteCategoryModal(props) {
     let inputs = {
       title: props.categoryData,
     };
-    axios
-      .post(backend_address + "/deleteCategory", inputs, {
-        headers: {
-          authorization: `Bearer ${token}`, // Pass JWT in Authorization header
-        },
-      })
-      .then(({ response }) => {
-        //console.log(response.data)
-      });
+    fetch(backend_address + "/deleteCategory", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+      },
+      body: JSON.stringify(inputs),
+    }).then((response) => {
+      //console.log(response.data)
+    });
   }
 
   return (

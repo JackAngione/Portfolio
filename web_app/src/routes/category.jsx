@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react";
 import "./category.css";
-import axios from "axios";
 import CreatableSelect from "react-select/creatable";
 import { backend_address } from "../serverInfo.jsx";
 import Select from "react-select";
@@ -38,21 +37,23 @@ function Category() {
   const { token } = useContext(AuthContext);
   //GET CATEGORIES LIST FROM DATABASE
   useEffect(() => {
-    axios.get(backend_address + "/categories").then(function (response) {
-      setCategories(response.data);
-      let tempCategoryTitle = [];
-      for (let i = 0; i < response.data.length; i++) {
-        tempCategoryTitle[i] = {
-          value: response.data[i].title.toLowerCase(),
-          label: response.data[i].title,
-          selected: false,
-        };
-      }
-      setCategoryTitles([
-        { label: "None", value: "None" },
-        ...tempCategoryTitle,
-      ]);
-    });
+    fetch(backend_address + "/categories")
+      .then((response) => response.json())
+      .then(function (data) {
+        setCategories(data);
+        let tempCategoryTitle = [];
+        for (let i = 0; i < data.length; i++) {
+          tempCategoryTitle[i] = {
+            value: data[i].title.toLowerCase(),
+            label: data[i].title,
+            selected: false,
+          };
+        }
+        setCategoryTitles([
+          { label: "None", value: "None" },
+          ...tempCategoryTitle,
+        ]);
+      });
   }, []);
 
   const createOption = (label) => ({
@@ -87,13 +88,18 @@ function Category() {
         title: categoryTitle,
         subCategories: subCategories,
       };
-      axios
-        .post(backend_address + "/createCategory", categoryFinal, {
-          headers: {
-            authorization: `Bearer ${token}`, // Pass JWT in Authorization header
-          },
-        })
-        .then((res) => {
+      fetch(backend_address + "/createCategory", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+        },
+        body: JSON.stringify(categoryFinal),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("create category failed");
+          }
           alert("New Category created successfully!");
         })
         .catch((error) => {
@@ -114,15 +120,16 @@ function Category() {
       console.log(
         "EDITING CATEGORIES" + JSON.stringify(editCategoryFinal.subCategories),
       );
-      axios
-        .post(backend_address + "/editCategory", editCategoryFinal, {
-          headers: {
-            authorization: `Bearer ${token}`, // Pass JWT in Authorization header
-          },
-        })
-        .then(({ response }) => {
-          //console.log(response.data)
-        });
+      fetch(backend_address + "/editCategory", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+        },
+        body: JSON.stringify(editCategoryFinal),
+      }).then((response) => {
+        //console.log(response.data)
+      });
       setSubmitEditCategory(false);
     }
   }, [finalEditSubCategories, submitEditCategory]);

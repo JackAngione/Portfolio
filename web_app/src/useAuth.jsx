@@ -1,7 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
 import { backend_address } from "./serverInfo.jsx";
 import Cookies from "js-cookie";
-import axios from "axios";
 
 export const AuthContext = createContext({ loggedIn: false, token: "" });
 
@@ -27,29 +26,27 @@ export async function login(username, password) {
 export async function logout() {
   const token = Cookies.get("LoginToken");
   try {
-    await axios
-      .post(backend_address + "/logout", token, {
-        headers: {
-          authorization: `Bearer ${token}`, // Pass JWT in Authorization header
-        },
-      })
-      .then(function (response) {
-        console.log("response recieved");
-        if (response.status === 200) {
-          Cookies.remove("LoginToken"); // Expires after 1 day
-          window.location.reload();
-        } else {
-          console.log("Logout Failed");
-        }
-      });
-  } catch (e) {
-    if (e.response.status === 401) {
+    const response = await fetch(backend_address + "/logout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain",
+        authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+      },
+      body: token,
+    });
+    console.log("response recieved");
+    if (response.status === 200) {
+      Cookies.remove("LoginToken"); // Expires after 1 day
+      window.location.reload();
+    } else if (response.status === 401) {
       //token was invalid, so logout anyways
       Cookies.remove("LoginToken");
       window.location.reload();
     } else {
       console.log("server side error logging out");
     }
+  } catch (e) {
+    console.log("server side error logging out");
   }
 }
 

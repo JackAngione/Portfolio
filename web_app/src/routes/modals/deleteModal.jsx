@@ -1,6 +1,5 @@
 import { useContext, useState } from "react";
 import "./editModal.css";
-import axios from "axios";
 import { backend_address } from "../../serverInfo.jsx";
 import trashIcon from "../../svgIcons/trashIcon.svg";
 import { AuthContext } from "../../useAuth.jsx";
@@ -18,13 +17,18 @@ function DeleteModal({ open, tutorialData, onClose, onDeleted }) {
       source: tutorialData.source,
       resource_id: tutorialData.resource_id,
     };
-    axios
-      .post(backend_address + "/deleteTutorial", inputs, {
-        headers: {
-          authorization: `Bearer ${token}`, // Pass JWT in Authorization header
-        },
-      })
-      .then(() => {
+    fetch(backend_address + "/deleteTutorial", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+      },
+      body: JSON.stringify(inputs),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("delete failed");
+        }
         if (onDeleted) {
           onDeleted();
         }
