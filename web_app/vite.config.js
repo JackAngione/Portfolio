@@ -2,7 +2,6 @@ import { defineConfig } from "vite-plus";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import reactCompiler from "eslint-plugin-react-compiler";
-import tsconfigPaths from "vite-tsconfig-paths";
 // https://vitejs.dev/config/
 export default defineConfig({
   fmt: {
@@ -15,13 +14,15 @@ export default defineConfig({
     plugins: ["eslint", "typescript", "unicorn", "oxc", "react"],
     ignorePatterns: ["dist/**"],
   },
+  resolve: {
+    tsconfigPaths: true,
+  },
   plugins: [
     react({
       "react-compiler": reactCompiler,
       rules: { "react-compiler/react-compiler": "error" },
     }),
     tailwindcss(),
-    tsconfigPaths(),
   ],
   server: {
     host: "0.0.0.0",

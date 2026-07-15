@@ -1,2 +1,4 @@
+allowBuilds:
+  '@heroui/shared-utils': set this to true or false
 onlyBuiltDependencies:
   - '@heroui/shared-utils'
