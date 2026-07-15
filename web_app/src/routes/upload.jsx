@@ -140,7 +140,7 @@ function Upload() {
   }
 
   return (
-    <div className="my-14 flex flex-col items-center">
+    <div className="mt-36 mb-14 flex flex-col items-center sm:mt-28">
       <h1>Upload</h1>
 
       <form onSubmit={submitUpload} id="uploadForm">

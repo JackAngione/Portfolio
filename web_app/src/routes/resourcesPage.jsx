@@ -100,7 +100,7 @@ function ResourcesPage() {
 
   return (
     <>
-      <h1 className="my-14 text-center font-bold">RESOURCES</h1>
+      <h1 className="mt-36 mb-14 text-center font-bold sm:mt-28">RESOURCES</h1>
       {/*{!loadingCategories ? (
         <EditModal
           open={true}

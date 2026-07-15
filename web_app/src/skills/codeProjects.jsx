@@ -9,7 +9,9 @@ function CodeProjects() {
       <div className="fixed inset-0 flex items-center justify-center blur-xs">
         <CodeMarquee columns={10}></CodeMarquee>
       </div>
-      <h1 className="my-14 mix-blend-difference">CODING PROJECTS</h1>
+      <h1 className="mt-36 mb-14 mix-blend-difference sm:mt-28">
+        CODING PROJECTS
+      </h1>
 
       <div className="flex flex-col items-center justify-center">
         <div className="project">

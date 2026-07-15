@@ -34,7 +34,7 @@ function HDRPhotos() {
 
   return (
     <div className="mx-4 flex flex-col items-center justify-center">
-      <h1 className="mt-14 font-bold">PHOTOGRAPHY</h1>
+      <h1 className="mt-36 font-bold sm:mt-28">PHOTOGRAPHY</h1>
       <p className="">
         All images are in HDR. View this webpage on an HDR capable
         display/browser!

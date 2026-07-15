@@ -179,7 +179,7 @@ function Category() {
   }
 
   return (
-    <div className={"my-14 flex flex-col items-center"}>
+    <div className={"mt-36 mb-14 flex flex-col items-center sm:mt-28"}>
       <form
         onSubmit={submitCreateForm}
         className="flex flex-col items-center gap-4"
