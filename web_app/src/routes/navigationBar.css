@@ -57,13 +57,6 @@
 .navDropdown {
   position: relative;
   display: inline-block;
-  /* Padding (offset by an equal negative margin) extends this element's
-     own hoverable box past the visible pill, closing the gap to the
-     dropdown so the hover never lapses while crossing it. Using the
-     trigger's own box for this (rather than a bridge on the menu) means
-     the bridge exists even before the menu has ever opened. */
-  padding-bottom: 12px;
-  margin-bottom: -12px;
 }
 
 .dropDownList {
@@ -74,7 +67,7 @@
   transform: translateX(-50%);
   min-width: 180px;
   padding: 6px;
-  z-index: 1;
+  z-index: 5;
   @apply bg-background/80 rounded-2xl border border-white/10 shadow-xl shadow-black/40 backdrop-blur-md;
   transition: all 0.3s ease;
 }
@@ -104,7 +97,9 @@
   opacity: 1;
 }
 
-/* Show the dropdown menu on hover */
-.navDropdown:hover .dropDownList {
+/* Menu visibility is driven entirely by JS (hover-intent on pointer devices,
+   tap-to-toggle on touch) rather than CSS :hover, so a diagonal mouse path
+   that briefly grazes a neighboring nav item doesn't instantly close it. */
+.dropDownList.open {
   display: block;
 }
