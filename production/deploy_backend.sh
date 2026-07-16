@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 IMAGE_NAME="registry.gitlab.com/8jk.ang8/portfolio/backend"
-IMAGE_TAG="${VERSION_TAG:-v2.0}"
+IMAGE_TAG="${VERSION_TAG:-v2.0.1}"
 CONTAINER_NAME="Portfolio_Backend"
 HOST_PORT="${HOST_PORT:-3000}"
 CONTAINER_PORT="${CONTAINER_PORT:-3000}"
