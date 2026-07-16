@@ -25,15 +25,17 @@ function BackgroundAnim(props) {
   const blurAmount = useTransform(
     scrollYProgress,
     [0, 0.25], // When scrollYProgress is between 0 and 0.5...
-    [0, 10], // ...opacity maps from 1 to 0
+    [0, 10], // ...blur maps from 0px to 10px
   );
+  //a motion value string, so the blur tracks scroll without re-rendering
+  const blurFilter = useTransform(blurAmount, (value) => `blur(${value}px)`);
   // Monitor the opacity value and update clickability
   useMotionValueEvent(opacity, "change", (latest) => {
     setIsClickable(latest >= 0.3);
   });
   // Function to preload an array of image URLs
   const cacheImages = async (imageUrls) => {
-    const promises = await imageUrls.map((src) => {
+    const promises = imageUrls.map((src) => {
       return new Promise(function (resolve, reject) {
         const img = new Image();
         img.src = src;
@@ -115,7 +117,7 @@ function BackgroundAnim(props) {
       <motion.div
         style={{
           opacity,
-          filter: `blur(${blurAmount.get()}px)`,
+          filter: blurFilter,
         }}
         className={`flex items-center justify-center`}
         onClick={() => {

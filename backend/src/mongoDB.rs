@@ -1,5 +1,6 @@
 use crate::AxumState;
 use axum::extract::{Path as axum_path, State};
+use axum::http::StatusCode;
 use axum::Json;
 use mongodb::{bson, bson::doc, Collection};
 use rand::{rng, Rng};
@@ -34,42 +35,34 @@ async fn id_generator(database: mongodb::Database, id_type: IDType) -> String {
     let song_collection = database.collection::<Song>("songs");
     let artist_collection = database.collection::<Artist>("artists");
 
-    let mut rng = rng();
     const URL_SAFE_CHARS: &[u8] =
         b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
     loop {
         let mut final_id: String = "".to_string();
-        for i in 0..id_length {
-            let index = rng.random_range(0..URL_SAFE_CHARS.len());
-            let next = URL_SAFE_CHARS[index] as char;
-            final_id.push(next)
+        //scoped so the non-Send rng is dropped before the awaits below
+        {
+            let mut rng = rng();
+            for _ in 0..id_length {
+                let index = rng.random_range(0..URL_SAFE_CHARS.len());
+                final_id.push(URL_SAFE_CHARS[index] as char);
+            }
         }
-        match id_type {
-            IDType::Song => {
-                if song_collection
-                    .find_one(doc! {"song_id": &final_id})
-                    .await
-                    .unwrap()
-                    .is_some()
-                {
-                    return final_id;
-                }
-                continue;
-            }
-            IDType::Artist => {
-                if artist_collection
-                    .find_one(doc! {"artist_id": &final_id})
-                    .await
-                    .unwrap()
-                    .is_some()
-                {
-                    return final_id;
-                }
-                continue;
-            }
+        //only use the generated id if no document already has it
+        let taken = match id_type {
+            IDType::Song => song_collection
+                .find_one(doc! {"song_id": &final_id})
+                .await
+                .map(|existing| existing.is_some()),
+            IDType::Artist => artist_collection
+                .find_one(doc! {"artist_id": &final_id})
+                .await
+                .map(|existing| existing.is_some()),
         };
+        //on a database error, keep retrying rather than returning an unverified id
+        if let Ok(false) = taken {
+            return final_id;
+        }
     }
-    //generate new id
 }
 
 //TODO finish create_song
@@ -86,46 +79,52 @@ async fn id_generator(database: mongodb::Database, id_type: IDType) -> String {
     let mut documents = state.song_collection.insert_one(new_song).await;
     print!("songs retrieved!");
 }*/
-//get one song
-pub(crate) async fn get_songs(State(state): State<AxumState>) -> Json<Vec<Song>> {
-    let mut documents = state.song_collection.find(doc! {}).await.unwrap();
-    print!("songs retrieved!");
-    //get all songs in music collection
-    let mut all_songs: Vec<Song> = vec![];
-    while let Some(result) = documents.try_next().await.unwrap() {
-        all_songs.push(result);
+//collects every document matching the filter, mapping db errors to a 500
+//instead of panicking (a panic here would kill the request task)
+async fn collect_all<T: serde::de::DeserializeOwned + Send + Sync>(
+    collection: &Collection<T>,
+    filter: bson::Document,
+) -> Result<Vec<T>, StatusCode> {
+    let mut documents = collection
+        .find(filter)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let mut results: Vec<T> = vec![];
+    while let Some(result) = documents
+        .try_next()
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+    {
+        results.push(result);
     }
+    Ok(results)
+}
 
-    Json(all_songs)
+//get one song
+pub(crate) async fn get_songs(
+    State(state): State<AxumState>,
+) -> Result<Json<Vec<Song>>, StatusCode> {
+    let all_songs = collect_all(&state.song_collection, doc! {}).await?;
+    println!("songs retrieved!");
+    Ok(Json(all_songs))
 }
 //get all songs by one artist
 pub(crate) async fn get_artist_songs(
     axum_path(artist_id): axum_path<String>,
     State(state): State<AxumState>,
-) -> Json<Vec<Song>> {
+) -> Result<Json<Vec<Song>>, StatusCode> {
     println!("Artist to find: {}", artist_id);
     let filter = doc! { "artist_id": artist_id };
-    let mut documents = state.song_collection.find(filter).await.unwrap();
-
-    //get all songs in music collection
-    let mut artist_songs: Vec<Song> = vec![];
-    while let Some(result) = documents.try_next().await.unwrap() {
-        artist_songs.push(result);
-    }
-    Json(artist_songs)
+    let artist_songs = collect_all(&state.song_collection, filter).await?;
+    Ok(Json(artist_songs))
 }
 
 //get list of artists
-pub(crate) async fn get_artists(State(state): State<AxumState>) -> Json<Vec<Artist>> {
+pub(crate) async fn get_artists(
+    State(state): State<AxumState>,
+) -> Result<Json<Vec<Artist>>, StatusCode> {
     let artist_collection: Collection<Artist> = state.mongo_database.collection("artists");
     println!("Retrieving artists");
-    let mut artist_documents = artist_collection.find(doc! {}).await.unwrap();
-    //get all songs in music collection
-    let mut artist_list: Vec<Artist> = vec![];
-    while let Some(result) = artist_documents.try_next().await.unwrap() {
-        artist_list.push(result);
-    }
-    println!("Artists: {:?}", artist_list);
-
-    Json(artist_list)
+    let artist_list = collect_all(&artist_collection, doc! {}).await?;
+    Ok(Json(artist_list))
 }

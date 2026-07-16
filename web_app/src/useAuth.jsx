@@ -35,15 +35,12 @@ export async function logout() {
       body: token,
     });
     console.log("response recieved");
-    if (response.status === 200) {
+    if (response.status === 200 || response.status === 401) {
+      //401: token was invalid, so logout anyways
       Cookies.remove("LoginToken"); // Expires after 1 day
       window.location.reload();
-    } else if (response.status === 401) {
-      //token was invalid, so logout anyways
-      Cookies.remove("LoginToken");
-      window.location.reload();
     } else {
-      console.log("server side error logging out");
+      console.log("Logout Failed");
     }
   } catch (e) {
     console.log("server side error logging out");

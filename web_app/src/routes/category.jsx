@@ -14,7 +14,6 @@ function Category() {
 
   //NEW CATEGORY---------------------
   const [categoryTitle, setCategoryTitle] = useState("");
-  const [submitCreateCategory, setSubmitCreateCategory] = useState(false);
   //REACT SELECT KEYWORDS
   const [inputValue, setInputValue] = useState("");
   const [subCategories, setSubCategories] = useState([]);
@@ -27,9 +26,6 @@ function Category() {
   //edited subcategories
   const [editSubCategories, setEditSubCategories] = useState([]);
   const [editInputValue, setEditInputValue] = useState("");
-  const [finalEditSubCategories, setFinalEditSubCategories] = useState([]);
-  //ready to submit?
-  const [submitEditCategory, setSubmitEditCategory] = useState(false);
 
   const components = { DropdownIndicator: null };
 
@@ -81,59 +77,6 @@ function Category() {
     }
   };
 
-  //SUBMIT NEW CATEGORY TO DATABASE
-  useEffect(() => {
-    if (submitCreateCategory === true) {
-      const categoryFinal = {
-        title: categoryTitle,
-        subCategories: subCategories,
-      };
-      fetch(backend_address + "/createCategory", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${token}`, // Pass JWT in Authorization header
-        },
-        body: JSON.stringify(categoryFinal),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("create category failed");
-          }
-          alert("New Category created successfully!");
-        })
-        .catch((error) => {
-          alert("Error creating new Category!");
-        });
-      setSubmitCreateCategory(false);
-    }
-  }, [subCategories, submitCreateCategory]);
-  //
-  //SUBMIT CATEGORY EDIT TO DATABASE
-  useEffect(() => {
-    if (submitEditCategory === true) {
-      const editCategoryFinal = {
-        oldTitle: categoryToEdit,
-        title: categoryTitleEdit,
-        subCategories: finalEditSubCategories,
-      };
-      console.log(
-        "EDITING CATEGORIES" + JSON.stringify(editCategoryFinal.subCategories),
-      );
-      fetch(backend_address + "/editCategory", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${token}`, // Pass JWT in Authorization header
-        },
-        body: JSON.stringify(editCategoryFinal),
-      }).then((response) => {
-        //console.log(response.data)
-      });
-      setSubmitEditCategory(false);
-    }
-  }, [finalEditSubCategories, submitEditCategory]);
-  //
   //WHEN CATEGORY TO EDIT IS CHANGED, UPDATE THE SUBCATEGORIES TO EDIT
   useEffect(() => {
     let subCategoryList = [];
@@ -154,22 +97,54 @@ function Category() {
   //FINALIZE CREATE CATEGORY and trigger http push
   function submitCreateForm(e) {
     e.preventDefault();
-    let finalSubCategories = [];
-    for (let i = 0; i < subCategories.length; i++) {
-      finalSubCategories.push(subCategories[i].value);
-    }
-    setSubCategories(finalSubCategories);
-    setSubmitCreateCategory(true);
+    const categoryFinal = {
+      title: categoryTitle,
+      subCategories: subCategories.map((subCategory) => subCategory.value),
+    };
+    fetch(backend_address + "/createCategory", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+      },
+      body: JSON.stringify(categoryFinal),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("create category failed");
+        }
+        alert("New Category created successfully!");
+      })
+      .catch(() => {
+        alert("Error creating new Category!");
+      });
   }
 
   //SUBMIT CATEGORY EDIT TO DATABASE
   function submitEditForm(e) {
-    let finalEditSubCategories = [];
-    for (let i = 0; i < editSubCategories.length; i++) {
-      finalEditSubCategories.push(editSubCategories[i].value);
-    }
-    setFinalEditSubCategories(finalEditSubCategories);
-    setSubmitEditCategory(true);
+    e.preventDefault();
+    const editCategoryFinal = {
+      oldTitle: categoryToEdit,
+      title: categoryTitleEdit,
+      subCategories: editSubCategories.map((subCategory) => subCategory.value),
+    };
+    fetch(backend_address + "/editCategory", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+      },
+      body: JSON.stringify(editCategoryFinal),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("edit category failed");
+        }
+        alert("Category edited successfully!");
+      })
+      .catch(() => {
+        alert("Error editing Category!");
+      });
   }
 
   //DEBUGGING---DISPLAY REACT SELECT KEYWORDS
@@ -186,7 +161,7 @@ function Category() {
   }
 
   return (
-    <div className={"mt-36 mb-14 flex flex-col items-center sm:mt-28"}>
+    <div className={"my-14 flex flex-col items-center"}>
       <form
         onSubmit={submitCreateForm}
         className="flex flex-col items-center gap-4"

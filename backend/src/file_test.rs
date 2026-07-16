@@ -19,42 +19,75 @@ use tower::util::ServiceExt;
 use tower_http::services::ServeFile;
 
 //THESE FUNCTIONS INTERACT WITH THE FILE SYSTEM
-//TODO makes sure the functions gracefully handle being given an incorrect path
+
+//path params are interpolated into filesystem paths; reject anything that
+//could escape the intended directory (e.g. "..", "../..", encoded slashes)
+fn is_safe_segment(segment: &str) -> bool {
+    !segment.is_empty()
+        && !segment.contains("..")
+        && !segment.contains('/')
+        && !segment.contains('\\')
+        && !segment.contains('\0')
+}
+
+//given a base path with no extension, find the first extension that exists on disk
+fn find_with_extension(base: &str, extensions: &[&str]) -> Option<String> {
+    extensions
+        .iter()
+        .map(|ext| format!("{}{}", base, ext))
+        .find(|path| exists(path).unwrap_or(false))
+}
+
+const AUDIO_EXTENSIONS: [&str; 6] = [".wav", ".mp3", ".aac", ".AAC", ".aiff", ".AIFF"];
+
 pub(crate) async fn get_artwork(
     State(state): State<AxumState>,
     axum_path(song_id): axum_path<String>,
 ) -> Response<Body> {
+    let not_found = || {
+        axum::http::Response::builder()
+            .status(StatusCode::NOT_FOUND)
+            .body(Body::empty())
+            .unwrap()
+    };
     //pull the song information from database to create a "verified" file path
-    let song_document = state
+    let Ok(song_document) = state
         .song_collection
         .find_one(doc! {"song_id": song_id})
         .await
-        .unwrap();
-    let song = song_document.unwrap();
+    else {
+        return axum::http::Response::builder()
+            .status(StatusCode::INTERNAL_SERVER_ERROR)
+            .body(Body::empty())
+            .unwrap();
+    };
+    //unknown song id: no artwork
+    let Some(song) = song_document else {
+        return not_found();
+    };
 
-    let mut pathbuilder;
     //IF SONG IS PART OF AN ALBUM, USE THE ALBUM ARTWORK
-    if song.album != "" {
-        pathbuilder = format!("server_files/artists/{}/{}", song.artist_id, song.album);
+    let base = if song.album != "" {
+        format!("server_files/artists/{}/{}", song.artist_id, song.album)
     } else {
-        pathbuilder = format!("server_files/artists/{}/{}", song.artist_id, song.song_id);
-    }
+        format!("server_files/artists/{}/{}", song.artist_id, song.song_id)
+    };
 
     let extensions = [".png", ".jpg", ".jpeg", ".webp", ".avif"];
-    for ext in extensions.iter() {
-        if exists(format!("{}{}", &pathbuilder, ext)).expect("pathbuilder exists") {
-            pathbuilder = format!("{}{}", &pathbuilder, ext);
-            break;
-        }
-    }
+    let Some(pathbuilder) = find_with_extension(&base, &extensions) else {
+        println!("Artwork file does not exist: {}", &base);
+        return not_found();
+    };
 
-    /* println!("Path with Extension: {}", pathbuilder);*/
     let path = Path::new(&pathbuilder);
     let file = tokio::fs::File::open(path).await;
     //catches file opening errors
     match file {
         Ok(file) => {
-            let metadata = file.metadata().await.unwrap();
+            let content_length = match file.metadata().await {
+                Ok(metadata) => metadata.len(),
+                Err(_) => return not_found(),
+            };
 
             let reader = BufReader::new(file);
             // Convert the file into a stream
@@ -64,50 +97,46 @@ pub(crate) async fn get_artwork(
             let content_type = match path.extension().and_then(|ext| ext.to_str()) {
                 Some("jpg") | Some("jpeg") => "image/jpeg",
                 Some("png") => "image/png",
+                Some("webp") => "image/webp",
+                Some("avif") => "image/avif",
                 _ => "application/octet-stream", // Fallback
             };
 
             // convert the `Stream` into an `axum::body::HttpBody`
             let body = Body::from_stream(stream);
 
-            let response = axum::http::Response::builder()
+            axum::http::Response::builder()
                 .status(StatusCode::OK)
                 .header(header::CONTENT_TYPE, content_type)
-                .header(header::CONTENT_LENGTH, metadata.len())
+                .header(header::CONTENT_LENGTH, content_length)
                 .body(body)
-                .unwrap();
-            response
+                .unwrap()
         }
         Err(..) => {
             println!("Artwork file does not exist: {}", &pathbuilder);
-            let response = axum::http::Response::builder()
-                .status(StatusCode::NOT_FOUND)
-                .body(Body::empty())
-                .unwrap();
-            response
+            not_found()
         }
     }
 }
 pub(crate) async fn stream_song(
     axum_path((artist_id, song_id)): axum_path<(String, String)>,
     req: axum::extract::Request,
-) -> Result<Response, String> {
-    let mut pathbuilder: String = format!("server_files/artists/{}/{}", artist_id, song_id);
-
-    let extensions = [".wav", ".mp3", ".aac", ".AAC", ".aiff", ".AIFF"];
-    for ext in extensions.iter() {
-        if exists(format!("{}{}", &pathbuilder, ext)).expect("pathbuilder exists") {
-            pathbuilder = format!("{}{}", &pathbuilder, ext);
-            break;
-        }
+) -> Result<Response, StatusCode> {
+    if !is_safe_segment(&artist_id) || !is_safe_segment(&song_id) {
+        return Err(StatusCode::BAD_REQUEST);
     }
+    let base = format!("server_files/artists/{}/{}", artist_id, song_id);
+    let pathbuilder =
+        find_with_extension(&base, &AUDIO_EXTENSIONS).ok_or(StatusCode::NOT_FOUND)?;
     let path = Path::new(&pathbuilder);
 
-    /*println!("{}", &path.display());*/
     // Use tower-http's ServeFile which handles range requests
     match ServeFile::new(&path).oneshot(req).await {
         Ok(response) => Ok(response.into_response()),
-        Err(err) => Err(format!("Failed to serve file: {}", err)),
+        Err(err) => {
+            println!("Failed to serve file {}: {}", pathbuilder, err);
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
     }
 }
 
@@ -123,6 +152,9 @@ pub(crate) struct WaveformData {
 pub(crate) async fn get_waveform(
     axum_path((artist_id, song_id)): axum_path<(String, String)>,
 ) -> Result<Json<WaveformData>, StatusCode> {
+    if !is_safe_segment(&artist_id) || !is_safe_segment(&song_id) {
+        return Err(StatusCode::BAD_REQUEST);
+    }
     let base = format!("server_files/artists/{}/{}", artist_id, song_id);
     let cache_path = format!("{}.waveform.json", base);
 
@@ -132,12 +164,8 @@ pub(crate) async fn get_waveform(
         }
     }
 
-    let extensions = [".wav", ".mp3", ".aac", ".AAC", ".aiff", ".AIFF"];
-    let audio_path = extensions
-        .iter()
-        .map(|ext| format!("{}{}", &base, ext))
-        .find(|path| exists(path).unwrap_or(false))
-        .ok_or(StatusCode::NOT_FOUND)?;
+    let audio_path =
+        find_with_extension(&base, &AUDIO_EXTENSIONS).ok_or(StatusCode::NOT_FOUND)?;
 
     //decoding the whole file is CPU-bound, keep it off the async runtime
     let data = tokio::task::spawn_blocking(move || compute_peaks(&audio_path, 1500))
@@ -305,66 +333,63 @@ fn compute_peaks(
     })
 }
 
-pub(crate) async fn get_categories(req: axum::extract::Request) -> Json<Vec<String>> {
+pub(crate) async fn get_categories() -> Result<Json<Vec<String>>, StatusCode> {
     let path = Path::new("./server_files/hdrImages");
-    let mut hdr_images_folder = tokio::fs::read_dir(path).await.unwrap();
+    let mut hdr_images_folder = tokio::fs::read_dir(path)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     let mut image_files: Vec<String> = Vec::new();
-    while let Some(category) = hdr_images_folder.next_entry().await.unwrap() {
+    while let Ok(Some(category)) = hdr_images_folder.next_entry().await {
         //check if current entry is a folder (category)
         let category_check = match category.file_type().await {
             Ok(file_type) => file_type.is_dir(),
             Err(_) => false, //if this is false, something is wrong with the file lol
         };
         if category_check {
-            image_files.push(category.file_name().into_string().unwrap());
+            if let Ok(name) = category.file_name().into_string() {
+                image_files.push(name);
+            }
         }
     }
-    Json(image_files)
+    Ok(Json(image_files))
 }
-pub(crate) async fn get_category_photos(
-    axum_path((category)): axum_path<(String)>,
-) -> Result<Json<Vec<String>>, StatusCode> {
-    let pathbuilder = format!("./server_files/hdrImages/{}", category);
-    let path = Path::new(&pathbuilder);
-    //if given invalid category, return NOT FOUND status code
-    let mut category_folder = match tokio::fs::read_dir(path).await {
-        Ok(dir) => dir,
-        Err(e) => return Err(StatusCode::NOT_FOUND),
-    };
 
-    let mut photo_files: Vec<String> = Vec::new();
-    while let Some(photo) = category_folder.next_entry().await.unwrap() {
-        //check if current entry is a folder (category)
-        if photo.file_name() == ".DS_Store" {
+//lists the plain files in a directory (skipping .DS_Store) in shuffled order
+async fn list_dir_shuffled(path: &Path) -> Result<Vec<String>, StatusCode> {
+    //if given an invalid directory, return NOT FOUND status code
+    let mut folder = tokio::fs::read_dir(path)
+        .await
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+    let mut files: Vec<String> = Vec::new();
+    while let Ok(Some(entry)) = folder.next_entry().await {
+        if entry.file_name() == ".DS_Store" {
             continue;
         }
-        photo_files.push(photo.file_name().into_string().unwrap());
+        if let Ok(name) = entry.file_name().into_string() {
+            files.push(name);
+        }
     }
     //Shuffle order of images
     let mut rng = rng();
-    photo_files.shuffle(&mut rng);
+    files.shuffle(&mut rng);
+    Ok(files)
+}
+
+pub(crate) async fn get_category_photos(
+    axum_path(category): axum_path<String>,
+) -> Result<Json<Vec<String>>, StatusCode> {
+    if !is_safe_segment(&category) {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+    let pathbuilder = format!("./server_files/hdrImages/{}", category);
+    let photo_files = list_dir_shuffled(Path::new(&pathbuilder)).await?;
     Ok(Json(photo_files))
 }
 
 pub(crate) async fn get_album_covers() -> Result<Json<Vec<String>>, StatusCode> {
     println!("Getting album covers");
     let path = Path::new("./server_files/fav_album_covers");
-    //if given invalid category, return NOT FOUND status code
-    let mut album_covers_folder = match tokio::fs::read_dir(path).await {
-        Ok(dir) => dir,
-        Err(e) => return Err(StatusCode::NOT_FOUND),
-    };
-
-    let mut album_covers: Vec<String> = Vec::new();
-    while let Some(cover) = album_covers_folder.next_entry().await.unwrap() {
-        if cover.file_name() == ".DS_Store" {
-            continue;
-        }
-        album_covers.push(cover.file_name().into_string().unwrap());
-    }
-    //Shuffle order of images
-    let mut rng = rng();
-    album_covers.shuffle(&mut rng);
+    let album_covers = list_dir_shuffled(path).await?;
     Ok(Json(album_covers))
 }
 pub(crate) async fn get_resume() -> Response<Body> {

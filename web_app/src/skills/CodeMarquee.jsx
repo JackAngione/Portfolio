@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import "./codeMarquee.css";
 
 function shuffle(array) {
@@ -73,32 +73,30 @@ function CodeMarquee({ columns }) {
         <div key={index} className="flex justify-evenly outline-amber-700">
           {/* number of columns*/}
           {Array.from({ length: columns }).map((_, index2) => (
-            <>
-              <motion.div
-                key={index2}
-                className="marquee"
-                {...(staticDirections[index2] === 0
-                  ? upDirection
-                  : downDirection)}
-                transition={{
-                  repeat: Infinity,
-                  repeatType: "loop",
-                  duration: staticTimings[index2],
-                  ease: "linear",
-                }}
-              >
-                <div className="flex flex-col content-center items-center justify-center align-middle">
-                  {symbol_lists[index2].map((item, i) => (
-                    <div
-                      key={i}
-                      className="font-secondary text-primary flex h-[220px] content-center items-center justify-center text-[200px]"
-                    >
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            </>
+            <motion.div
+              key={index2}
+              className="marquee"
+              {...(staticDirections[index2] === 0
+                ? upDirection
+                : downDirection)}
+              transition={{
+                repeat: Infinity,
+                repeatType: "loop",
+                duration: staticTimings[index2],
+                ease: "linear",
+              }}
+            >
+              <div className="flex flex-col content-center items-center justify-center align-middle">
+                {symbol_lists[index2].map((item, i) => (
+                  <div
+                    key={i}
+                    className="font-secondary text-primary flex h-[220px] content-center items-center justify-center text-[200px]"
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
           ))}
         </div>
       ))}

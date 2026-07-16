@@ -27,58 +27,59 @@ function withSuspense(Component) {
   );
 }
 
-function App() {
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: (
-        <>
-          <EpilepsyWarningModal />
-          <HeroUIProvider>
-            <AuthProvider>
-              <CommandK>
-                <FilmGrain>
-                  <NavigationBar />
-                </FilmGrain>
-              </CommandK>
-            </AuthProvider>
-          </HeroUIProvider>
-        </>
-      ),
-      children: [
-        { index: true, Component: Home },
-        { path: "/hdrphotos", element: withSuspense(HDRPhotos) },
-        { path: "/hdrphotos/:category", element: withSuspense(PhotoCategory) },
-        { path: "/code", element: withSuspense(CodeProjects) },
-        { path: "/music", element: withSuspense(Music) },
-        {
-          path: "/resources",
-          children: [
-            { index: true, element: withSuspense(ResourcesPage) },
-            {
-              path: "upload",
-              element: (
-                <AdminRoute>
-                  <Suspense fallback={null}>
-                    <Upload />
-                  </Suspense>
-                </AdminRoute>
-              ),
-            },
-            {
-              path: "category",
-              element: (
-                <AdminRoute>
-                  <Suspense fallback={null}>
-                    <Category />
-                  </Suspense>
-                </AdminRoute>
-              ),
-            },
-          ],
-        },
-        { path: "/f2q", element: withSuspense(Filters2ProQ) },
-        /*{
+//created once at module scope so the router (and its state) is never rebuilt
+//by a re-render of App
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: (
+      <>
+        <EpilepsyWarningModal />
+        <HeroUIProvider>
+          <AuthProvider>
+            <CommandK>
+              <FilmGrain>
+                <NavigationBar />
+              </FilmGrain>
+            </CommandK>
+          </AuthProvider>
+        </HeroUIProvider>
+      </>
+    ),
+    children: [
+      { index: true, Component: Home },
+      { path: "/hdrphotos", element: withSuspense(HDRPhotos) },
+      { path: "/hdrphotos/:category", element: withSuspense(PhotoCategory) },
+      { path: "/code", element: withSuspense(CodeProjects) },
+      { path: "/music", element: withSuspense(Music) },
+      {
+        path: "/resources",
+        children: [
+          { index: true, element: withSuspense(ResourcesPage) },
+          {
+            path: "upload",
+            element: (
+              <AdminRoute>
+                <Suspense fallback={null}>
+                  <Upload />
+                </Suspense>
+              </AdminRoute>
+            ),
+          },
+          {
+            path: "category",
+            element: (
+              <AdminRoute>
+                <Suspense fallback={null}>
+                  <Category />
+                </Suspense>
+              </AdminRoute>
+            ),
+          },
+        ],
+      },
+      { path: "/f2q", element: withSuspense(Filters2ProQ) },
+      /*{
           path: "upload",
           element: (
             <AdminRoute>
@@ -94,19 +95,17 @@ function App() {
             </AdminRoute>
           ),
         },*/
-      ],
-    },
-    {
-      //re-routes any invalid paths to homepage
-      path: "*",
-      element: <Navigate to="/" />,
-    },
-  ]);
-  return (
-    <>
-      <RouterProvider router={router} />
-    </>
-  );
+    ],
+  },
+  {
+    //re-routes any invalid paths to homepage
+    path: "*",
+    element: <Navigate to="/" />,
+  },
+]);
+
+function App() {
+  return <RouterProvider router={router} />;
 }
 
 export default App;
