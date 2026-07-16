@@ -84,12 +84,25 @@ function MusicPlayer({ song }) {
     //duration reported by the waveform endpoint
     wavesurfer &&
       setSongDuration(wavesurfer.getDuration() || waveform?.duration || 0);
-    wavesurfer && wavesurfer.setVolume(0.0625);
+    //re-apply the slider's current level so volume carries over between songs
+    wavesurfer && wavesurfer.setVolume(Math.pow(volume, 2));
   }, [isReady, wavesurfer]);
 
   const [volume, setVolume] = useState(0.25);
   const [songProgress, setSongProgress] = useState(0);
   const [songDuration, setSongDuration] = useState(0);
+
+  //below this width the volume slider switches to vertical to save
+  //horizontal space instead of disappearing
+  const [isNarrow, setIsNarrow] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 640,
+  );
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 639px)");
+    const onChange = (e) => setIsNarrow(e.matches);
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
 
   //converts seconds to formated minutes and seconds
   function secondsToMinutes(duration) {
@@ -185,14 +198,16 @@ function MusicPlayer({ song }) {
         </div>
 
         {/* volume */}
-        <div className="hidden shrink-0 items-center gap-2 sm:flex">
+        <div
+          className={`flex shrink-0 items-center gap-2 ${isNarrow ? "flex-col-reverse" : ""}`}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="none"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="text-primary/60 size-5"
+            className="text-primary/60 size-4 shrink-0 sm:size-5"
           >
             <path
               strokeLinecap="round"
@@ -201,9 +216,12 @@ function MusicPlayer({ song }) {
             />
           </svg>
           <Slider
+            orientation={isNarrow ? "vertical" : "horizontal"}
             classNames={{
-              base: "w-24",
-              track: "bg-primary/20 h-1 border-x-0!",
+              base: isNarrow ? "h-16 w-4" : "w-16 sm:w-24",
+              track: isNarrow
+                ? "bg-primary/20 w-1 border-y-0!"
+                : "bg-primary/20 h-1 border-x-0!",
               filler: "bg-PrimaryGradient",
               thumb: "bg-PrimaryGradient size-3 after:hidden shadow-md",
             }}

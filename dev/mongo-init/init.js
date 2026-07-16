@@ -165,18 +165,46 @@ db.tutorials.insertMany([
   },
 ]);
 
+// artist_id/song_id values match real folders/files under
+// backend/server_files/artists so audio, artwork, and waveforms actually
+// resolve in a local dev run instead of 404ing.
 db.artists.insertMany([
-  { artist_name: "Dev Artist", artist_id: "artQ1" },
+  { artist_name: "Dev Artist A", artist_id: "a43hx" },
+  { artist_name: "Dev Artist B", artist_id: "xe3Gy" },
 ]);
 
 db.songs.insertMany([
   {
-    song_id: "sngA1",
-    song_name: "sample_song.flac",
-    song_title: "Sample Song",
-    album: "Dev Album",
+    song_id: "5T3Eh",
+    song_name: "5T3Eh.wav",
+    song_title: "Just Dance!!",
+    album: "JUST DANCE!!",
     track_list: NumberInt(1),
-    artist_id: "artQ1",
+    artist_id: "a43hx",
+  },
+  {
+    song_id: "5T4Eh",
+    song_name: "5T4Eh.wav",
+    song_title: "Vanity",
+    album: "VANITY",
+    track_list: NumberInt(1),
+    artist_id: "a43hx",
+  },
+  {
+    song_id: "3K4G9",
+    song_name: "3K4G9.aac",
+    song_title: "3K4G9",
+    album: "",
+    track_list: NumberInt(1),
+    artist_id: "xe3Gy",
+  },
+  {
+    song_id: "fDgDs",
+    song_name: "fDgDs.aac",
+    song_title: "Fell In Luv, Dyin Rich",
+    album: "FELL IN LUV, DYIN RICH",
+    track_list: NumberInt(1),
+    artist_id: "xe3Gy",
   },
 ]);
 

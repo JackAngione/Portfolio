@@ -106,6 +106,7 @@ export default function NavigationBar() {
             activeDropdown={activeDropdown}
             setActiveDropdown={setActiveDropdown}
           >
+            <Link to="/resources">SEARCH</Link>
             <Link to="/resources/upload">UPLOAD TUTORIAL</Link>
             <Link to="/resources/category">CATEGORY</Link>
           </NavDropdown>
