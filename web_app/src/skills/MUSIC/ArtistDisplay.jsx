@@ -11,8 +11,9 @@ const ArtistDisplay = ({ artist, sendSelectedSong }) => {
     setOpenIndex(openIndex === index ? null : index);
   };
   useEffect(() => {
-    if (artist !== null) {
-      fetchSongs(artist).then((r) => {});
+    //artist starts out as "" until one is clicked; don't fetch /artist/undefined
+    if (artist) {
+      fetchSongs(artist);
     }
   }, [artist]);
   const fetchSongs = async (artist) => {
