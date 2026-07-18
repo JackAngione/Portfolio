@@ -8,6 +8,7 @@
   @apply border-1;
 
   border-radius: 3px;
+  @apply text-xs opacity-60;
 }
 .ais-RefinementList-checkbox {
   @apply bg-primary relative mr-2 h-3 w-3 appearance-none rounded-[2px] border-0;
@@ -16,18 +17,50 @@
   @apply bg-tertiary;
 }
 .ais-RefinementList-item {
-  @apply mb-0.5;
+  @apply mb-1;
   @apply uppercase;
 }
+.ais-RefinementList-label {
+  @apply flex cursor-pointer items-center transition-colors duration-150;
+}
+.ais-RefinementList-label:hover {
+  @apply text-tertiary/80;
+}
+/* selected refinements echo the checkbox accent so active filters pop */
+.ais-RefinementList-item--selected .ais-RefinementList-labelText {
+  @apply text-tertiary font-bold;
+}
+.ais-RefinementList-item--selected .ais-RefinementList-count {
+  @apply border-tertiary text-tertiary opacity-100;
+}
+
+/* quiet ghost button: only earns the gradient wash on hover, and fades
+   out entirely when there is nothing to clear */
+.ais-ClearRefinements-button {
+  @apply rounded-lg border border-white/25 px-4 py-1.5 text-xs font-bold tracking-widest uppercase;
+}
+.ais-ClearRefinements-button::before {
+  opacity: 0;
+}
+.ais-ClearRefinements-button:hover:not(:disabled)::before {
+  opacity: 0.88;
+}
+.ais-ClearRefinements-button--disabled {
+  opacity: 0.25;
+}
+
+.ais-SearchBox-form {
+  @apply relative flex w-full items-center;
+}
 .ais-SearchBox-input {
-  @apply rounded-md border-2;
+  @apply w-full flex-1 rounded-md border-2 py-2 pr-11 pl-3;
 }
 
 .searchResults ol {
   list-style: none;
-  height: 60vh;
+  max-height: 60vh;
 
-  @apply justify-center lg:w-[600px];
+  @apply justify-center;
   overflow-y: auto;
   /*outline: 2px solid #4e2393;*/
   /* Hide scrollbar for IE, Edge, and Firefox */
@@ -37,8 +70,9 @@
 .ais-SearchBox-submit {
   display: none;
 }
+/* overlaid inside the input so its appearance never shifts the bar off-center */
 .ais-SearchBox-reset {
-  margin: 10px;
+  @apply absolute top-1/2 right-1.5 -translate-y-1/2 rounded-md px-2 py-0.5;
 }
 /* hides scroll bar in search results for Chrome,Safari */
 .searchResults ol::-webkit-scrollbar {

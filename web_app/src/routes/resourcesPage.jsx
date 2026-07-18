@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import "./resourcePage.css";
 import EditModal from "./modals/editModal.jsx";
 import DeleteModal from "./modals/deleteModal.jsx";
@@ -33,6 +33,32 @@ function ResourcesPage() {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [tutorialToEdit, setTutorialToEdit] = useState({});
 
+  //typing anywhere on the page lands in the search bar: focus it before the
+  //keystroke's default action so the character is inserted there
+  useEffect(() => {
+    function redirectTypingToSearch(e) {
+      if (openEditModal || openDeleteModal) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key.length !== 1 && e.key !== "Backspace") return;
+      const el = document.activeElement;
+      if (
+        el &&
+        (el.tagName === "INPUT" ||
+          el.tagName === "TEXTAREA" ||
+          el.tagName === "SELECT" ||
+          el.isContentEditable)
+      )
+        return;
+      //Backspace only claims focus; without this some browsers treat it as
+      //history-back when nothing is focused
+      if (e.key === "Backspace") e.preventDefault();
+      document.querySelector(".ais-SearchBox-input")?.focus();
+    }
+    document.addEventListener("keydown", redirectTypingToSearch);
+    return () =>
+      document.removeEventListener("keydown", redirectTypingToSearch);
+  }, [openEditModal, openDeleteModal]);
+
   //must render inside <InstantSearch> so useInstantSearch can refresh the hits
   function Modals() {
     const { refresh } = useInstantSearch();
@@ -60,8 +86,9 @@ function ResourcesPage() {
   const Hit = ({ hit }) => {
     //hit is basically a json object of the meilisearch document
     return (
-      <div className="m-8 flex flex-col items-center">
+      <div className="mx-2 my-6 flex flex-col items-center">
         <button
+          className="w-full max-w-[520px]"
           onClick={() => {
             window.open(`${hit.source}`);
           }}
@@ -114,15 +141,14 @@ function ResourcesPage() {
           onClose={() => setOpenEditModal(!openEditModal)}
         />
       ) : null}*/}
-      <div className="lg:mr-44 lg:flex lg:justify-center">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 lg:flex-row lg:items-start lg:justify-center">
         <InstantSearch indexName="resources" searchClient={searchClient}>
           <Modals />
-          <div className="text-primary justify-center sm:flex lg:block">
-            <div className="sm:flex sm:gap-6 sm:text-left lg:flex-col">
+          <aside className="text-primary mx-auto w-full max-w-[600px] text-left lg:mx-0 lg:w-56 lg:shrink-0">
+            <div className="flex flex-wrap gap-x-12 gap-y-6 lg:flex-col">
               <div>
                 <h3 className="pb-2 font-bold">Categories</h3>
                 <RefinementList
-                  className=""
                   title="Category"
                   attribute="category"
                   sortBy={["name"]}
@@ -131,7 +157,6 @@ function ResourcesPage() {
               <div>
                 <h3 className="pb-2 font-bold">SubCategories</h3>
                 <RefinementList
-                  className=""
                   title="SubCategories"
                   attribute="subCategories"
                   sortBy={["name"]}
@@ -139,12 +164,15 @@ function ResourcesPage() {
               </div>
             </div>
 
-            <ClearRefinements className="text-primary mt-4 content-center font-bold sm:ml-6 lg:m-0 lg:mt-4" />
-          </div>
-          <div className="searchResults">
-            <SearchBox autoFocus={true} className="text-primary py-4" />
+            <ClearRefinements className="mt-6" />
+          </aside>
+          <div className="searchResults mx-auto w-full max-w-[600px]">
+            <SearchBox autoFocus={true} className="text-primary pb-4" />
             <Hits hitComponent={Hit} />
           </div>
+          {/* mirrors the sidebar's width so the results column (and the
+              search bar) stays horizontally centered in the viewport */}
+          <div aria-hidden className="hidden lg:block lg:w-56 lg:shrink-0" />
         </InstantSearch>
       </div>
     </>
