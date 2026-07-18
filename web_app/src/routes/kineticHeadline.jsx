@@ -1,15 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "motion/react";
 
 /*
   Headline split into letters. Entrance: each letter dissolves in from a
   soft blur with a gentle rise, staggered across the line. Hover: the
   letter melts smoothly toward a warm accent and eases back after the
-  cursor leaves — no bounce, just a slow fade.
+  cursor leaves — no bounce, just a slow fade. Color lives entirely in
+  CSS (theme variables + transition) so it inverts with the theme toggle;
+  motion only drives the entrance.
 */
-
-const PRIMARY = "oklch(0.98 0.0293 146.88)";
-const ACCENT = "oklch(0.72 0.2466 360)"; // bunny
 
 const container = {
   hidden: {},
@@ -27,18 +26,10 @@ const letterVariant = {
 };
 
 function Letter({ char }) {
-  const [hovered, setHovered] = useState(false);
   return (
     <motion.span
       variants={letterVariant}
-      className="inline-block cursor-default will-change-transform"
-      animate={{ color: hovered ? ACCENT : PRIMARY }}
-      transition={{
-        duration: hovered ? 0.3 : 1.4,
-        ease: "easeOut",
-      }}
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
+      className="text-primary hover:text-bunny inline-block cursor-default transition-colors duration-[1.4s] ease-out will-change-transform hover:duration-300"
     >
       {char}
     </motion.span>

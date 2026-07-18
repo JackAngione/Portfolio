@@ -25,6 +25,7 @@ precision highp float;
 uniform vec2 u_res;
 uniform float u_t;
 uniform vec2 u_pointer;
+uniform float u_invert;
 
 vec3 palette(float x) {
   const vec3 S0 = vec3(16.0, 16.0, 20.0) / 255.0;
@@ -62,7 +63,11 @@ void main() {
   // Same mapping as the button's hue = (v * 60 + t * 40) % 360,
   // normalized to a 0..1 palette index (fract in palette() handles wrap)
   float idx = (v * 60.0 + u_t * 40.0) / 360.0;
-  gl_FragColor = vec4(palette(idx), 1.0);
+  // Light mode literally inverts the marble: dark navy grounds become
+  // paper whites, golds become blues. u_invert eases 0..1 on theme change.
+  vec3 col = palette(idx);
+  col = mix(col, vec3(1.0) - col, u_invert);
+  gl_FragColor = vec4(col, 1.0);
 }
 `;
 
@@ -123,6 +128,19 @@ function MarbleField() {
     const uRes = gl.getUniformLocation(prog, "u_res");
     const uT = gl.getUniformLocation(prog, "u_t");
     const uPointer = gl.getUniformLocation(prog, "u_pointer");
+    const uInvert = gl.getUniformLocation(prog, "u_invert");
+
+    const invertFor = () =>
+      document.documentElement.dataset.theme === "light" ? 1 : 0;
+    let invertTarget = invertFor();
+    let invert = invertTarget;
+    const themeObserver = new MutationObserver(() => {
+      invertTarget = invertFor();
+    });
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
 
     const resize = () => {
       const dpr = window.devicePixelRatio || 1;
@@ -151,8 +169,10 @@ function MarbleField() {
       px += (targetPX - px) * 0.03;
       py += (targetPY - py) * 0.03;
 
+      invert += (invertTarget - invert) * 0.05;
       gl.uniform1f(uT, t);
       gl.uniform2f(uPointer, px, py);
+      gl.uniform1f(uInvert, invert);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
 
       // A viewport-sized WebGL canvas can get promoted to a hardware
@@ -171,6 +191,7 @@ function MarbleField() {
 
     return () => {
       cancelAnimationFrame(animationID);
+      themeObserver.disconnect();
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", onPointerMove);
     };

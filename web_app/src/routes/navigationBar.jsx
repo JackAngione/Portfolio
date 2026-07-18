@@ -2,6 +2,7 @@ import { Link, Outlet } from "react-router";
 import "./navigationBar.css";
 import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../useAuth.jsx";
+import { ThemeToggle } from "../theme.jsx";
 //BASICALLY THE NAVIGATION BAR
 
 // Grace period before closing on mouse-leave, so a diagonal mouse path
@@ -146,6 +147,7 @@ export default function NavigationBar() {
           </Link>
         )}
       </nav>
+      <ThemeToggle />
       <Outlet />
     </>
   );

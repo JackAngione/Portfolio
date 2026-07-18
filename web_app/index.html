@@ -5,6 +5,22 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jack Angione</title>
+    <script>
+      // Stamp the resolved theme before first paint (mirrors src/theme.jsx)
+      (() => {
+        let theme = null;
+        try {
+          theme = localStorage.getItem("theme-preference");
+        } catch {}
+        if (theme !== "light" && theme !== "dark") {
+          theme = matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.classList.toggle("dark", theme === "dark");
+      })();
+    </script>
     <!--<script src="https://unpkg.com/react-scan/dist/auto.global.js"></script>-->
   </head>
   <body>

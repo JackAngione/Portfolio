@@ -16,7 +16,7 @@
   z-index: 50;
   padding: 6px;
   min-width: 280px;
-  @apply bg-background/40 rounded-2xl border border-white/10 font-bold shadow-lg shadow-black/30 backdrop-blur-md;
+  @apply bg-background/40 rounded-2xl border border-ink/10 font-bold shadow-lg shadow-black/30 backdrop-blur-md;
 }
 
 .navLink {
@@ -51,7 +51,7 @@
   width: 1px;
   height: 20px;
   align-self: center;
-  @apply bg-white/10;
+  @apply bg-ink/10;
 }
 
 .navDropdown {
@@ -68,7 +68,7 @@
   min-width: 180px;
   padding: 6px;
   z-index: 5;
-  @apply bg-background/80 rounded-2xl border border-white/10 shadow-xl shadow-black/40 backdrop-blur-md;
+  @apply bg-background/80 rounded-2xl border border-ink/10 shadow-xl shadow-black/40 backdrop-blur-md;
   transition: all 0.3s ease;
 }
 
@@ -102,4 +102,111 @@
    that briefly grazes a neighboring nav item doesn't instantly close it. */
 .dropDownList.open {
   display: block;
+}
+
+/* Theme toggle: three compact icon buttons that opt out of the sitewide
+   card-gradient button treatment so they sit quietly inside the pill bar. */
+.themeToggle {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  /* no gap while collapsed — it would pad the folded (zero-width)
+     peers and knock the lone icon off-center */
+  gap: 0;
+  padding: 6px;
+  transition: gap 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  @apply bg-background/40 rounded-2xl border border-ink/10 shadow-lg shadow-black/30 backdrop-blur-md;
+}
+
+.themeToggle button {
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  border-radius: 0.6rem;
+  border-color: transparent;
+  opacity: 0.55;
+}
+
+/* collapsed: the peers fold behind the active mode, then bloom back out */
+.themeToggle button:not(.active) {
+  width: 0;
+  /* flex items floor at min-content, which would leave the folded
+     icons ~14px wide and shove the collapsed pill off-center */
+  min-width: 0;
+  flex: 0 0 auto;
+  padding-inline: 0;
+  /* the 1px borders would still occupy layout, and both folded peers
+     sit left of the active icon — 4px of one-sided padding */
+  border-inline-width: 0;
+  opacity: 0;
+  transform: scale(0.4) rotate(-90deg);
+  pointer-events: none;
+}
+
+/* the gap lives on the container so all three sit evenly apart; it stays
+   0 while collapsed so it can't pad the folded peers */
+.themeToggle[data-open] {
+  gap: 6px;
+}
+
+.themeToggle[data-open] button:not(.active) {
+  width: 2.25rem;
+  padding-inline: 8px;
+  opacity: 0.55;
+  transform: none;
+  pointer-events: auto;
+}
+
+.themeToggle button:not(.active) {
+  overflow: hidden;
+  transition:
+    width 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) var(--stagger, 0ms),
+    padding 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) var(--stagger, 0ms),
+    transform 0.36s cubic-bezier(0.34, 1.56, 0.64, 1) var(--stagger, 0ms),
+    opacity 0.24s ease var(--stagger, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .themeToggle button:not(.active) {
+    transition-duration: 0.01ms;
+    transition-delay: 0ms;
+  }
+}
+
+.themeToggle button::before {
+  opacity: 0;
+}
+
+.themeToggle button:hover:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+  opacity: 1;
+  @apply border-transparent;
+}
+
+.themeToggle button.active {
+  opacity: 1;
+  @apply border-ink/20;
+}
+
+.themeToggle button.active::before {
+  opacity: 0.6;
+}
+
+/* collapsed, the chip is a plain icon — no border, no wash — so the
+   island reads as one quiet piece; the color arrives on open, marking
+   which mode is in effect */
+.themeToggle:not([data-open]) button.active {
+  @apply border-transparent;
+}
+
+.themeToggle:not([data-open]) button.active::before {
+  opacity: 0;
+}
+
+.themeToggle button.active::before {
+  transition: opacity 0.28s ease 0.12s;
 }

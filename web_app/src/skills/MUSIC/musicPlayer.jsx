@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useWavesurfer } from "@wavesurfer/react";
 import { Slider } from "@heroui/react";
 import { media_server_address } from "../../serverInfo.jsx";
+import { themeColor, useResolvedTheme } from "../../theme.jsx";
 
 function MusicPlayer({ song }) {
   //pre-computed peaks from the server, so the waveform renders without
@@ -36,6 +37,12 @@ function MusicPlayer({ song }) {
     [waveform],
   );
 
+  const resolvedTheme = useResolvedTheme();
+  const [initialColors] = useState(() => ({
+    wave: themeColor("--color-primary"),
+    progress: themeColor("--color-bunny"),
+  }));
+
   //initialize WaveSurfer (only once the peaks fetch has settled, otherwise
   //wavesurfer would start downloading the full file to decode it itself)
   const containerRef = useRef(null);
@@ -46,8 +53,11 @@ function MusicPlayer({ song }) {
       : undefined,
     peaks,
     duration: waveform?.duration ?? undefined,
-    waveColor: "#fcf7f8",
-    progressColor: "oklch(0.72 0.2466 360)",
+    //captured once at mount: changing these props would make useWavesurfer
+    //tear down and rebuild the whole player. Theme flips are applied to the
+    //live instance via setOptions in the effect below.
+    waveColor: initialColors.wave,
+    progressColor: initialColors.progress,
     height: 40,
     // Set a bar width
     barWidth: 1,
@@ -55,6 +65,15 @@ function MusicPlayer({ song }) {
     // And the bar radius
     barRadius: 8,
   });
+  //recolor the live waveform when the theme flips
+  useEffect(() => {
+    wavesurfer &&
+      wavesurfer.setOptions({
+        waveColor: themeColor("--color-primary"),
+        progressColor: themeColor("--color-bunny"),
+      });
+  }, [wavesurfer, resolvedTheme]);
+
   const onPlayPause = () => {
     wavesurfer && wavesurfer.playPause();
   };

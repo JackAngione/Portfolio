@@ -161,7 +161,7 @@ function Upload() {
         <label>
           Enter Source Link:
           <input
-            className="border-secondary rounded-[2px] border-1 focus:border-white"
+            className="border-secondary rounded-[2px] border-1 focus:border-ink"
             type="text"
             name="source"
             value={inputSource || ""}

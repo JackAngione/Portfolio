@@ -104,7 +104,7 @@ function BackgroundAnim(props) {
           stroke-length="0.125"
           bg-opacity="0.1"
           speed="1.2"
-          color="#fcf7f8"
+          color="var(--color-primary)"
         ></l-square>
       </div>
     );

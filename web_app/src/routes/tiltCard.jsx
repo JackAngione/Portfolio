@@ -57,7 +57,7 @@ function TiltCard({ to, title, subtitle, gradient, index = 0 }) {
         onPointerLeave={reset}
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
         whileHover={{ scale: 1.04 }}
-        className="group relative overflow-hidden rounded-2xl border border-white/10"
+        className="group relative overflow-hidden rounded-2xl border border-ink/10"
       >
         <Link
           to={to}
