@@ -133,7 +133,7 @@ function MusicPlayer({ song }) {
       <div className="mx-auto flex w-full max-w-5xl items-center gap-4 px-4 py-3 sm:gap-6">
         {/* play/pause */}
         <button
-          className="bg-PrimaryGradient text-background! flex size-12 shrink-0 items-center justify-center rounded-full! p-0! shadow-lg transition-transform hover:scale-105 active:scale-95"
+          className="bg-PrimaryGradient text-background! flex size-12 shrink-0 items-center justify-center rounded-xl! p-0! shadow-lg transition-transform hover:scale-105 active:scale-95"
           aria-label={isPlaying ? "pause" : "play"}
           onClick={onPlayPause}
         >
@@ -185,7 +185,7 @@ function MusicPlayer({ song }) {
               base: "w-full",
               track: "bg-primary/20 h-1 border-x-0!",
               filler: "bg-PrimaryGradient",
-              thumb: "bg-PrimaryGradient size-3 after:hidden shadow-md",
+              thumb: "bg-PrimaryGradient size-3 rounded-full! after:hidden shadow-md",
             }}
             size="sm"
             aria-label={"song position slider"}
@@ -223,7 +223,7 @@ function MusicPlayer({ song }) {
                 ? "bg-primary/20 w-1 border-y-0!"
                 : "bg-primary/20 h-1 border-x-0!",
               filler: "bg-PrimaryGradient",
-              thumb: "bg-PrimaryGradient size-3 after:hidden shadow-md",
+              thumb: "bg-PrimaryGradient size-3 rounded-full! after:hidden shadow-md",
             }}
             size="sm"
             aria-label={"volume slider"}

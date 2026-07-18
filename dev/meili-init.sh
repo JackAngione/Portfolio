@@ -20,4 +20,11 @@ curl -s -X PUT "$HOST/indexes/resources/settings/filterable-attributes" \
   -H "$AUTH" -H "Content-Type: application/json" \
   -d '["category","subCategories"]' > /dev/null
 
+# Meilisearch derives a key's value from its uid + the master key (HMAC), so
+# pinning the uid makes the resulting search key deterministic across
+# container recreations. Must match web_app/src/API_Keys.jsx's dev key.
+curl -s -X POST "$HOST/keys" \
+  -H "$AUTH" -H "Content-Type: application/json" \
+  -d '{"uid":"00000000-0000-0000-0000-000000000001","name":"Dev Fixed Search Key","description":"Deterministic search key for local dev","actions":["search"],"indexes":["*"],"expiresAt":null}' > /dev/null || true
+
 echo "Meilisearch dev index ready."

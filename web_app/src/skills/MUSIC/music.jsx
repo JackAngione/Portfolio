@@ -79,7 +79,7 @@ function Music() {
                     selectedArtist === artistObj
                       ? "bg-PrimaryGradient scale-105 border-transparent font-bold text-black shadow-lg"
                       : "border-primary/30 text-primary/70 hover:border-primary/70 hover:text-primary bg-transparent"
-                  } cursor-pointer rounded-full border-2 px-5 py-2 transition-all`}
+                  } cursor-pointer rounded-xl border-2 px-5 py-2 transition-all`}
                 >
                   {artistObj.artist_name}
                   <input
