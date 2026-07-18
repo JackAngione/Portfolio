@@ -16,7 +16,7 @@
 
 #spacer {
   margin-bottom: 100px;
-  margin-top: 100px;
+  margin-top: var(--nav-safe-top, 100px);
 }
 #editForm input {
   display: block;

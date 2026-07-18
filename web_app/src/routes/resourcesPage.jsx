@@ -132,7 +132,12 @@ function ResourcesPage() {
 
   return (
     <>
-      <h1 className="mt-36 mb-14 text-center font-bold sm:mt-28">RESOURCES</h1>
+      <h1
+        className="mb-14 text-center font-bold"
+        style={{ marginTop: "var(--nav-safe-top, 112px)" }}
+      >
+        RESOURCES
+      </h1>
       {/*{!loadingCategories ? (
         <EditModal
           open={true}
@@ -147,7 +152,7 @@ function ResourcesPage() {
           <aside className="text-primary mx-auto w-full max-w-[600px] text-left lg:mx-0 lg:w-56 lg:shrink-0">
             <div className="flex flex-wrap gap-x-12 gap-y-6 lg:flex-col">
               <div>
-                <h3 className="pb-2 font-bold">Categories</h3>
+                <h3 className="pb-2 text-2xl! font-bold">Categories</h3>
                 <RefinementList
                   title="Category"
                   attribute="category"
@@ -155,7 +160,7 @@ function ResourcesPage() {
                 />
               </div>
               <div>
-                <h3 className="pb-2 font-bold">SubCategories</h3>
+                <h3 className="pb-2 text-2xl! font-bold">SubCategories</h3>
                 <RefinementList
                   title="SubCategories"
                   attribute="subCategories"

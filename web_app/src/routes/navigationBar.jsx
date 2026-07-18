@@ -71,13 +71,43 @@ function NavDropdown({ id, triggerTo, triggerLabel, activeDropdown, setActiveDro
   );
 }
 
+// The bar sits at top: 24px. Publish the space it actually occupies
+// (that offset + its rendered height + a breathing gap) as --nav-safe-top so
+// pages can reserve top room that grows automatically when the bar wraps to a
+// second row at narrow widths, instead of overlapping the content beneath it.
+const NAV_TOP_OFFSET = 24;
+const NAV_BOTTOM_GAP = 24;
+
 export default function NavigationBar() {
   const authenticated = useContext(AuthContext).loggedIn;
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const navRef = useRef(null);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    const publishHeight = () => {
+      const safeTop = NAV_TOP_OFFSET + nav.offsetHeight + NAV_BOTTOM_GAP;
+      document.documentElement.style.setProperty("--nav-safe-top", `${safeTop}px`);
+    };
+
+    publishHeight();
+    const observer = new ResizeObserver(publishHeight);
+    observer.observe(nav);
+    // ResizeObserver doesn't reliably fire when a fixed, shrink-to-fit bar
+    // re-wraps purely because the viewport changed width, so also recompute on
+    // window resize.
+    window.addEventListener("resize", publishHeight);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", publishHeight);
+    };
+  }, []);
 
   return (
     <>
-      <nav className="navigation">
+      <nav className="navigation" ref={navRef}>
         <NavDropdown
           id="skills"
           triggerTo=""

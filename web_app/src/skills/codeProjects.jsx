@@ -9,7 +9,10 @@ function CodeProjects() {
       <div className="fixed inset-0 flex items-center justify-center blur-xs">
         <CodeMarquee columns={10}></CodeMarquee>
       </div>
-      <h1 className="mt-36 mb-14 mix-blend-difference sm:mt-28">
+      <h1
+        className="mb-14 mix-blend-difference"
+        style={{ marginTop: "var(--nav-safe-top, 112px)" }}
+      >
         CODING PROJECTS
       </h1>
 

@@ -44,7 +44,10 @@ function PhotoCategory() {
   }
   return (
     <>
-      <h1 className="mt-36 mb-8 pl-[3vw] uppercase sm:mt-28 md:pl-[10vw]">
+      <h1
+        className="mb-8 pl-[3vw] uppercase md:pl-[10vw]"
+        style={{ marginTop: "var(--nav-safe-top, 112px)" }}
+      >
         {category}
       </h1>
       <div className="relative z-10 flex items-center justify-center pb-20">
