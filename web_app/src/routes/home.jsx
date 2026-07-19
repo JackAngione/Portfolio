@@ -106,7 +106,7 @@ function Home() {
       <MarbleField />
 
       {/* hero */}
-      <section className="relative z-10 -mt-1 flex min-h-svh flex-col items-center justify-center gap-10 px-6 pt-10">
+      <section className="nav-full-bleed relative z-10 -mt-1 flex min-h-svh flex-col items-center justify-center gap-10 px-6 pt-10">
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -40,10 +40,6 @@
   @apply rounded-lg border-2 border-red-600 bg-red-500 shadow-md;
 }
 
-.react-select-container {
-  @apply text-background rounded-[6px];
-}
-
 .editForm label {
   @apply mb-[40px] flex flex-col;
 }

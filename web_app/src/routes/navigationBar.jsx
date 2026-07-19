@@ -138,8 +138,8 @@ export default function NavigationBar() {
             setActiveDropdown={setActiveDropdown}
           >
             <Link to="/resources">SEARCH</Link>
-            <Link to="/resources/upload">UPLOAD TUTORIAL</Link>
-            <Link to="/resources/category">CATEGORY</Link>
+            <Link to="/resources/upload">UPLOAD RESOURCE</Link>
+            <Link to="/resources/category">CATEGORIES</Link>
           </NavDropdown>
         ) : (
           <Link className="navLink" to="/resources">
@@ -148,7 +148,9 @@ export default function NavigationBar() {
         )}
       </nav>
       <ThemeToggle />
-      <Outlet />
+      <main className="pageContent">
+        <Outlet />
+      </main>
     </>
   );
 }

@@ -1,130 +1,85 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import "./category.css";
 import CreatableSelect from "react-select/creatable";
 import { backend_address } from "../serverInfo.jsx";
 import Select from "react-select";
 import DeleteCategoryModal from "./modals/deleteCategoryModal.jsx";
 import { AuthContext } from "../useAuth.jsx";
+import { Link } from "react-router";
 
 function Category() {
   //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (in json format)
   const [categories, setCategories] = useState([]);
-  //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (just the titles)
-  const [categoryTitles, setCategoryTitles] = useState([]);
 
-  //NEW CATEGORY---------------------
-  const [categoryTitle, setCategoryTitle] = useState("");
-  //REACT SELECT KEYWORDS
-  const [inputValue, setInputValue] = useState("");
-  const [subCategories, setSubCategories] = useState([]);
-
-  //EDIT CATEGORY---------------------------
-  //WHICH CATEGORY IS BEING EDITED
-  const [categoryToEdit, setCategoryToEdit] = useState();
+  //WHICH CATEGORY IS BEING EDITED (react-select option {label, value})
+  const [categoryToEdit, setCategoryToEdit] = useState(null);
   //EDITED CATEGORY TITLE
   const [categoryTitleEdit, setCategoryTitleEdit] = useState("");
   //edited subcategories
   const [editSubCategories, setEditSubCategories] = useState([]);
   const [editInputValue, setEditInputValue] = useState("");
 
+  //inline feedback instead of alert() popups: {ok: bool, message: string}
+  const [status, setStatus] = useState(null);
+
   const components = { DropdownIndicator: null };
 
   //CCOOOOOKKIEEEEE
   const { token } = useContext(AuthContext);
+
   //GET CATEGORIES LIST FROM DATABASE
-  useEffect(() => {
-    fetch(backend_address + "/categories")
+  function fetchCategories() {
+    return fetch(backend_address + "/categories")
       .then((response) => response.json())
-      .then(function (data) {
-        setCategories(data);
-        let tempCategoryTitle = [];
-        for (let i = 0; i < data.length; i++) {
-          tempCategoryTitle[i] = {
-            value: data[i].title.toLowerCase(),
-            label: data[i].title,
-            selected: false,
-          };
-        }
-        setCategoryTitles([
-          { label: "None", value: "None" },
-          ...tempCategoryTitle,
-        ]);
-      });
+      .then(setCategories);
+  }
+  useEffect(() => {
+    fetchCategories();
   }, []);
 
-  const createOption = (label) => ({
-    label,
-    value: label,
-  });
-  const createHandleKeyDown = (event) => {
-    if (!inputValue) return;
-    switch (event.key) {
-      case "Enter":
-      case "Tab":
-        setSubCategories((prev) => [...prev, createOption(inputValue)]);
-        setInputValue("");
-        event.preventDefault();
-    }
-  };
+  const categoryOptions = useMemo(
+    () =>
+      categories.map((category) => ({
+        label: category.title,
+        value: category.title,
+      })),
+    [categories],
+  );
+
   const editHandleKeyDown = (event) => {
     if (!editInputValue) return;
     switch (event.key) {
       case "Enter":
       case "Tab":
-        setEditSubCategories((prev) => [...prev, createOption(editInputValue)]);
+        setEditSubCategories((prev) => [
+          ...prev,
+          { label: editInputValue, value: editInputValue },
+        ]);
         setEditInputValue("");
         event.preventDefault();
     }
   };
 
-  //WHEN CATEGORY TO EDIT IS CHANGED, UPDATE THE SUBCATEGORIES TO EDIT
-  useEffect(() => {
-    let subCategoryList = [];
-    for (let i = 0; i < categories.length; i++) {
-      if (categories[i].title === categoryToEdit) {
-        for (let j = 0; j < categories[i].subCategories.length; j++) {
-          subCategoryList[j] = {
-            label: categories[i].subCategories[j],
-            value: categories[i].subCategories[j],
-          };
-        }
-        break;
-      }
-    }
-    setEditSubCategories(subCategoryList);
-  }, [categoryToEdit]);
-
-  //FINALIZE CREATE CATEGORY and trigger http push
-  function submitCreateForm(e) {
-    e.preventDefault();
-    const categoryFinal = {
-      title: categoryTitle,
-      subCategories: subCategories.map((subCategory) => subCategory.value),
-    };
-    fetch(backend_address + "/createCategory", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        authorization: `Bearer ${token}`, // Pass JWT in Authorization header
-      },
-      body: JSON.stringify(categoryFinal),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("create category failed");
-        }
-        alert("New Category created successfully!");
-      })
-      .catch(() => {
-        alert("Error creating new Category!");
-      });
+  //load a category's current title + subcategories into the edit form
+  function selectCategoryToEdit(option) {
+    setCategoryToEdit(option);
+    setCategoryTitleEdit(option?.label ?? "");
+    const category = categories.find((c) => c.title === option?.value);
+    setEditSubCategories(
+      (category?.subCategories ?? []).map((subCategory) => ({
+        label: subCategory,
+        value: subCategory,
+      })),
+    );
+    setStatus(null);
   }
 
   //SUBMIT CATEGORY EDIT TO DATABASE
   function submitEditForm(e) {
     e.preventDefault();
+    if (!categoryToEdit) return;
     const editCategoryFinal = {
-      oldTitle: categoryToEdit,
+      oldTitle: categoryToEdit.value,
       title: categoryTitleEdit,
       subCategories: editSubCategories.map((subCategory) => subCategory.value),
     };
@@ -137,88 +92,49 @@ function Category() {
       body: JSON.stringify(editCategoryFinal),
     })
       .then((response) => {
-        if (!response.ok) {
-          throw new Error("edit category failed");
-        }
-        alert("Category edited successfully!");
+        if (!response.ok) throw new Error("edit category failed");
+        return fetchCategories();
+      })
+      .then(() => {
+        setCategoryToEdit({
+          label: editCategoryFinal.title,
+          value: editCategoryFinal.title,
+        });
+        setStatus({
+          ok: true,
+          message: `Category "${editCategoryFinal.title}" saved.`,
+        });
       })
       .catch(() => {
-        alert("Error editing Category!");
+        setStatus({ ok: false, message: "Error editing Category!" });
       });
   }
 
-  //DEBUGGING---DISPLAY REACT SELECT KEYWORDS
-  function DisplayKeywords() {
-    return (
-      <>
-        <ul id="">
-          {subCategories.map((result, index) => (
-            <li key={index}>{JSON.stringify(result)}</li>
-          ))}
-        </ul>
-      </>
-    );
+  //called by the delete modal after a successful delete
+  function handleDeleted(deletedTitle) {
+    setCategoryToEdit(null);
+    setCategoryTitleEdit("");
+    setEditSubCategories([]);
+    fetchCategories();
+    setStatus({ ok: true, message: `Category "${deletedTitle}" deleted.` });
   }
 
   return (
-    <div className={"my-14 flex flex-col items-center"}>
-      <form
-        onSubmit={submitCreateForm}
-        className="flex flex-col items-center gap-4"
-      >
-        <h1>Create Category</h1>
-        <label className="flex flex-col">
-          New Category Title:
-          <input
-            className="border-secondary border-1"
-            type="text"
-            name="title"
-            value={categoryTitle || ""}
-            onChange={(newValue) => setCategoryTitle(newValue.target.value)}
-            placeholder="Enter Category Title"
-          />
-        </label>
-
-        <label className="flex flex-col">
-          Sub-Categories:
-          <CreatableSelect
-            className="react-select-container"
-            components={components}
-            inputValue={inputValue}
-            name="subCategories"
-            isClearable
-            isMulti
-            menuIsOpen={false}
-            onChange={(newValue) => setSubCategories(newValue)}
-            onInputChange={(newValue) => setInputValue(newValue)}
-            onKeyDown={createHandleKeyDown}
-            placeholder="Enter sub-categories here"
-            value={subCategories}
-          />
-        </label>
-
-        <button className={"m-4"} type="submit">
-          Create Category
-        </button>
-      </form>
-
-      <p className={"my-20"}></p>
-
+    <div className={"mb-14 flex flex-col items-center"}>
       <form
         onSubmit={submitEditForm}
         className="flex flex-col items-center gap-4"
       >
-        <h1>Edit Existing Category</h1>
+        <h1>Manage Categories</h1>
         <Select
           className="react-select-container"
-          defaultValue={categoryTitles[0]}
+          classNamePrefix="react-select"
           isSearchable={true}
-          name="color"
-          options={categoryTitles}
-          onChange={(event) => {
-            setCategoryToEdit(event.label);
-            setCategoryTitleEdit(event.label);
-          }}
+          name="category"
+          options={categoryOptions}
+          value={categoryToEdit}
+          placeholder="Select a category to edit"
+          onChange={selectCategoryToEdit}
         />
         <label className="flex flex-col">
           Edit Category Title:
@@ -226,33 +142,50 @@ function Category() {
             className="border-secondary border-1"
             type="text"
             name="title"
-            value={categoryTitleEdit || ""}
-            onChange={(newValue) => setCategoryTitleEdit(newValue.target.value)}
+            value={categoryTitleEdit}
+            onChange={(e) => setCategoryTitleEdit(e.target.value)}
             placeholder="edit category title"
+            disabled={!categoryToEdit}
           />
         </label>
         <label className="flex flex-col">
           Sub-Categories:
           <CreatableSelect
             className="react-select-container"
+          classNamePrefix="react-select"
             components={components}
             inputValue={editInputValue}
             isClearable
             isMulti
             menuIsOpen={false}
-            onChange={(newValue) => setEditSubCategories(newValue)}
+            onChange={(newValue) => setEditSubCategories(newValue ?? [])}
             onInputChange={(newValue) => setEditInputValue(newValue)}
             onKeyDown={editHandleKeyDown}
             placeholder="Enter sub-categories here"
             value={editSubCategories}
+            isDisabled={!categoryToEdit}
           />
         </label>
 
-        <button className={"m-4"} type="submit">
-          Edit Category
+        <button className={"m-4"} type="submit" disabled={!categoryToEdit}>
+          Save Changes
         </button>
+        {status && (
+          <p role="status">
+            {status.ok ? "✓" : "✗"} {status.message}
+          </p>
+        )}
       </form>
-      <DeleteCategoryModal categoryData={categoryToEdit} />
+      {categoryToEdit && (
+        <DeleteCategoryModal
+          categoryData={categoryToEdit.value}
+          onDeleted={handleDeleted}
+        />
+      )}
+
+      <Link className="mt-8 underline" to="/resources/upload">
+        ← Upload a resource (new categories can be created there)
+      </Link>
     </div>
   );
 }

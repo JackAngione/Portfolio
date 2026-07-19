@@ -180,3 +180,81 @@ input:focus,
 input:focus-visible {
   @apply outline-secondary outline-2;
 }
+
+/* react-select themed to match the plain text inputs: transparent field,
+   hairline secondary border, 2px radius, page text color. Components must
+   pass classNamePrefix="react-select" for these to apply. */
+.react-select-container .react-select__control {
+  background: transparent;
+  border: 1px solid var(--color-secondary);
+  border-radius: 2px;
+  box-shadow: none;
+}
+
+.react-select-container .react-select__control:hover {
+  border-color: var(--color-secondary);
+}
+
+/* mirror input:focus (outline-secondary outline-2) */
+.react-select-container .react-select__control--is-focused {
+  outline: 2px solid var(--color-secondary);
+}
+
+.react-select-container .react-select__control--is-disabled {
+  opacity: 0.45;
+}
+
+.react-select-container .react-select__single-value,
+.react-select-container .react-select__input-container {
+  color: var(--color-primary);
+}
+
+.react-select-container .react-select__placeholder {
+  color: color-mix(in oklch, var(--color-primary) 55%, transparent);
+}
+
+.react-select-container .react-select__indicator-separator {
+  background-color: color-mix(in oklch, var(--color-secondary) 40%, transparent);
+}
+
+.react-select-container .react-select__indicator {
+  color: color-mix(in oklch, var(--color-primary) 60%, transparent);
+}
+
+.react-select-container .react-select__indicator:hover {
+  color: var(--color-primary);
+}
+
+.react-select-container .react-select__menu {
+  background: var(--color-background);
+  border: 1px solid var(--color-secondary);
+  border-radius: 2px;
+  color: var(--color-primary);
+}
+
+.react-select-container .react-select__option--is-focused {
+  background: color-mix(in oklch, var(--color-primary) 15%, transparent);
+}
+
+.react-select-container .react-select__option--is-selected {
+  background: color-mix(in oklch, var(--color-primary) 30%, transparent);
+  color: var(--color-primary);
+}
+
+.react-select-container .react-select__multi-value {
+  background: color-mix(in oklch, var(--color-primary) 15%, transparent);
+  border-radius: 2px;
+}
+
+.react-select-container .react-select__multi-value__label {
+  color: var(--color-primary);
+}
+
+.react-select-container .react-select__multi-value__remove {
+  color: color-mix(in oklch, var(--color-primary) 60%, transparent);
+}
+
+.react-select-container .react-select__multi-value__remove:hover {
+  background: color-mix(in oklch, var(--color-bunny) 40%, transparent);
+  color: var(--color-primary);
+}

@@ -51,10 +51,7 @@ function Music() {
       {playingSong == null ? <></> : <MusicPlayer song={playingSong} />}
 
       <div className="flex h-[90vh] justify-center">
-        <div
-          className="bg-background/20 outline-background/40 scrollbar-hide relative z-1 overflow-x-auto overflow-y-scroll rounded-[10px] px-4 backdrop-blur-xl xl:w-[60vw]"
-          style={{ marginTop: "var(--nav-safe-top, 112px)" }}
-        >
+        <div className="bg-background/20 outline-background/40 scrollbar-hide relative z-1 overflow-x-auto overflow-y-scroll rounded-[10px] px-4 backdrop-blur-xl xl:w-[60vw]">
           <h1 className="mb-4 font-bold">MUSIC</h1>
           <p>
             Extensive knowledge of audio engineering across every stage of

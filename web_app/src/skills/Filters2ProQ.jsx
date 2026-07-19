@@ -5,10 +5,7 @@ import "./codeProjects.css";
 
 function Filters2ProQ() {
   return (
-    <div
-      className="flex justify-center"
-      style={{ marginTop: "var(--nav-safe-top, 112px)" }}
-    >
+    <div className="flex justify-center">
       <div className="min-h-[90vh] w-[96vw] rounded-4xl bg-linear-180 from-[oklch(0.8713_0.257583_147.1986)] from-15% to-[oklch(0.7894_0.1415_225.83)] to-85% p-2 sm:p-4">
         <p className="font-modak text-[64px] break-all overflow-ellipsis text-white sm:text-[100px]">
           Filters<sub>2</sub>ProQ

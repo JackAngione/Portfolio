@@ -132,12 +132,7 @@ function ResourcesPage() {
 
   return (
     <>
-      <h1
-        className="mb-14 text-center font-bold"
-        style={{ marginTop: "var(--nav-safe-top, 112px)" }}
-      >
-        RESOURCES
-      </h1>
+      <h1 className="mb-14 text-center font-bold">RESOURCES</h1>
       {/*{!loadingCategories ? (
         <EditModal
           open={true}

@@ -44,12 +44,7 @@ function PhotoCategory() {
   }
   return (
     <>
-      <h1
-        className="mb-8 pl-[3vw] uppercase md:pl-[10vw]"
-        style={{ marginTop: "var(--nav-safe-top, 112px)" }}
-      >
-        {category}
-      </h1>
+      <h1 className="mb-8 pl-[3vw] uppercase md:pl-[10vw]">{category}</h1>
       <div className="relative z-10 flex items-center justify-center pb-20">
         <div className="grid grid-cols-2 gap-0.5 [@media(min-aspect-ratio:1/1)]:grid-cols-3">
           {photos.map((photo, index) => (

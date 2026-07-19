@@ -210,3 +210,14 @@
 .themeToggle button.active::before {
   transition: opacity 0.28s ease 0.12s;
 }
+
+/* Every routed page gets uniform room under the fixed nav bar, so new pages
+   never need their own top spacing. A page that wants to sit flush under the
+   bar (full-bleed hero) opts out by putting .nav-full-bleed anywhere in it. */
+.pageContent {
+  padding-top: var(--nav-safe-top, 112px);
+}
+
+.pageContent:has(.nav-full-bleed) {
+  padding-top: 0;
+}
