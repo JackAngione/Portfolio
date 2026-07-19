@@ -1,6 +1,16 @@
 @import "tailwindcss";
 @import "../main.css";
 
+/*The page title blends with the marquee behind it via mix-blend-difference.
+  Difference needs a WHITE source layer to invert what's underneath: on the dark
+  design the near-white text already does that. In light mode the themed text is
+  near-black, and black-over-anything is a no-op, so the title disappears.
+  Force the source white here — differencing the light background renders it as
+  black text, with the marquee inverting through it exactly as in dark mode.*/
+:root[data-theme="light"] .code-projects-title {
+  color: oklch(1 0 0);
+}
+
 .project {
   @apply bg-PrimaryGradient z-1 flex max-w-[96vw] flex-col items-center justify-center rounded-[10px];
   /* @apply bg-[#CED3DC] rounded-[10px];*/
