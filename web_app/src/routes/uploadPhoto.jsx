@@ -41,7 +41,7 @@ function UploadPhoto() {
   const { token } = useContext(AuthContext);
 
   useEffect(() => {
-    fetch(media_server_address + "/getPhotoCategories")
+    fetch(media_server_address + "/photo-categories")
       .then((response) => response.json())
       .then((list) => setCategories(list.sort()))
       .catch(() => {});
@@ -97,7 +97,7 @@ function UploadPhoto() {
     formData.append("highRes", highResFile);
     formData.append("lowRes", lowResFile);
 
-    fetch(backend_address + "/uploadPhoto", {
+    fetch(backend_address + "/photos", {
       method: "POST",
       //no Content-Type: the browser sets the multipart boundary itself
       headers: { authorization: `Bearer ${token}` },

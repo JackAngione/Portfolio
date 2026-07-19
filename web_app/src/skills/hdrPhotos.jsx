@@ -19,7 +19,7 @@ function HDRPhotos() {
     async function getCategories() {
       try {
         const response = await fetch(
-          media_server_address + "/getPhotoCategories",
+          media_server_address + "/photo-categories",
         );
         let list = await response.json();
         setPhotoCategories(list.sort());

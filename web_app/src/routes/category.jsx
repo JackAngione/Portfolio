@@ -79,12 +79,11 @@ function Category() {
     e.preventDefault();
     if (!categoryToEdit) return;
     const editCategoryFinal = {
-      oldTitle: categoryToEdit.value,
       title: categoryTitleEdit,
       subCategories: editSubCategories.map((subCategory) => subCategory.value),
     };
-    fetch(backend_address + "/editCategory", {
-      method: "POST",
+    fetch(backend_address + "/categories/" + encodeURIComponent(categoryToEdit.value), {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         authorization: `Bearer ${token}`, // Pass JWT in Authorization header

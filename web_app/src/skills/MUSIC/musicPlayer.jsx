@@ -12,7 +12,12 @@ function MusicPlayer({ song }) {
     let cancelled = false;
     setWaveform(null);
     fetch(
-      media_server_address + "/waveform/" + song.artist_id + "/" + song.song_id,
+      media_server_address +
+        "/artists/" +
+        song.artist_id +
+        "/songs/" +
+        song.song_id +
+        "/waveform",
     )
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -49,7 +54,12 @@ function MusicPlayer({ song }) {
   const { wavesurfer, isReady, isPlaying, currentTime } = useWavesurfer({
     container: containerRef,
     url: waveform
-      ? media_server_address + "/stream/" + song.artist_id + "/" + song.song_id
+      ? media_server_address +
+        "/artists/" +
+        song.artist_id +
+        "/songs/" +
+        song.song_id +
+        "/stream"
       : undefined,
     peaks,
     duration: waveform?.duration ?? undefined,

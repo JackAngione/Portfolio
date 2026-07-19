@@ -7,7 +7,7 @@ export const AuthContext = createContext({ loggedIn: false, token: "" });
 export async function login(username, password) {
   let loginStatus = "login failed";
   let login_credentials = { username: username, password: password };
-  const response = await fetch(backend_address + "/login", {
+  const response = await fetch(backend_address + "/session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(login_credentials),
@@ -26,13 +26,11 @@ export async function login(username, password) {
 export async function logout() {
   const token = Cookies.get("LoginToken");
   try {
-    const response = await fetch(backend_address + "/logout", {
-      method: "POST",
+    const response = await fetch(backend_address + "/session", {
+      method: "DELETE",
       headers: {
-        "Content-Type": "text/plain",
         authorization: `Bearer ${token}`, // Pass JWT in Authorization header
       },
-      body: token,
     });
     console.log("response recieved");
     if (response.status === 200 || response.status === 401) {
@@ -56,7 +54,7 @@ function AuthProvider({ children }) {
   useEffect(() => {
     async function handleAuthenticate() {
       if (browserToken != null && authenticated === false) {
-        await fetch(backend_address + "/auth", {
+        await fetch(backend_address + "/session", {
           headers: {
             authorization: `Bearer ${browserToken}`, // Pass JWT in Authorization header
           },

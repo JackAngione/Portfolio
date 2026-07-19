@@ -69,7 +69,7 @@ function Upload() {
   //create a brand-new category without leaving the upload page
   function handleCreateCategory(title) {
     setStatus(null);
-    fetch(backend_address + "/createCategory", {
+    fetch(backend_address + "/categories", {
       method: "POST",
       headers: authHeaders,
       body: JSON.stringify({ title, subCategories: [] }),
@@ -98,11 +98,10 @@ function Upload() {
     );
     if (!category) return;
     setStatus(null);
-    fetch(backend_address + "/editCategory", {
-      method: "POST",
+    fetch(backend_address + "/categories/" + encodeURIComponent(category.title), {
+      method: "PUT",
       headers: authHeaders,
       body: JSON.stringify({
-        oldTitle: category.title,
         title: category.title,
         subCategories: [...category.subCategories, subTitle],
       }),
@@ -158,7 +157,7 @@ function Upload() {
       ),
       keywords: keywords.map((keyword) => keyword.value),
     };
-    fetch(backend_address + "/upload", {
+    fetch(backend_address + "/tutorials", {
       method: "POST",
       headers: authHeaders,
       body: JSON.stringify(inputs),

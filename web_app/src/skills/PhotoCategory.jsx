@@ -14,7 +14,7 @@ function PhotoCategory() {
   useEffect(() => {
     async function getImagePaths() {
       const response = await fetch(
-        media_server_address + "/getPhotoInCategory/" + category,
+        media_server_address + "/photo-categories/" + category + "/photos",
       );
       let list = await response.json();
       setPhotos(list);

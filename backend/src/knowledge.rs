@@ -1,5 +1,5 @@
 use crate::AxumState;
-use axum::extract::{Query, State};
+use axum::extract::{Path, Query, State};
 use axum::http::{HeaderMap, StatusCode};
 use axum::Json;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
@@ -18,13 +18,12 @@ use tokio_stream::StreamExt;
 //THESE FUNCTIONS ARE THE KNOWLEDGE/PORTFOLIO API (tutorials, categories, auth),
 //merged in from the old express backend (backend/src/server.js)
 
-//delete only needs the identifying fields, not the full Tutorial payload
+//legacy tutorials (from the schemaless express days) have no resource_id, so
+//they are deleted by title+source query params on the collection instead
 #[derive(Debug, Deserialize)]
-pub(crate) struct DeleteTutorialRequest {
+pub(crate) struct DeleteTutorialLegacyParams {
     title: String,
     source: String,
-    #[serde(default)]
-    resource_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -67,9 +66,6 @@ pub(crate) struct Category {
     title: String,
     #[serde(default, rename = "subCategories")]
     sub_categories: Vec<String>,
-    //sent by the frontend when renaming a category
-    #[serde(default, rename = "oldTitle", skip_serializing_if = "Option::is_none")]
-    old_title: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -235,7 +231,7 @@ pub(crate) async fn create_category(
     println!("received upload: {:?}", new_category);
     let categories: Collection<Category> = state.mongo_database.collection("categories");
     match categories.insert_one(new_category).await {
-        Ok(_) => StatusCode::OK,
+        Ok(_) => StatusCode::CREATED,
         Err(err) => {
             println!("{}", err);
             StatusCode::INTERNAL_SERVER_ERROR
@@ -243,16 +239,17 @@ pub(crate) async fn create_category(
     }
 }
 
-//edit category
+//edit (rename/reshape) the category identified by the path; the body carries
+//its new state
 pub(crate) async fn edit_category(
     State(state): State<AxumState>,
     headers: HeaderMap,
+    Path(old_title): Path<String>,
     Json(category): Json<Category>,
 ) -> StatusCode {
     if !verify_token(&state, &headers).await {
         return StatusCode::UNAUTHORIZED;
     }
-    let old_title = category.old_title.clone().unwrap_or_default();
     let categories: Collection<Document> = state.mongo_database.collection("categories");
     let update = doc! {
         "title": &category.title,
@@ -294,21 +291,18 @@ pub(crate) async fn edit_category(
 pub(crate) async fn delete_category(
     State(state): State<AxumState>,
     headers: HeaderMap,
-    Json(category): Json<Category>,
+    Path(title): Path<String>,
 ) -> StatusCode {
     if !verify_token(&state, &headers).await {
         return StatusCode::UNAUTHORIZED;
     }
-    println!("received category TO Delete: {:?}", category);
+    println!("received category TO Delete: {:?}", title);
     let categories: Collection<Document> = state.mongo_database.collection("categories");
-    let _ = categories.delete_one(doc! {"title": &category.title}).await;
+    let _ = categories.delete_one(doc! {"title": &title}).await;
     // Update documents where category is deleted
     let tutorials: Collection<Document> = state.mongo_database.collection("tutorials");
     let _ = tutorials
-        .update_many(
-            doc! {"category": &category.title},
-            doc! {"$set": {"category": ""}},
-        )
+        .update_many(doc! {"category": &title}, doc! {"$set": {"category": ""}})
         .await;
     //the bulk update above bypasses the per-tutorial handlers, so rebuild the
     //search index from mongo to clear the deleted category
@@ -560,18 +554,21 @@ pub(crate) async fn upload_tutorial(
         println!("deleted the unsynced resource");
         return StatusCode::INTERNAL_SERVER_ERROR;
     }
-    StatusCode::OK
+    StatusCode::CREATED
 }
 
-//edit a tutorial
+//edit the tutorial identified by the path; the body carries its new state
 pub(crate) async fn edit_tutorial(
     State(state): State<AxumState>,
     headers: HeaderMap,
-    Json(tutorial): Json<Tutorial>,
+    Path(resource_id): Path<String>,
+    Json(mut tutorial): Json<Tutorial>,
 ) -> StatusCode {
     if !verify_token(&state, &headers).await {
         return StatusCode::UNAUTHORIZED;
     }
+    //the path is canonical; a mismatched body id must not relink the document
+    tutorial.resource_id = resource_id;
     let tutorials: Collection<Tutorial> = state.mongo_database.collection("tutorials");
     if tutorials
         .replace_one(doc! {"resource_id": &tutorial.resource_id}, &tutorial)
@@ -586,37 +583,27 @@ pub(crate) async fn edit_tutorial(
         println!("edit saved to mongo but not meilisearch; reindex will heal it");
         return StatusCode::INTERNAL_SERVER_ERROR;
     }
-    StatusCode::CREATED
+    StatusCode::OK
 }
 
-//delete a tutorial
-pub(crate) async fn delete_tutorial(
-    State(state): State<AxumState>,
-    headers: HeaderMap,
-    Json(tutorial): Json<DeleteTutorialRequest>,
+//deletes the mongo document matching filter, plus its meilisearch entry when
+//it has a resource_id (legacy express-era tutorials predate resource ids)
+async fn delete_tutorial_inner(
+    state: &AxumState,
+    filter: Document,
+    resource_id: Option<&str>,
 ) -> StatusCode {
-    if !verify_token(&state, &headers).await {
-        //send unauthorized if user not admin
-        return StatusCode::UNAUTHORIZED;
-    }
     let tutorials: Collection<Tutorial> = state.mongo_database.collection("tutorials");
-    //resource_id is the canonical key shared by mongo and meilisearch;
-    //tutorials from the schemaless express days may predate resource ids
-    let filter = if tutorial.resource_id.is_empty() {
-        doc! {"title": &tutorial.title, "source": &tutorial.source}
-    } else {
-        doc! {"resource_id": &tutorial.resource_id}
-    };
     if tutorials.delete_one(filter).await.is_err() {
         return StatusCode::INTERNAL_SERVER_ERROR;
     }
-    if !tutorial.resource_id.is_empty() {
+    if let Some(resource_id) = resource_id {
         //mongo (the source of truth) was updated; if the index write fails the
         //index drifts until the next reindex heals it
         if state
             .search_client
             .index("resources")
-            .delete_document(&tutorial.resource_id)
+            .delete_document(resource_id)
             .await
             .is_err()
         {
@@ -625,5 +612,42 @@ pub(crate) async fn delete_tutorial(
         }
     }
     println!("deleted!");
-    StatusCode::OK
+    StatusCode::NO_CONTENT
+}
+
+//delete a tutorial by its resource_id (the canonical key shared by mongo and
+//meilisearch)
+pub(crate) async fn delete_tutorial(
+    State(state): State<AxumState>,
+    headers: HeaderMap,
+    Path(resource_id): Path<String>,
+) -> StatusCode {
+    if !verify_token(&state, &headers).await {
+        //send unauthorized if user not admin
+        return StatusCode::UNAUTHORIZED;
+    }
+    delete_tutorial_inner(
+        &state,
+        doc! {"resource_id": &resource_id},
+        Some(&resource_id),
+    )
+    .await
+}
+
+//delete a legacy tutorial (no resource_id) by title+source query params
+pub(crate) async fn delete_tutorial_legacy(
+    State(state): State<AxumState>,
+    headers: HeaderMap,
+    Query(params): Query<DeleteTutorialLegacyParams>,
+) -> StatusCode {
+    if !verify_token(&state, &headers).await {
+        //send unauthorized if user not admin
+        return StatusCode::UNAUTHORIZED;
+    }
+    delete_tutorial_inner(
+        &state,
+        doc! {"title": &params.title, "source": &params.source},
+        None,
+    )
+    .await
 }

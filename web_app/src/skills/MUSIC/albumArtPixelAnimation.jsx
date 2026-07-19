@@ -20,7 +20,7 @@ function AlbumArtPixelAnimation() {
 
     async function getAlbumArt() {
       try {
-        const response = await fetch(media_server_address + "/getAlbumCovers");
+        const response = await fetch(media_server_address + "/album-covers");
         setAlbumCovers(await response.json());
       } catch (e) {
         //no covers: the grid just renders solid tiles

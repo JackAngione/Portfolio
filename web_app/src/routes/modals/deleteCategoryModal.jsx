@@ -13,13 +13,11 @@ function DeleteCategoryModal({ categoryData, onDeleted }) {
 
   function deleteCategory() {
     setError(false);
-    fetch(backend_address + "/deleteCategory", {
-      method: "POST",
+    fetch(backend_address + "/categories/" + encodeURIComponent(categoryData), {
+      method: "DELETE",
       headers: {
-        "Content-Type": "application/json",
         authorization: `Bearer ${token}`, // Pass JWT in Authorization header
       },
-      body: JSON.stringify({ title: categoryData }),
     })
       .then((response) => {
         if (!response.ok) throw new Error("delete category failed");

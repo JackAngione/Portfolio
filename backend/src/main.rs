@@ -3,7 +3,7 @@ use axum::extract::{ConnectInfo, DefaultBodyLimit};
 use axum::http::{header, Request};
 use axum::middleware::Next;
 use axum::response::Response;
-use axum::routing::{get, post};
+use axum::routing::{get, post, put};
 use axum::{debug_handler, middleware, Router};
 use dotenvy::dotenv;
 use mongodb::options::ClientOptions;
@@ -112,43 +112,64 @@ async fn main() {
         ]);
     // Build our application with a route
     let app = Router::new()
-        .route("/artwork/{song_id}", get(file_test::get_artwork))
-        .route("/stream/{artist}/{songname}", get(file_test::stream_song))
-        .route("/waveform/{artist}/{songname}", get(file_test::get_waveform))
-        .route("/getSongs", get(mongoDB::get_songs))
-        .route("/artist/{artist_id}", get(mongoDB::get_artist_songs))
+        .route("/songs", get(mongoDB::get_songs))
+        .route("/songs/{song_id}/artwork", get(file_test::get_artwork))
         .route("/artists", get(mongoDB::get_artists))
-        .route("/getPhotoCategories", get(file_test::get_categories))
+        .route("/artists/{artist_id}/songs", get(mongoDB::get_artist_songs))
         .route(
-            "/getPhotoInCategory/{category}",
+            "/artists/{artist_id}/songs/{song_id}/stream",
+            get(file_test::stream_song),
+        )
+        .route(
+            "/artists/{artist_id}/songs/{song_id}/waveform",
+            get(file_test::get_waveform),
+        )
+        .route("/photo-categories", get(file_test::get_categories))
+        .route(
+            "/photo-categories/{category}/photos",
             get(file_test::get_category_photos),
         )
         .route(
-            "/uploadPhoto",
+            "/photos",
             post(file_test::upload_photo)
                 //two full-quality images per request; default 2MB limit is far too small
                 .layer(DefaultBodyLimit::max(100 * 1024 * 1024)),
         )
-        .route("/getAlbumCovers", get(file_test::get_album_covers))
+        .route("/album-covers", get(file_test::get_album_covers))
         .route("/resume", get(file_test::get_resume))
         .route("/f2q", get(file_test::get_f2q))
         //KNOWLEDGE/PORTFOLIO API (merged in from the old express backend)
-        .route("/auth", get(knowledge::auth))
-        .route("/login", post(knowledge::login))
-        .route("/logout", post(knowledge::logout))
-        .route("/categories", get(knowledge::get_categories))
-        .route("/createCategory", post(knowledge::create_category))
-        .route("/editCategory", post(knowledge::edit_category))
-        .route("/deleteCategory", post(knowledge::delete_category))
-        .route("/search", get(knowledge::search_tutorials))
-        .route("/upload", post(knowledge::upload_tutorial))
-        .route("/editTutorial", post(knowledge::edit_tutorial))
-        .route("/deleteTutorial", post(knowledge::delete_tutorial))
-        .route("/reindex", post(knowledge::reindex))
+        //the JWT session is a resource: create = login, delete = logout
+        .route(
+            "/session",
+            get(knowledge::auth)
+                .post(knowledge::login)
+                .delete(knowledge::logout),
+        )
+        .route(
+            "/categories",
+            get(knowledge::get_categories).post(knowledge::create_category),
+        )
+        .route(
+            "/categories/{title}",
+            put(knowledge::edit_category).delete(knowledge::delete_category),
+        )
+        .route(
+            "/tutorials",
+            get(knowledge::search_tutorials)
+                .post(knowledge::upload_tutorial)
+                //legacy tutorials without a resource_id are deleted by
+                //?title=..&source=.. since they have no id to put in the path
+                .delete(knowledge::delete_tutorial_legacy),
+        )
+        .route(
+            "/tutorials/{resource_id}",
+            put(knowledge::edit_tutorial).delete(knowledge::delete_tutorial),
+        )
+        .route("/search-index/rebuild", post(knowledge::reindex))
         .nest_service("/photo", serve_images) // Static file route
         .nest_service("/album_covers", serve_album_covers)
         .layer(middleware::from_fn(log_ip_middleware))
-        //.route("/artwork/", get(file_test::get_artwork))
         .layer(cors)
         .with_state(state);
 

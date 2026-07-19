@@ -12,18 +12,23 @@ function DeleteModal({ open, tutorialData, onClose, onDeleted }) {
   }
 
   function deleteTutorial() {
-    let inputs = {
-      title: tutorialData.title,
-      source: tutorialData.source,
-      resource_id: tutorialData.resource_id,
-    };
-    fetch(backend_address + "/deleteTutorial", {
-      method: "POST",
+    //legacy tutorials (from the schemaless express days) have no resource_id;
+    //they are deleted by title+source on the collection instead
+    const url = tutorialData.resource_id
+      ? backend_address +
+        "/tutorials/" +
+        encodeURIComponent(tutorialData.resource_id)
+      : backend_address +
+        "/tutorials?" +
+        new URLSearchParams({
+          title: tutorialData.title,
+          source: tutorialData.source,
+        });
+    fetch(url, {
+      method: "DELETE",
       headers: {
-        "Content-Type": "application/json",
         authorization: `Bearer ${token}`, // Pass JWT in Authorization header
       },
-      body: JSON.stringify(inputs),
     })
       .then((response) => {
         if (!response.ok) {

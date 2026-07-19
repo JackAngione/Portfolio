@@ -7,9 +7,6 @@ import { AuthContext } from "../../useAuth.jsx";
 
 function EditModal({ open, tutorialData, onClose }) {
   const [categories, setCategories] = useState([]);
-  //KEEP THE OLD TITLE AND SOURCE
-  const [oldTitle, setOldTitle] = useState("");
-  const [oldSource, setOldSource] = useState("");
   //the JSON to be uploaded to database
   const [inputTitle, setInputTitle] = useState("");
   const [inputDesc, setInputDesc] = useState("");
@@ -47,8 +44,6 @@ function EditModal({ open, tutorialData, onClose }) {
   }, []);
   useEffect(() => {
     if (tutorialData != null) {
-      setOldTitle(tutorialData.title);
-      setOldSource(tutorialData.source);
       setInputTitle(tutorialData.title);
       setInputDesc(tutorialData.description);
       setInputSource(tutorialData.source);
@@ -114,8 +109,6 @@ function EditModal({ open, tutorialData, onClose }) {
   function submitUpload(e) {
     e.preventDefault();
     const inputs = {
-      oldTitle: oldTitle,
-      oldSource: oldSource,
       title: inputTitle,
       description: inputDesc,
       source: inputSource,
@@ -125,8 +118,8 @@ function EditModal({ open, tutorialData, onClose }) {
       keywords: reactKeywords.map((keyword) => keyword.value),
       resource_id: resource_id,
     };
-    fetch(backend_address + "/editTutorial", {
-      method: "POST",
+    fetch(backend_address + "/tutorials/" + encodeURIComponent(resource_id), {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         authorization: `Bearer ${token}`, // Pass JWT in Authorization header
