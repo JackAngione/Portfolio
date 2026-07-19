@@ -1,5 +1,5 @@
 use crate::mongoDB::Song;
-use axum::extract::ConnectInfo;
+use axum::extract::{ConnectInfo, DefaultBodyLimit};
 use axum::http::{header, Request};
 use axum::middleware::Next;
 use axum::response::Response;
@@ -122,6 +122,12 @@ async fn main() {
         .route(
             "/getPhotoInCategory/{category}",
             get(file_test::get_category_photos),
+        )
+        .route(
+            "/uploadPhoto",
+            post(file_test::upload_photo)
+                //two full-quality images per request; default 2MB limit is far too small
+                .layer(DefaultBodyLimit::max(100 * 1024 * 1024)),
         )
         .route("/getAlbumCovers", get(file_test::get_album_covers))
         .route("/resume", get(file_test::get_resume))

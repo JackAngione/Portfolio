@@ -1,7 +1,7 @@
 use crate::AxumState;
 use axum::body::Body;
-use axum::extract::State;
-use axum::http::header;
+use axum::extract::{Multipart, State};
+use axum::http::{header, HeaderMap};
 use axum::{
     extract::Path as axum_path,
     http::StatusCode,
@@ -365,6 +365,10 @@ async fn list_dir_shuffled(path: &Path) -> Result<Vec<String>, StatusCode> {
         if entry.file_name() == ".DS_Store" {
             continue;
         }
+        //skip sub-directories (e.g. a category's fullres/ folder)
+        if entry.file_type().await.map(|t| t.is_dir()).unwrap_or(true) {
+            continue;
+        }
         if let Ok(name) = entry.file_name().into_string() {
             files.push(name);
         }
@@ -373,6 +377,147 @@ async fn list_dir_shuffled(path: &Path) -> Result<Vec<String>, StatusCode> {
     let mut rng = rng();
     files.shuffle(&mut rng);
     Ok(files)
+}
+
+//sniff the real image type from magic bytes; the client-supplied content type
+//and file extension can lie
+fn image_extension(bytes: &[u8]) -> Option<&'static str> {
+    if bytes.len() >= 12 {
+        if &bytes[4..8] == b"ftyp" && (&bytes[8..12] == b"avif" || &bytes[8..12] == b"avis") {
+            return Some("avif");
+        }
+        if &bytes[0..4] == b"RIFF" && &bytes[8..12] == b"WEBP" {
+            return Some("webp");
+        }
+    }
+    if bytes.starts_with(&[0xFF, 0xD8, 0xFF]) {
+        return Some("jpg");
+    }
+    if bytes.starts_with(&[0x89, b'P', b'N', b'G']) {
+        return Some("png");
+    }
+    None
+}
+
+//keep only filesystem-safe characters from an uploaded file's name
+fn sanitized_stem(filename: &str) -> Option<String> {
+    let stem = Path::new(filename).file_stem()?.to_str()?;
+    let clean: String = stem
+        .trim()
+        .chars()
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || c == '-' || c == '_' {
+                c
+            } else {
+                '_'
+            }
+        })
+        .collect();
+    (!clean.is_empty() && clean != "_").then_some(clean)
+}
+
+//Admin-only. Accepts a multipart form with a category plus a high-res (2500px
+//long edge) and low-res (1200px) image pair. The low-res copy lands in the
+//category folder (what the gallery grid lists/serves); the high-res copy lands
+//in the category's fullres/ sub-folder under the same name.
+pub(crate) async fn upload_photo(
+    State(state): State<AxumState>,
+    headers: HeaderMap,
+    mut multipart: Multipart,
+) -> Result<StatusCode, (StatusCode, String)> {
+    if !crate::knowledge::verify_token(&state, &headers).await {
+        return Err((StatusCode::UNAUTHORIZED, "unauthorized".to_string()));
+    }
+    let bad_request = |message: &str| (StatusCode::BAD_REQUEST, message.to_string());
+
+    let mut category: Option<String> = None;
+    //(sanitized filename stem, file bytes)
+    let mut high_res: Option<(String, axum::body::Bytes)> = None;
+    let mut low_res: Option<(String, axum::body::Bytes)> = None;
+
+    while let Some(field) = multipart
+        .next_field()
+        .await
+        .map_err(|err| bad_request(&format!("malformed multipart body: {err}")))?
+    {
+        match field.name() {
+            Some("category") => {
+                category = Some(
+                    field
+                        .text()
+                        .await
+                        .map_err(|_| bad_request("category must be text"))?,
+                );
+            }
+            Some(name @ ("highRes" | "lowRes")) => {
+                let is_high = name == "highRes";
+                let stem = field
+                    .file_name()
+                    .and_then(sanitized_stem)
+                    .ok_or_else(|| bad_request("image file needs a usable file name"))?;
+                let bytes = field
+                    .bytes()
+                    .await
+                    .map_err(|err| bad_request(&format!("failed to read image: {err}")))?;
+                if is_high {
+                    high_res = Some((stem, bytes));
+                } else {
+                    low_res = Some((stem, bytes));
+                }
+            }
+            _ => {}
+        }
+    }
+
+    let category = category
+        .filter(|c| is_safe_segment(c))
+        .ok_or_else(|| bad_request("missing or invalid category"))?;
+    let (stem, high_bytes) = high_res.ok_or_else(|| bad_request("missing highRes image"))?;
+    let (_, low_bytes) = low_res.ok_or_else(|| bad_request("missing lowRes image"))?;
+
+    //both files must actually be images (AVIF preferred, jpg/png/webp accepted)
+    let high_ext = image_extension(&high_bytes)
+        .ok_or_else(|| bad_request("highRes is not a supported image (avif/jpg/png/webp)"))?;
+    let low_ext = image_extension(&low_bytes)
+        .ok_or_else(|| bad_request("lowRes is not a supported image (avif/jpg/png/webp)"))?;
+
+    let category_dir = format!("./server_files/hdrImages/{}", category);
+    let fullres_dir = format!("{}/fullres", category_dir);
+    tokio::fs::create_dir_all(&fullres_dir).await.map_err(|err| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("could not create category folder: {err}"),
+        )
+    })?;
+
+    //the pair shares one name: low-res in the category folder, high-res in fullres/
+    let low_path = format!("{}/{}.{}", category_dir, stem, low_ext);
+    let high_path = format!("{}/{}.{}", fullres_dir, stem, high_ext);
+    for path in [&low_path, &high_path] {
+        if tokio::fs::try_exists(path).await.unwrap_or(false) {
+            return Err((
+                StatusCode::CONFLICT,
+                format!("\"{}\" already exists in \"{}\"", stem, category),
+            ));
+        }
+    }
+
+    let write_error = |err: std::io::Error| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("failed to save image: {err}"),
+        )
+    };
+    tokio::fs::write(&low_path, &low_bytes)
+        .await
+        .map_err(write_error)?;
+    if let Err(err) = tokio::fs::write(&high_path, &high_bytes).await {
+        //don't leave a half-uploaded pair behind
+        let _ = tokio::fs::remove_file(&low_path).await;
+        return Err(write_error(err));
+    }
+    println!("Photo uploaded: {} (+ fullres)", low_path);
+    Ok(StatusCode::CREATED)
 }
 
 pub(crate) async fn get_category_photos(

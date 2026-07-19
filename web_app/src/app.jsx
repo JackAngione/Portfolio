@@ -14,6 +14,7 @@ const CodeProjects = lazy(() => import("./skills/codeProjects.jsx"));
 const Music = lazy(() => import("./skills/MUSIC/music.jsx"));
 const ResourcesPage = lazy(() => import("./routes/resourcesPage.jsx"));
 const Upload = lazy(() => import("./routes/upload.jsx"));
+const UploadPhoto = lazy(() => import("./routes/uploadPhoto.jsx"));
 const HDRPhotos = lazy(() => import("./skills/hdrPhotos.jsx"));
 const PhotoCategory = lazy(() => import("./skills/PhotoCategory.jsx"));
 const Category = lazy(() => import("./routes/category.jsx"));
@@ -49,6 +50,16 @@ const router = createBrowserRouter([
     children: [
       { index: true, Component: Home },
       { path: "/hdrphotos", element: withSuspense(HDRPhotos) },
+      {
+        path: "/hdrphotos/upload",
+        element: (
+          <AdminRoute>
+            <Suspense fallback={null}>
+              <UploadPhoto />
+            </Suspense>
+          </AdminRoute>
+        ),
+      },
       { path: "/hdrphotos/:category", element: withSuspense(PhotoCategory) },
       { path: "/code", element: withSuspense(CodeProjects) },
       { path: "/music", element: withSuspense(Music) },

@@ -114,7 +114,7 @@ fn bearer_token(headers: &HeaderMap) -> Option<&str> {
 }
 
 //checks if token is valid and not blacklisted
-async fn verify_token(state: &AxumState, headers: &HeaderMap) -> bool {
+pub(crate) async fn verify_token(state: &AxumState, headers: &HeaderMap) -> bool {
     let Some(token) = bearer_token(headers) else {
         return false;
     };

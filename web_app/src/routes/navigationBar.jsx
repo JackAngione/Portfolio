@@ -139,6 +139,7 @@ export default function NavigationBar() {
           >
             <Link to="/resources">SEARCH</Link>
             <Link to="/resources/upload">UPLOAD RESOURCE</Link>
+            <Link to="/hdrphotos/upload">UPLOAD PHOTO</Link>
             <Link to="/resources/category">CATEGORIES</Link>
           </NavDropdown>
         ) : (
