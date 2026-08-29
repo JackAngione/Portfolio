@@ -8,3 +8,5 @@ The frontend is a React website that uses the Vite Plus unified toolchain
 The backend is a Rust Axum server.
 
 The project is deployed using Docker. The prod environment is a TrueNas Scale server
+
+@AGENTS.md
