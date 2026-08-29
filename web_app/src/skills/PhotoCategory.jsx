@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import "ldrs/square";
-import { media_server_address } from "../serverInfo.jsx";
+import { backend_address } from "../serverInfo.jsx";
 
 function PhotoCategory() {
   const { category } = useParams();
@@ -14,7 +14,7 @@ function PhotoCategory() {
   useEffect(() => {
     async function getImagePaths() {
       const response = await fetch(
-        media_server_address + "/photo-categories/" + category + "/photos",
+        backend_address + "/photo-categories/" + category + "/photos",
       );
       let list = await response.json();
       setPhotos(list);
@@ -25,7 +25,7 @@ function PhotoCategory() {
   }, [category]);
 
   const photoURL = (photo) =>
-    media_server_address + "/photo/" + category + "/" + photo;
+    backend_address + "/photo/" + category + "/" + photo;
 
   if (loading) {
     return (

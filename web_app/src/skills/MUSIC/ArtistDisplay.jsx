@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import { media_server_address } from "../../serverInfo.jsx";
+import { backend_address } from "../../serverInfo.jsx";
 
 const ArtistDisplay = ({ artist, sendSelectedSong }) => {
   // State to track which accordion item is open (null means all closed)
@@ -19,7 +19,7 @@ const ArtistDisplay = ({ artist, sendSelectedSong }) => {
   const fetchSongs = async (artist) => {
     try {
       const response = await fetch(
-        media_server_address + `/artists/${artist.artist_id}/songs`,
+        backend_address + `/artists/${artist.artist_id}/songs`,
       );
 
       if (!response.ok) {
@@ -50,7 +50,7 @@ const ArtistDisplay = ({ artist, sendSelectedSong }) => {
               >
                 <LazyLoadImage
                   className="aspect-square w-full rounded-xl object-cover shadow-md transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-xl"
-                  src={media_server_address + `/songs/${song.song_id}/artwork`}
+                  src={backend_address + `/songs/${song.song_id}/artwork`}
                 />
                 <span className="group-hover:text-primary text-primary/80 text-sm font-bold transition-colors">
                   {song.song_title}

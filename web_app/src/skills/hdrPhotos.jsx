@@ -9,7 +9,7 @@ import DavinciLogo from "./softwareLogos/DaVinci_Resolve_logo.svg";
 import PremiereProLogo from "./softwareLogos/premiere-pro-cc.svg";
 import AfterEffectsLogo from "./softwareLogos/after-effects-1.svg";
 import "./hdrPhotos.css";
-import { media_server_address } from "../serverInfo.jsx";
+import { backend_address } from "../serverInfo.jsx";
 
 function HDRPhotos() {
   const [photoCategories, setPhotoCategories] = useState([]);
@@ -18,9 +18,7 @@ function HDRPhotos() {
   useEffect(() => {
     async function getCategories() {
       try {
-        const response = await fetch(
-          media_server_address + "/photo-categories",
-        );
+        const response = await fetch(backend_address + "/photo-categories");
         let list = await response.json();
         setPhotoCategories(list.sort());
       } catch (e) {

@@ -7,7 +7,7 @@ import KineticHeadline from "./kineticHeadline.jsx";
 import TiltCard from "./tiltCard.jsx";
 import { AuthContext, logout } from "../useAuth.jsx";
 import { motion, useMotionValue, useSpring } from "motion/react";
-import { media_server_address } from "../serverInfo.jsx";
+import { backend_address } from "../serverInfo.jsx";
 
 /* Resume button that leans toward the cursor while hovered */
 function MagneticResumeButton() {
@@ -47,7 +47,7 @@ function MagneticResumeButton() {
       <button
         className="no-wash relative tracking-widest focus:outline-none"
         onClick={() => {
-          window.open(media_server_address + "/resume", "_blank");
+          window.open(backend_address + "/resume", "_blank");
         }}
       >
         RESUME

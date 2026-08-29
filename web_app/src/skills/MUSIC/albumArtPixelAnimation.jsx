@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { media_server_address } from "../../serverInfo.jsx";
+import { backend_address } from "../../serverInfo.jsx";
 
 function AlbumArtPixelAnimation() {
   const [albumCovers, setAlbumCovers] = useState([]);
@@ -20,7 +20,7 @@ function AlbumArtPixelAnimation() {
 
     async function getAlbumArt() {
       try {
-        const response = await fetch(media_server_address + "/album-covers");
+        const response = await fetch(backend_address + "/album-covers");
         setAlbumCovers(await response.json());
       } catch (e) {
         //no covers: the grid just renders solid tiles
@@ -66,7 +66,7 @@ function AlbumArtPixelAnimation() {
             <div key={index}>
               <img
                 src={
-                  media_server_address +
+                  backend_address +
                   "/album_covers/" +
                   albumCovers[Math.floor(index / 2) % albumCovers.length]
                 }

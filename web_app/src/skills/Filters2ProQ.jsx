@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import React from "react";
-import { media_server_address } from "../serverInfo.jsx";
+import { backend_address } from "../serverInfo.jsx";
 import "./codeProjects.css";
 
 function Filters2ProQ() {
@@ -40,7 +40,7 @@ function Filters2ProQ() {
           <motion.button
             className="backdrop-blur-4xl !hover:outline-white h-22 w-46 !rounded-3xl border-2 border-white !bg-linear-0 !from-white/10 !to-white/10 !font-bold !text-white"
             onClick={() => {
-              window.open(media_server_address + "/f2q", "_blank");
+              window.open(backend_address + "/f2q", "_blank");
             }}
             whileHover={{ scale: 1.1 }}
             transition={{ duration: 0.25 }}

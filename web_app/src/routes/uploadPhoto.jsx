@@ -1,12 +1,17 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import "./upload.css";
 import CreatableSelect from "react-select/creatable";
-import { backend_address, media_server_address } from "../serverInfo.jsx";
+import { backend_address } from "../serverInfo.jsx";
 import { AuthContext } from "../useAuth.jsx";
 import { Link } from "react-router";
 
 //AVIF is the preferred format; the others are accepted
-const VALID_IMAGE_TYPES = ["image/avif", "image/jpeg", "image/png", "image/webp"];
+const VALID_IMAGE_TYPES = [
+  "image/avif",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+];
 const HIGH_RES_LONG_EDGE = 2500;
 const LOW_RES_LONG_EDGE = 1200;
 
@@ -41,7 +46,7 @@ function UploadPhoto() {
   const { token } = useContext(AuthContext);
 
   useEffect(() => {
-    fetch(media_server_address + "/photo-categories")
+    fetch(backend_address + "/photo-categories")
       .then((response) => response.json())
       .then((list) => setCategories(list.sort()))
       .catch(() => {});
@@ -131,8 +136,8 @@ function UploadPhoto() {
     <div className="mb-14 flex flex-col items-center">
       <h1>Upload Photo</h1>
       <p className="mb-4 text-sm">
-        Upload the pair: high-res ({HIGH_RES_LONG_EDGE}px long edge) and
-        low-res ({LOW_RES_LONG_EDGE}px). AVIF preferred.
+        Upload the pair: high-res ({HIGH_RES_LONG_EDGE}px long edge) and low-res
+        ({LOW_RES_LONG_EDGE}px). AVIF preferred.
       </p>
 
       <form onSubmit={submitUpload} id="uploadForm" ref={formRef}>

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useWavesurfer } from "@wavesurfer/react";
 import { Slider } from "@heroui/react";
-import { media_server_address } from "../../serverInfo.jsx";
+import { backend_address } from "../../serverInfo.jsx";
 import { themeColor, useResolvedTheme } from "../../theme.jsx";
 
 function MusicPlayer({ song }) {
@@ -12,7 +12,7 @@ function MusicPlayer({ song }) {
     let cancelled = false;
     setWaveform(null);
     fetch(
-      media_server_address +
+      backend_address +
         "/artists/" +
         song.artist_id +
         "/songs/" +
@@ -54,7 +54,7 @@ function MusicPlayer({ song }) {
   const { wavesurfer, isReady, isPlaying, currentTime } = useWavesurfer({
     container: containerRef,
     url: waveform
-      ? media_server_address +
+      ? backend_address +
         "/artists/" +
         song.artist_id +
         "/songs/" +
@@ -214,7 +214,8 @@ function MusicPlayer({ song }) {
               base: "w-full",
               track: "bg-primary/20 h-1 border-x-0!",
               filler: "bg-PrimaryGradient",
-              thumb: "bg-PrimaryGradient size-3 rounded-full! after:hidden shadow-md",
+              thumb:
+                "bg-PrimaryGradient size-3 rounded-full! after:hidden shadow-md",
             }}
             size="sm"
             aria-label={"song position slider"}
@@ -252,7 +253,8 @@ function MusicPlayer({ song }) {
                 ? "bg-primary/20 w-1 border-y-0!"
                 : "bg-primary/20 h-1 border-x-0!",
               filler: "bg-PrimaryGradient",
-              thumb: "bg-PrimaryGradient size-3 rounded-full! after:hidden shadow-md",
+              thumb:
+                "bg-PrimaryGradient size-3 rounded-full! after:hidden shadow-md",
             }}
             size="sm"
             aria-label={"volume slider"}

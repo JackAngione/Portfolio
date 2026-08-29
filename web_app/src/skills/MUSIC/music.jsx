@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MusicPlayer from "./musicPlayer.jsx";
 import ArtistDisplay from "./ArtistDisplay.jsx";
 import AlbumArtPixelAnimation from "./albumArtPixelAnimation.jsx";
-import { media_server_address } from "../../serverInfo.jsx";
+import { backend_address } from "../../serverInfo.jsx";
 
 function Music() {
   // State to store the music data from API
@@ -23,7 +23,7 @@ function Music() {
     const fetchItems = async () => {
       try {
         // Replace with your API endpoint
-        const response = await fetch(media_server_address + "/artists");
+        const response = await fetch(backend_address + "/artists");
 
         if (!response.ok) {
           throw new Error("Network response was not ok");
