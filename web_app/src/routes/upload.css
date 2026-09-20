@@ -9,3 +9,31 @@
 #uploadForm {
   @apply flex flex-col items-center gap-4;
 }
+
+#uploadForm .photo-resize-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-secondary);
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+#uploadForm .photo-resize-option input {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  accent-color: var(--color-secondary);
+  cursor: inherit;
+}
+#uploadForm .photo-resize-option:has(input:checked) {
+  background: color-mix(in srgb, var(--color-secondary) 12%, transparent);
+}
+#uploadForm .photo-resize-option:has(input:focus-visible) {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 3px;
+}
+#uploadForm .photo-resize-option:has(input:disabled) {
+  opacity: 0.6;
+  cursor: wait;
+}

@@ -106,3 +106,48 @@ command.
 ```bash
 docker exec -it knowledge-dev-mongo mongosh KNOWLEDGE
 ```
+
+## Automatic photo previews
+
+The photo upload form can generate a preview from a JPEG or AVIF original.
+`POST /photos` accepts `generateLowRes=true` instead of the `lowRes` file.
+The original is kept unchanged; the preview uses the same format with a maximum
+1200px long edge (smaller originals are not enlarged). Only JPEG and AVIF are accepted for originals and manual previews; all other
+formats are rejected.
+
+Install FFmpeg on the backend host with `zscale` (libzimg), `libaom-av1`, and
+PPM support, plus libjpeg-turbo’s `cjpeg` utility (`libjpeg-turbo-utils` on Alpine).
+The production Docker image includes both tools. AVIF uses spline36
+resizing and lossy AV1 encoding (`lossless=0`, `crf=14`, `cpu-used=0`) after
+resizing, retaining input bit depth and HDR color signalling without tone mapping.
+JPEG uses Lanczos resizing to lossless RGB pixels, then `cjpeg -quality 75`
+for a true 75/100 JPEG quality setting. Only one resize runs at a time, with a
+five-minute timeout and temporary-file cleanup; failures do not save a photo pair.
+Reverse proxies should allow at least five minutes for the upload response.
+
+Run the real-encoder regression tests (JPEG orientations/sizes, PQ/HLG AVIF
+color signalling and bit depth, and invalid input) with:
+
+```bash
+cargo test photo_resize -- --ignored
+```
+
+### Photo folder layout
+
+Gallery images are listed and served from `server_files/hdrImages/<category>/low/`.
+The Full-Res link opens the identical filename in `<category>/high/`. Uploads
+save originals to `high/` and generated (or manually supplied) previews to `low/`.
+Both copies use the original's sanitized filename stem and detected extension;
+manual pairs must use the same image format.
+
+Existing photos must be moved into this layout before they appear in the gallery:
+move category-root previews into `low/` and the matching originals from `fullres/`
+into `high/`, ensuring filenames and extensions match. Existing server files are
+not migrated automatically.
+
+Upload success (`201 Created`) is returned only after both photo copies are
+written, synced to storage, and read back to verify their exact bytes. A save or
+verification failure returns an error and removes newly created copies; cleanup
+failures are logged. Existing filenames are never overwritten, including during
+concurrent uploads. The save/verification operation continues if the client
+disconnects, so it can finish or clean up the pair.

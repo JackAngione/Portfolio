@@ -14,7 +14,10 @@ function PhotoCategory() {
   useEffect(() => {
     async function getImagePaths() {
       const response = await fetch(
-        backend_address + "/photo-categories/" + category + "/photos",
+        backend_address +
+          "/photo-categories/" +
+          encodeURIComponent(category) +
+          "/photos",
       );
       let list = await response.json();
       setPhotos(list);
@@ -24,8 +27,8 @@ function PhotoCategory() {
     getImagePaths().then((r) => {});
   }, [category]);
 
-  const photoURL = (photo) =>
-    backend_address + "/photo/" + category + "/" + photo;
+  const photoURL = (photo, resolution = "low") =>
+    `${backend_address}/photo/${encodeURIComponent(category)}/${resolution}/${encodeURIComponent(photo)}`;
 
   if (loading) {
     return (
@@ -79,7 +82,12 @@ function PhotoCategory() {
                 className="z-0 max-h-[80vh] max-w-[80vw]"
               />
               <div className="mt-2 flex gap-2">
-                <a target="_blank" href={photoURL(selectedPhoto)}>
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={photoURL(selectedPhoto, "high")}
+                  onClick={(event) => event.stopPropagation()}
+                >
                   <button className="bg-background/70">Full-Res</button>
                 </a>
                 <button

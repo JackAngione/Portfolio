@@ -5,13 +5,8 @@ import { backend_address } from "../serverInfo.jsx";
 import { AuthContext } from "../useAuth.jsx";
 import { Link } from "react-router";
 
-//AVIF is the preferred format; the others are accepted
-const VALID_IMAGE_TYPES = [
-  "image/avif",
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-];
+//Only JPEG and AVIF photo uploads are accepted.
+const VALID_IMAGE_TYPES = ["image/avif", "image/jpeg"];
 const HIGH_RES_LONG_EDGE = 2500;
 const LOW_RES_LONG_EDGE = 1200;
 
@@ -34,11 +29,12 @@ function UploadPhoto() {
 
   const [highResFile, setHighResFile] = useState(null);
   const [lowResFile, setLowResFile] = useState(null);
+  const [generateLowRes, setGenerateLowRes] = useState(false);
   //per-input validation errors (invalid type) and soft warnings (dimensions)
   const [fileErrors, setFileErrors] = useState({});
   const [fileWarnings, setFileWarnings] = useState({});
 
-  //inline feedback instead of alert() popups: {ok: bool, message: string}
+  //Upload result feedback: {ok: bool, message: string}
   const [status, setStatus] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const formRef = useRef(null);
@@ -67,10 +63,12 @@ function UploadPhoto() {
     if (!file) return;
 
     if (!VALID_IMAGE_TYPES.includes(file.type)) {
-      setFileErrors((prev) => ({
-        ...prev,
-        [kind]: `Not a valid image type (${file.type || "unknown"}). Use AVIF (preferred), JPEG, PNG, or WebP.`,
-      }));
+      const message =
+        "Only JPG/JPEG and AVIF images are accepted. Please choose a supported image.";
+      setFile(null);
+      event.target.value = "";
+      setFileErrors((prev) => ({ ...prev, [kind]: message }));
+      window.alert(message);
       return;
     }
 
@@ -89,18 +87,28 @@ function UploadPhoto() {
     }
   }
 
-  const hasErrors = Boolean(fileErrors.highRes || fileErrors.lowRes);
+  const hasErrors = Boolean(
+    fileErrors.highRes || (!generateLowRes && fileErrors.lowRes),
+  );
 
   function submitUpload(e) {
     e.preventDefault();
-    if (!selectedCategory || !highResFile || !lowResFile || hasErrors) return;
+    if (
+      submitting ||
+      !selectedCategory ||
+      !highResFile ||
+      (!generateLowRes && !lowResFile) ||
+      hasErrors
+    )
+      return;
     setSubmitting(true);
     setStatus(null);
 
     const formData = new FormData();
     formData.append("category", selectedCategory.value);
     formData.append("highRes", highResFile);
-    formData.append("lowRes", lowResFile);
+    formData.append("generateLowRes", String(generateLowRes));
+    if (!generateLowRes) formData.append("lowRes", lowResFile);
 
     fetch(backend_address + "/photos", {
       method: "POST",
@@ -116,6 +124,8 @@ function UploadPhoto() {
         setHighResFile(null);
         setLowResFile(null);
         setFileWarnings({});
+        setFileErrors({});
+        setGenerateLowRes(false);
         formRef.current?.reset();
         setStatus({
           ok: true,
@@ -127,6 +137,7 @@ function UploadPhoto() {
         }
       })
       .catch((err) => {
+        window.alert(`Upload failed: ${err.message}`);
         setStatus({ ok: false, message: `Upload failed: ${err.message}` });
       })
       .finally(() => setSubmitting(false));
@@ -137,7 +148,8 @@ function UploadPhoto() {
       <h1>Upload Photo</h1>
       <p className="mb-4 text-sm">
         Upload the pair: high-res ({HIGH_RES_LONG_EDGE}px long edge) and low-res
-        ({LOW_RES_LONG_EDGE}px). AVIF preferred.
+        ({LOW_RES_LONG_EDGE}px), or generate the low-res copy from your
+        original. AVIF preferred.
       </p>
 
       <form onSubmit={submitUpload} id="uploadForm" ref={formRef}>
@@ -147,6 +159,7 @@ function UploadPhoto() {
             className="react-select-container"
             classNamePrefix="react-select"
             isSearchable={true}
+            isDisabled={submitting}
             name="category"
             options={categoryOptions}
             value={selectedCategory}
@@ -161,6 +174,7 @@ function UploadPhoto() {
           High-res image ({HIGH_RES_LONG_EDGE}px long edge):
           <input
             className="border-secondary rounded-[2px] border-1"
+            disabled={submitting}
             type="file"
             name="highRes"
             required
@@ -172,21 +186,55 @@ function UploadPhoto() {
         </label>
         {fileErrors.highRes && <p role="alert">✗ {fileErrors.highRes}</p>}
         {fileWarnings.highRes && <p role="status">⚠ {fileWarnings.highRes}</p>}
-        <label>
-          Low-res image ({LOW_RES_LONG_EDGE}px long edge):
+        <label className="photo-resize-option">
           <input
-            className="border-secondary rounded-[2px] border-1"
-            type="file"
-            name="lowRes"
-            required
-            accept={VALID_IMAGE_TYPES.join(",")}
-            onChange={(e) =>
-              handleFileChange(e, "lowRes", LOW_RES_LONG_EDGE, setLowResFile)
-            }
+            type="checkbox"
+            checked={generateLowRes}
+            disabled={submitting}
+            onChange={(event) => {
+              setGenerateLowRes(event.target.checked);
+              setLowResFile(null);
+              setFileErrors((prev) => ({ ...prev, lowRes: null }));
+              setFileWarnings((prev) => ({ ...prev, lowRes: null }));
+              setStatus(null);
+            }}
           />
+          <span>Generate a 1200px low-res copy</span>
         </label>
-        {fileErrors.lowRes && <p role="alert">✗ {fileErrors.lowRes}</p>}
-        {fileWarnings.lowRes && <p role="status">⚠ {fileWarnings.lowRes}</p>}
+        {generateLowRes && (
+          <p role="status">
+            HDR AVIF stays HDR. Smaller images are not enlarged. Processing may
+            take several minutes.
+          </p>
+        )}
+        {!generateLowRes && (
+          <>
+            <label>
+              Low-res image ({LOW_RES_LONG_EDGE}px long edge, same format as
+              high-res):
+              <input
+                className="border-secondary rounded-[2px] border-1"
+                disabled={submitting}
+                type="file"
+                name="lowRes"
+                required
+                accept={VALID_IMAGE_TYPES.join(",")}
+                onChange={(e) =>
+                  handleFileChange(
+                    e,
+                    "lowRes",
+                    LOW_RES_LONG_EDGE,
+                    setLowResFile,
+                  )
+                }
+              />
+            </label>
+            {fileErrors.lowRes && <p role="alert">✗ {fileErrors.lowRes}</p>}
+            {fileWarnings.lowRes && (
+              <p role="status">⚠ {fileWarnings.lowRes}</p>
+            )}
+          </>
+        )}
         <button
           className="m-4"
           type="submit"
@@ -195,10 +243,14 @@ function UploadPhoto() {
             hasErrors ||
             !selectedCategory ||
             !highResFile ||
-            !lowResFile
+            (!generateLowRes && !lowResFile)
           }
         >
-          {submitting ? "Uploading..." : "Upload Photo"}
+          {submitting
+            ? generateLowRes
+              ? "Resizing and uploading..."
+              : "Uploading..."
+            : "Upload Photo"}
         </button>
         {status && (
           <p role="status">

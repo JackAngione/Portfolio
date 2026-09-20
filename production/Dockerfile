@@ -48,6 +48,11 @@ cp ./target/release/$APP_NAME /bin/server
 # (e.g., alpine@sha256:664888ac9cfd28068e062c991ebcff4b4c7307dc8dd4df9e728bedde5c449d91).
 FROM alpine:3.18 AS final
 
+# Photo previews require AV1 encoding and HDR-aware zscale resizing.
+RUN apk add --no-cache ffmpeg libjpeg-turbo-utils \
+    && ffmpeg -hide_banner -filters 2>&1 | grep -q zscale \
+    && ffmpeg -hide_banner -encoders 2>&1 | grep -q libaom-av1
+
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
 ARG UID=10001

@@ -18,6 +18,8 @@ use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod file_test;
+mod photo_resize;
+mod photo_storage;
 mod knowledge;
 mod mongoDB;
 #[derive(Clone)]
@@ -70,7 +72,7 @@ async fn main() {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "example_log_ip=info,tower_http=info".into()), // Adjust log levels as needed
+                .unwrap_or_else(|_| "backend=info,tower_http=info".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();

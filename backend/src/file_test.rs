@@ -365,7 +365,7 @@ async fn list_dir_shuffled(path: &Path) -> Result<Vec<String>, StatusCode> {
         if entry.file_name() == ".DS_Store" {
             continue;
         }
-        //skip sub-directories (e.g. a category's fullres/ folder)
+        //skip sub-directories
         if entry.file_type().await.map(|t| t.is_dir()).unwrap_or(true) {
             continue;
         }
@@ -386,15 +386,9 @@ fn image_extension(bytes: &[u8]) -> Option<&'static str> {
         if &bytes[4..8] == b"ftyp" && (&bytes[8..12] == b"avif" || &bytes[8..12] == b"avis") {
             return Some("avif");
         }
-        if &bytes[0..4] == b"RIFF" && &bytes[8..12] == b"WEBP" {
-            return Some("webp");
-        }
     }
     if bytes.starts_with(&[0xFF, 0xD8, 0xFF]) {
         return Some("jpg");
-    }
-    if bytes.starts_with(&[0x89, b'P', b'N', b'G']) {
-        return Some("png");
     }
     None
 }
@@ -417,9 +411,9 @@ fn sanitized_stem(filename: &str) -> Option<String> {
 }
 
 //Admin-only. Accepts a multipart form with a category plus a high-res (2500px
-//long edge) and low-res (1200px) image pair. The low-res copy lands in the
-//category folder (what the gallery grid lists/serves); the high-res copy lands
-//in the category's fullres/ sub-folder under the same name.
+//long edge) and low-res (1200px) image pair, or generateLowRes=true.
+//The gallery lists category/low/; originals live in category/high/
+//under the same filename (including extension).
 pub(crate) async fn upload_photo(
     State(state): State<AxumState>,
     headers: HeaderMap,
@@ -431,6 +425,7 @@ pub(crate) async fn upload_photo(
     let bad_request = |message: &str| (StatusCode::BAD_REQUEST, message.to_string());
 
     let mut category: Option<String> = None;
+    let mut generate_low_res = false;
     //(sanitized filename stem, file bytes)
     let mut high_res: Option<(String, axum::body::Bytes)> = None;
     let mut low_res: Option<(String, axum::body::Bytes)> = None;
@@ -441,6 +436,13 @@ pub(crate) async fn upload_photo(
         .map_err(|err| bad_request(&format!("malformed multipart body: {err}")))?
     {
         match field.name() {
+            Some("generateLowRes") => {
+                generate_low_res = match field.text().await.as_deref() {
+                    Ok("true") => true,
+                    Ok("false") => false,
+                    _ => return Err(bad_request("generateLowRes must be true or false")),
+                };
+            }
             Some("category") => {
                 category = Some(
                     field
@@ -473,50 +475,69 @@ pub(crate) async fn upload_photo(
         .filter(|c| is_safe_segment(c))
         .ok_or_else(|| bad_request("missing or invalid category"))?;
     let (stem, high_bytes) = high_res.ok_or_else(|| bad_request("missing highRes image"))?;
-    let (_, low_bytes) = low_res.ok_or_else(|| bad_request("missing lowRes image"))?;
 
-    //both files must actually be images (AVIF preferred, jpg/png/webp accepted)
+    //both files must actually be images (only JPEG and AVIF accepted)
     let high_ext = image_extension(&high_bytes)
-        .ok_or_else(|| bad_request("highRes is not a supported image (avif/jpg/png/webp)"))?;
+        .ok_or_else(|| bad_request("highRes is not a supported image (JPEG or AVIF only)"))?;
+    let low_bytes = if generate_low_res {
+        if low_res.is_some() {
+            return Err(bad_request("provide lowRes or generateLowRes, not both"));
+        }
+        if !matches!(high_ext, "jpg" | "avif") {
+            return Err(bad_request("automatic resizing supports JPEG and AVIF only"));
+        }
+        crate::photo_resize::downscale(&high_bytes, high_ext)
+            .await?
+            .into()
+    } else {
+        low_res
+            .ok_or_else(|| bad_request("missing lowRes image"))?
+            .1
+    };
     let low_ext = image_extension(&low_bytes)
-        .ok_or_else(|| bad_request("lowRes is not a supported image (avif/jpg/png/webp)"))?;
+        .ok_or_else(|| bad_request("lowRes is not a supported image (JPEG or AVIF only)"))?;
 
     let category_dir = format!("./server_files/hdrImages/{}", category);
-    let fullres_dir = format!("{}/fullres", category_dir);
-    tokio::fs::create_dir_all(&fullres_dir).await.map_err(|err| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("could not create category folder: {err}"),
-        )
-    })?;
+    if low_ext != high_ext {
+        return Err(bad_request("highRes and lowRes must use the same image format so their filenames match"));
+    }
+    let low_dir = format!("{}/low", category_dir);
+    let high_dir = format!("{}/high", category_dir);
+    for directory in [&low_dir, &high_dir] {
+        tokio::fs::create_dir_all(directory).await.map_err(|err| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("could not create photo folder: {err}"),
+            )
+        })?;
+    }
 
-    //the pair shares one name: low-res in the category folder, high-res in fullres/
-    let low_path = format!("{}/{}.{}", category_dir, stem, low_ext);
-    let high_path = format!("{}/{}.{}", fullres_dir, stem, high_ext);
-    for path in [&low_path, &high_path] {
-        if tokio::fs::try_exists(path).await.unwrap_or(false) {
-            return Err((
-                StatusCode::CONFLICT,
-                format!("\"{}\" already exists in \"{}\"", stem, category),
-            ));
+    //the pair shares the exact filename across low/ and high/
+    let low_path = format!("{}/{}.{}", low_dir, stem, low_ext);
+    let high_path = format!("{}/{}.{}", high_dir, stem, high_ext);
+    // Keep the blocking filesystem transaction running through verification/cleanup
+    // even if the HTTP client disconnects while it is being saved.
+    tokio::task::spawn_blocking(move || {
+        crate::photo_storage::save_pair(
+            Path::new(&high_path),
+            &high_bytes,
+            Path::new(&low_path),
+            &low_bytes,
+        )
+    })
+    .await
+    .map_err(|err| {
+        tracing::error!(%err, "Photo save task failed");
+        (StatusCode::INTERNAL_SERVER_ERROR, "Could not confirm both photo copies were saved".to_string())
+    })?
+    .map_err(|err| {
+        if err.kind() == std::io::ErrorKind::AlreadyExists {
+            (StatusCode::CONFLICT, format!("\"{}\" already exists in \"{}\"", stem, category))
+        } else {
+            tracing::error!(%err, "Photo pair save/verification failed");
+            (StatusCode::INTERNAL_SERVER_ERROR, format!("{err}. Neither photo copy was confirmed as uploaded."))
         }
-    }
-
-    let write_error = |err: std::io::Error| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("failed to save image: {err}"),
-        )
-    };
-    tokio::fs::write(&low_path, &low_bytes)
-        .await
-        .map_err(write_error)?;
-    if let Err(err) = tokio::fs::write(&high_path, &high_bytes).await {
-        //don't leave a half-uploaded pair behind
-        let _ = tokio::fs::remove_file(&low_path).await;
-        return Err(write_error(err));
-    }
-    println!("Photo uploaded: {} (+ fullres)", low_path);
+    })?;
     Ok(StatusCode::CREATED)
 }
 
@@ -526,7 +547,7 @@ pub(crate) async fn get_category_photos(
     if !is_safe_segment(&category) {
         return Err(StatusCode::BAD_REQUEST);
     }
-    let pathbuilder = format!("./server_files/hdrImages/{}", category);
+    let pathbuilder = format!("./server_files/hdrImages/{}/low", category);
     let photo_files = list_dir_shuffled(Path::new(&pathbuilder)).await?;
     Ok(Json(photo_files))
 }
@@ -607,5 +628,22 @@ pub(crate) async fn get_f2q() -> Response<Body> {
                 .unwrap();
             response
         }
+    }
+}
+
+#[cfg(test)]
+mod photo_type_tests {
+    use super::image_extension;
+
+    #[test]
+    fn accepts_only_jpeg_and_avif_signatures() {
+        assert_eq!(image_extension(&[0xff, 0xd8, 0xff, 0xe0]), Some("jpg"));
+        assert_eq!(image_extension(b"\0\0\0\x18ftypavif"), Some("avif"));
+        assert_eq!(image_extension(b"\0\0\0\x18ftypavis"), Some("avif"));
+        assert_eq!(image_extension(b"\x89PNG\r\n\x1a\n"), None);
+        assert_eq!(image_extension(b"RIFF\0\0\0\0WEBP"), None);
+        assert_eq!(image_extension(b"GIF89a"), None);
+        assert_eq!(image_extension(b"not an image.jpg"), None);
+        assert_eq!(image_extension(b""), None);
     }
 }
