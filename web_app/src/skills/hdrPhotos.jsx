@@ -159,8 +159,18 @@ function HDRPhotos() {
               to={`/hdrphotos/${category}`}
               key={index}
               className="text-4xl"
+              aria-label={category}
             >
-              {category}
+              <span aria-hidden="true">
+                {Array.from(category).map((char, letterIndex) => (
+                  <span
+                    key={letterIndex}
+                    className="text-primary hover:text-bunny transition-colors duration-[1.4s] ease-out hover:duration-300"
+                  >
+                    {char}
+                  </span>
+                ))}
+              </span>
             </Link>
           ))}
         </div>
