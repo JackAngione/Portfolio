@@ -1,11 +1,57 @@
 #!/usr/bin/env bash
+# Support invocation with `sh deploy_backend.sh` as well as direct execution.
+if [ -z "${BASH_VERSION:-}" ]; then
+  exec bash "$0" "$@"
+fi
 set -euo pipefail
+
+usage() {
+  echo "Usage: $0 --version <tag>"
+  echo "Example: $0 --version v2.0.2"
+}
+
+IMAGE_TAG=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --version)
+      if [[ $# -lt 2 || -z "${2:-}" || "${2:-}" == --* ]]; then
+        echo "Error: --version requires a tag." >&2
+        usage >&2
+        exit 1
+      fi
+      if [[ -n "$IMAGE_TAG" ]]; then
+        echo "Error: --version may only be specified once." >&2
+        exit 1
+      fi
+      IMAGE_TAG="$2"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Error: unknown argument: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z "$IMAGE_TAG" ]]; then
+  echo "Error: --version is required." >&2
+  usage >&2
+  exit 1
+fi
+if [[ ! "$IMAGE_TAG" =~ ^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,127}$ ]]; then
+  echo "Error: invalid Docker image tag: $IMAGE_TAG" >&2
+  exit 1
+fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 IMAGE_NAME="registry.gitlab.com/8jk.ang8/portfolio/backend"
-IMAGE_TAG="${VERSION_TAG:-v2.0.1}"
 CONTAINER_NAME="Portfolio_Backend"
 HOST_PORT="${HOST_PORT:-3000}"
 CONTAINER_PORT="${CONTAINER_PORT:-3000}"
