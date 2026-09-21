@@ -1,4 +1,4 @@
-import { Link, Outlet } from "react-router";
+import { Link, Outlet, useLocation } from "react-router";
 import "./navigationBar.css";
 import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../useAuth.jsx";
@@ -14,7 +14,13 @@ function supportsHover() {
   return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 }
 
-function NavDropdown({ id, triggerTo, triggerLabel, activeDropdown, setActiveDropdown, children }) {
+function NavDropdown({
+  id,
+  triggerLabel,
+  activeDropdown,
+  setActiveDropdown,
+  children,
+}) {
   const open = activeDropdown === id;
   const ref = useRef(null);
   const closeTimer = useRef(null);
@@ -52,17 +58,20 @@ function NavDropdown({ id, triggerTo, triggerLabel, activeDropdown, setActiveDro
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <Link
+      <button
+        type="button"
         className="navLink"
-        to={triggerTo}
+        aria-expanded={open}
+        aria-controls={`${id}-dropdown`}
         onClick={(e) => {
           e.preventDefault();
           setActiveDropdown((prev) => (prev === id ? null : id));
         }}
       >
         {triggerLabel}
-      </Link>
+      </button>
       <div
+        id={`${id}-dropdown`}
         className={`dropDownList${open ? " open" : ""}`}
         onClick={() => setActiveDropdown((prev) => (prev === id ? null : prev))}
       >
@@ -76,21 +85,28 @@ function NavDropdown({ id, triggerTo, triggerLabel, activeDropdown, setActiveDro
 // (that offset + its rendered height + a breathing gap) as --nav-safe-top so
 // pages can reserve top room that grows automatically when the bar wraps to a
 // second row at narrow widths, instead of overlapping the content beneath it.
-const NAV_TOP_OFFSET = 24;
 const NAV_BOTTOM_GAP = 24;
 
 export default function NavigationBar() {
+  const isHomepage = useLocation().pathname === "/";
   const authenticated = useContext(AuthContext).loggedIn;
   const [activeDropdown, setActiveDropdown] = useState(null);
   const navRef = useRef(null);
 
   useEffect(() => {
     const nav = navRef.current;
-    if (!nav) return;
+    if (!nav) {
+      document.documentElement.style.setProperty("--nav-safe-top", "0px");
+      return;
+    }
 
     const publishHeight = () => {
-      const safeTop = NAV_TOP_OFFSET + nav.offsetHeight + NAV_BOTTOM_GAP;
-      document.documentElement.style.setProperty("--nav-safe-top", `${safeTop}px`);
+      const safeTop =
+        nav.getBoundingClientRect().top + nav.offsetHeight + NAV_BOTTOM_GAP;
+      document.documentElement.style.setProperty(
+        "--nav-safe-top",
+        `${safeTop}px`,
+      );
     };
 
     publishHeight();
@@ -104,51 +120,53 @@ export default function NavigationBar() {
       observer.disconnect();
       window.removeEventListener("resize", publishHeight);
     };
-  }, []);
+  }, [isHomepage]);
 
   return (
     <>
-      <nav className="navigation" ref={navRef}>
-        <NavDropdown
-          id="skills"
-          triggerTo=""
-          triggerLabel="SKILLS"
-          activeDropdown={activeDropdown}
-          setActiveDropdown={setActiveDropdown}
-        >
-          <Link to="/code">PROGRAMMING</Link>
-          <Link to="/hdrphotos">PHOTOGRAPHY</Link>
-          <Link to="/music">MUSIC</Link>
-        </NavDropdown>
-
-        <span className="navDivider" aria-hidden="true" />
-
-        <Link className="navLink" to="/">
-          HOME
-        </Link>
-
-        <span className="navDivider" aria-hidden="true" />
-
-        {authenticated ? (
+      {!isHomepage && (
+        <nav className="navigation" ref={navRef}>
           <NavDropdown
-            id="resources"
-            triggerTo="/resources"
-            triggerLabel="RESOURCES"
+            id="skills"
+            triggerLabel="SKILLS"
             activeDropdown={activeDropdown}
             setActiveDropdown={setActiveDropdown}
           >
-            <Link to="/resources">SEARCH</Link>
-            <Link to="/resources/upload">UPLOAD RESOURCE</Link>
-            <Link to="/hdrphotos/upload">UPLOAD PHOTO</Link>
-            <Link to="/resources/category">CATEGORIES</Link>
+            <Link to="/code">PROGRAMMING</Link>
+            <Link to="/hdrphotos">PHOTOGRAPHY</Link>
+            <Link to="/music">MUSIC</Link>
           </NavDropdown>
-        ) : (
+
+          <span className="navDivider" aria-hidden="true" />
+
+          <Link className="navLink" to="/">
+            HOME
+          </Link>
+
+          <span className="navDivider" aria-hidden="true" />
+
           <Link className="navLink" to="/resources">
             RESOURCES
           </Link>
+        </nav>
+      )}
+      <div className="navigationControls">
+        <ThemeToggle />
+        {authenticated && (
+          <div className="adminNavigation">
+            <NavDropdown
+              id="admin"
+              triggerLabel="Admin"
+              activeDropdown={activeDropdown}
+              setActiveDropdown={setActiveDropdown}
+            >
+              <Link to="/resources/upload">UPLOAD RESOURCE</Link>
+              <Link to="/hdrphotos/upload">UPLOAD PHOTO</Link>
+              <Link to="/resources/category">CATEGORIES</Link>
+            </NavDropdown>
+          </div>
         )}
-      </nav>
-      <ThemeToggle />
+      </div>
       <main className="pageContent">
         <Outlet />
       </main>

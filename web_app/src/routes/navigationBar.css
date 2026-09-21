@@ -16,7 +16,7 @@
   z-index: 50;
   padding: 6px;
   min-width: 280px;
-  @apply bg-background/40 rounded-2xl border border-ink/10 font-bold shadow-lg shadow-black/30 backdrop-blur-md;
+  @apply bg-background/40 border-ink/10 rounded-2xl border font-bold shadow-lg shadow-black/30 backdrop-blur-md;
 }
 
 .navLink {
@@ -36,7 +36,7 @@
   z-index: -1;
   opacity: 0;
   transition: opacity 0.3s ease;
-  @apply bg-linear-to-br from-sunny/50 via-bunny/40 to-sunny/50;
+  @apply from-sunny/50 via-bunny/40 to-sunny/50 bg-linear-to-br;
 }
 
 .navLink:hover {
@@ -68,7 +68,7 @@
   min-width: 180px;
   padding: 6px;
   z-index: 5;
-  @apply bg-background/80 rounded-2xl border border-ink/10 shadow-xl shadow-black/40 backdrop-blur-md;
+  @apply bg-background/80 border-ink/10 rounded-2xl border shadow-xl shadow-black/40 backdrop-blur-md;
   transition: all 0.3s ease;
 }
 
@@ -90,7 +90,7 @@
   z-index: -1;
   opacity: 0;
   transition: opacity 0.3s ease;
-  @apply bg-linear-to-br from-sunny/50 via-bunny/40 to-sunny/50;
+  @apply from-sunny/50 via-bunny/40 to-sunny/50 bg-linear-to-br;
 }
 
 .dropDownList a:hover::before {
@@ -107,10 +107,6 @@
 /* Theme toggle: three compact icon buttons that opt out of the sitewide
    card-gradient button treatment so they sit quietly inside the pill bar. */
 .themeToggle {
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  z-index: 50;
   display: flex;
   align-items: center;
   /* no gap while collapsed — it would pad the folded (zero-width)
@@ -118,7 +114,7 @@
   gap: 0;
   padding: 6px;
   transition: gap 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
-  @apply bg-background/40 rounded-2xl border border-ink/10 shadow-lg shadow-black/30 backdrop-blur-md;
+  @apply bg-background/40 border-ink/10 rounded-2xl border shadow-lg shadow-black/30 backdrop-blur-md;
 }
 
 .themeToggle button {
@@ -220,4 +216,38 @@
 
 .pageContent:has(.nav-full-bleed) {
   padding-top: 0;
+}
+
+.navigationControls {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.adminNavigation {
+  padding: 6px;
+  @apply bg-background/40 border-ink/10 rounded-2xl border font-bold shadow-lg shadow-black/30 backdrop-blur-md;
+}
+
+.adminNavigation .dropDownList {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.navDropdown > button.navLink {
+  border: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .navigation {
+    top: 92px;
+  }
 }

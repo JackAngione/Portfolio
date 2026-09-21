@@ -8,7 +8,6 @@ import { AdminRoute } from "./routes/adminRoute.jsx";
 import { HeroUIProvider } from "@heroui/react";
 import CommandK from "./routes/commandK.jsx";
 import FilmGrain from "./FilmGrain.jsx";
-import EpilepsyWarningModal from "./routes/modals/epilepsyWarningModal.jsx";
 
 const CodeProjects = lazy(() => import("./skills/codeProjects.jsx"));
 const Music = lazy(() => import("./skills/MUSIC/music.jsx"));
@@ -35,7 +34,6 @@ const router = createBrowserRouter([
     path: "/",
     element: (
       <>
-        <EpilepsyWarningModal />
         <HeroUIProvider>
           <AuthProvider>
             <CommandK>
