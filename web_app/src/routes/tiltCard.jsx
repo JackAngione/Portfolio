@@ -57,16 +57,18 @@ function TiltCard({ to, title, subtitle, gradient, index = 0 }) {
         onPointerLeave={reset}
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
         whileHover={{ scale: 1.04 }}
-        className="group relative overflow-hidden rounded-2xl border border-ink/10"
+        className="group border-ink/15 relative overflow-hidden rounded-2xl border shadow-2xl shadow-black/25"
       >
         <Link
           to={to}
-          className="relative block h-52 p-6 text-left sm:h-64 sm:p-8"
+          className="relative block h-52 p-6 text-left backdrop-blur-md sm:h-64 sm:p-8"
         >
           {/* color wash */}
           <div
             className={`absolute inset-0 opacity-60 transition-opacity duration-300 group-hover:opacity-90 ${gradient}`}
           />
+          {/* glass sheen along the top edge */}
+          <div className="absolute inset-0 bg-linear-to-b from-white/15 via-transparent to-transparent" />
           {/* pointer glare */}
           <motion.div
             className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -76,7 +78,7 @@ function TiltCard({ to, title, subtitle, gradient, index = 0 }) {
             className="relative flex h-full flex-col justify-end"
             style={{ transform: "translateZ(40px)" }}
           >
-            <span className="font-primary text-primary text-3xl font-bold sm:text-4xl">
+            <span className="font-primary text-primary sunset-text text-3xl font-bold sm:text-4xl">
               {title}
             </span>
             <span className="text-primary/70 mt-1 text-sm">{subtitle}</span>

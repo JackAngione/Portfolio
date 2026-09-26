@@ -4,7 +4,20 @@
     {
       "name": "web_app",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "cwd": "web_app",
+      "port": 5173,
+      "autoPort": true
+    },
+    {
+      "name": "web_app-vp",
+      "runtimeExecutable": "/Users/jackangione/.vite-plus/bin/vp",
+      "runtimeArgs": [
+        "dev"
+      ],
       "cwd": "web_app",
       "port": 5173,
       "autoPort": true
@@ -12,7 +25,11 @@
     {
       "name": "backend",
       "runtimeExecutable": "env",
-      "runtimeArgs": ["APP_ENV=development", "cargo", "run"],
+      "runtimeArgs": [
+        "APP_ENV=development",
+        "cargo",
+        "run"
+      ],
       "cwd": "backend",
       "port": 3000
     }

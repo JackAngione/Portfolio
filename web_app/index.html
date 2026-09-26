@@ -8,14 +8,18 @@
     <script>
       // Stamp the resolved theme before first paint (mirrors src/theme.jsx)
       (() => {
-        let theme = null;
-        try {
-          theme = localStorage.getItem("theme-preference");
-        } catch {}
-        if (theme !== "light" && theme !== "dark") {
-          theme = matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light";
+        // theme switching is off for now (see THEME_SWITCHING_ENABLED in src/theme.jsx)
+        const THEME_SWITCHING_ENABLED = false;
+        let theme = "dark";
+        if (THEME_SWITCHING_ENABLED) {
+          try {
+            theme = localStorage.getItem("theme-preference");
+          } catch {}
+          if (theme !== "light" && theme !== "dark") {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+          }
         }
         document.documentElement.dataset.theme = theme;
         document.documentElement.classList.toggle("dark", theme === "dark");

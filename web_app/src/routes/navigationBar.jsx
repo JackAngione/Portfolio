@@ -2,7 +2,7 @@ import { Link, Outlet, useLocation } from "react-router";
 import "./navigationBar.css";
 import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../useAuth.jsx";
-import { ThemeToggle } from "../theme.jsx";
+import { THEME_SWITCHING_ENABLED, ThemeToggle } from "../theme.jsx";
 //BASICALLY THE NAVIGATION BAR
 
 // Grace period before closing on mouse-leave, so a diagonal mouse path
@@ -151,7 +151,7 @@ export default function NavigationBar() {
         </nav>
       )}
       <div className="navigationControls">
-        <ThemeToggle />
+        {THEME_SWITCHING_ENABLED && <ThemeToggle />}
         {authenticated && (
           <div className="adminNavigation">
             <NavDropdown

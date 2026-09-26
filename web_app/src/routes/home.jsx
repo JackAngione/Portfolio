@@ -2,12 +2,14 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import LoginModal from "./modals/loginModal";
 import { jwtDecode } from "jwt-decode";
 import LogosMarquee from "./logosMarquee.jsx";
-import MarbleField from "./marbleField.jsx";
+import SunsetScene from "./sunset/SunsetScene.jsx";
 import KineticHeadline from "./kineticHeadline.jsx";
 import TiltCard from "./tiltCard.jsx";
+import FpsCounter from "./fpsCounter.jsx";
 import { AuthContext, logout } from "../useAuth.jsx";
 import { motion, useMotionValue, useSpring } from "motion/react";
 import { backend_address } from "../serverInfo.jsx";
+import "./home.css";
 
 /* Resume button that leans toward the cursor while hovered */
 function MagneticResumeButton() {
@@ -103,7 +105,8 @@ function Home() {
 
   return (
     <>
-      <MarbleField />
+      <SunsetScene />
+      {import.meta.env.DEV && <FpsCounter />}
 
       {/* hero */}
       <section className="nav-full-bleed relative z-10 -mt-1 flex min-h-svh flex-col items-center justify-center gap-10 px-6 pt-10">
@@ -111,13 +114,13 @@ function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.6 }}
-          className="text-primary/60 text-sm tracking-[0.35em] uppercase"
+          className="text-primary/85 sunset-text text-sm tracking-[0.35em] uppercase"
         >
           Jack Angione
         </motion.p>
 
         <KineticHeadline
-          className="text-5xl sm:text-7xl lg:text-8xl"
+          className="sunset-text text-5xl sm:text-7xl lg:text-8xl"
           lines={[
             [{ text: "SOFTWARE" }, { text: "DEVELOPER" }],
             [{ text: "&", fancy: true }],
@@ -168,7 +171,7 @@ function Home() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6 }}
-          className="mb-12"
+          className="sunset-text mb-12"
         >
           EXPLORE
         </motion.h2>
@@ -180,7 +183,7 @@ function Home() {
       </section>
 
       {/* account */}
-      <div className="relative z-10 mb-4">
+      <div className="sunset-text relative z-10 mb-4">
         {username ? (
           <>
             {username}

@@ -10,10 +10,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
   which watches the attribute.
 */
 
+//theme switching is turned off for now: the site is locked to dark and the
+//navbar hides ThemeToggle. Flip this (and THEME_SWITCHING_ENABLED in
+//index.html) to bring the toggle back.
+export const THEME_SWITCHING_ENABLED = false;
+
 const STORAGE_KEY = "theme-preference";
 const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
 export function getThemePreference() {
+  if (!THEME_SWITCHING_ENABLED) return "dark";
   let stored = null;
   try {
     stored = localStorage.getItem(STORAGE_KEY);
