@@ -7,7 +7,7 @@ use meilisearch_sdk::documents::DocumentsQuery;
 use mongodb::bson::{DateTime, Document, doc};
 use mongodb::options::IndexOptions;
 use mongodb::{Collection, IndexModel};
-use rand::{Rng, rng};
+use rand::{RngExt, rng};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sha2::{Digest, Sha256};

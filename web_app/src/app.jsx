@@ -5,7 +5,6 @@ import Home from "./routes/home.jsx";
 import AuthProvider from "./useAuth.jsx";
 
 import { AdminRoute } from "./routes/adminRoute.jsx";
-import { HeroUIProvider } from "@heroui/react";
 import CommandK from "./routes/commandK.jsx";
 import FilmGrain from "./FilmGrain.jsx";
 
@@ -34,15 +33,13 @@ const router = createBrowserRouter([
     path: "/",
     element: (
       <>
-        <HeroUIProvider>
-          <AuthProvider>
-            <CommandK>
-              <FilmGrain>
-                <NavigationBar />
-              </FilmGrain>
-            </CommandK>
-          </AuthProvider>
-        </HeroUIProvider>
+        <AuthProvider>
+          <CommandK>
+            <FilmGrain>
+              <NavigationBar />
+            </FilmGrain>
+          </CommandK>
+        </AuthProvider>
       </>
     ),
     children: [

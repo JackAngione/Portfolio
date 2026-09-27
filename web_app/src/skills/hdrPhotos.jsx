@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import "ldrs/square";
 import CaptureOneLogo from "./softwareLogos/CAPTURE_ONE_LOGO.svg";
 import PhotoshopLogo from "./softwareLogos/adobe-photoshop-2.svg";

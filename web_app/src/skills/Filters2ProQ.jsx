@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import React from "react";
 import { backend_address } from "../serverInfo.jsx";
 import "./codeProjects.css";

@@ -210,21 +210,19 @@ function MusicPlayer({ song }) {
           <div className="w-full cursor-pointer" ref={containerRef} />
 
           <Slider
-            classNames={{
-              base: "w-full",
-              track: "bg-primary/20 h-1 border-x-0!",
-              filler: "bg-PrimaryGradient",
-              thumb:
-                "bg-PrimaryGradient size-3 rounded-full! after:hidden shadow-md",
-            }}
-            size="sm"
+            className="w-full"
             aria-label={"song position slider"}
             minValue={0}
             maxValue={songDuration}
             step={0.01}
             value={currentTime}
             onChange={handleSeekChange}
-          />
+          >
+            <Slider.Track className="bg-primary/20 h-1 rounded-full border-x-0">
+              <Slider.Fill className="bg-PrimaryGradient" />
+              <Slider.Thumb className="bg-PrimaryGradient size-3 rounded-full! border-0 shadow-md after:hidden" />
+            </Slider.Track>
+          </Slider>
         </div>
 
         {/* volume */}
@@ -247,23 +245,21 @@ function MusicPlayer({ song }) {
           </svg>
           <Slider
             orientation={isNarrow ? "vertical" : "horizontal"}
-            classNames={{
-              base: isNarrow ? "h-16 w-4" : "w-16 sm:w-24",
-              track: isNarrow
-                ? "bg-primary/20 w-1 border-y-0!"
-                : "bg-primary/20 h-1 border-x-0!",
-              filler: "bg-PrimaryGradient",
-              thumb:
-                "bg-PrimaryGradient size-3 rounded-full! after:hidden shadow-md",
-            }}
-            size="sm"
+            className={isNarrow ? "h-16 w-4" : "w-16 sm:w-24"}
             aria-label={"volume slider"}
             minValue={0}
             maxValue={1}
             step={0.01}
             value={volume}
             onChange={changeVolume}
-          />
+          >
+            <Slider.Track
+              className={`bg-primary/20 rounded-full ${isNarrow ? "w-1 border-y-0" : "h-1 border-x-0"}`}
+            >
+              <Slider.Fill className="bg-PrimaryGradient" />
+              <Slider.Thumb className="bg-PrimaryGradient size-3 rounded-full! border-0 shadow-md after:hidden" />
+            </Slider.Track>
+          </Slider>
         </div>
       </div>
     </div>

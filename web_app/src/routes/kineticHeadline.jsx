@@ -1,5 +1,5 @@
 import React from "react";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 /*
   Headline split into letters. Entrance: each letter dissolves in from a

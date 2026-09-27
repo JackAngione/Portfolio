@@ -4,7 +4,7 @@ import {
   useMotionValueEvent,
   useScroll,
   useTransform,
-} from "motion/react";
+} from "framer-motion";
 import "ldrs/square";
 import "./backgroundAnimation.css";
 

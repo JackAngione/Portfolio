@@ -6,13 +6,13 @@
 
 # Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
 
-ARG RUST_VERSION=1.88.0
+ARG RUST_VERSION=1.98.1
 ARG APP_NAME=backend
 
 ################################################################################
 # Create a stage for building the application.
 
-FROM rust:${RUST_VERSION}-alpine AS build
+FROM rust:${RUST_VERSION}-alpine3.24 AS build
 ARG APP_NAME
 WORKDIR /app
 
@@ -43,10 +43,10 @@ cp ./target/release/$APP_NAME /bin/server
 # stage.
 #
 # The example below uses the alpine image as the foundation for running the app.
-# By specifying the "3.18" tag, it will use version 3.18 of alpine. If
+# By specifying the "3.24.2" tag, it will use version 3.24.2 of alpine. If
 # reproducibility is important, consider using a digest
 # (e.g., alpine@sha256:664888ac9cfd28068e062c991ebcff4b4c7307dc8dd4df9e728bedde5c449d91).
-FROM alpine:3.18 AS final
+FROM alpine:3.24.2 AS final
 
 # Photo previews require AV1 encoding and HDR-aware zscale resizing.
 RUN apk add --no-cache ffmpeg libjpeg-turbo-utils \

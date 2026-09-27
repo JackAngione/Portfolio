@@ -266,10 +266,10 @@ fn compute_peaks(
     audio_path: &str,
     target_peaks: usize,
 ) -> Result<WaveformData, Box<dyn std::error::Error + Send + Sync>> {
-    use symphonia::core::audio::SampleBuffer;
     use symphonia::core::errors::Error as SymphoniaError;
+    use symphonia::core::formats::TrackType;
+    use symphonia::core::formats::probe::Hint;
     use symphonia::core::io::MediaSourceStream;
-    use symphonia::core::probe::Hint;
 
     let file = std::fs::File::open(audio_path)?;
     let mss = MediaSourceStream::new(Box::new(file), Default::default());
@@ -278,21 +278,24 @@ fn compute_peaks(
         hint.with_extension(ext);
     }
 
-    let probed = symphonia::default::get_probe().format(
+    let mut format = symphonia::default::get_probe().probe(
         &hint,
         mss,
-        &Default::default(),
-        &Default::default(),
+        Default::default(),
+        Default::default(),
     )?;
-    let mut format = probed.format;
-    let track = format.default_track().ok_or("no audio track")?;
+    let track = format
+        .default_track(TrackType::Audio)
+        .ok_or("no audio track")?;
     let track_id = track.id;
-    let sample_rate = track
+    let codec_params = track
         .codec_params
-        .sample_rate
-        .ok_or("unknown sample rate")? as f64;
+        .as_ref()
+        .and_then(|params| params.audio())
+        .ok_or("missing audio codec parameters")?;
+    let sample_rate = codec_params.sample_rate.ok_or("unknown sample rate")? as f64;
     let mut decoder =
-        symphonia::default::get_codecs().make(&track.codec_params, &Default::default())?;
+        symphonia::default::get_codecs().make_audio_decoder(codec_params, &Default::default())?;
 
     //max absolute sample per fixed-size block of frames; reduced to target_peaks at the end
     const FRAMES_PER_BLOCK: usize = 1024;
@@ -300,14 +303,14 @@ fn compute_peaks(
     let mut block_max = 0f32;
     let mut frames_in_block = 0usize;
     let mut total_frames = 0u64;
-    let mut sample_buf: Option<SampleBuffer<f32>> = None;
+    let mut samples: Vec<f32> = Vec::new();
 
     loop {
         let packet = match format.next_packet() {
-            Ok(packet) => packet,
-            Err(_) => break, //end of stream
+            Ok(Some(packet)) => packet,
+            Ok(None) | Err(_) => break, //end of stream
         };
-        if packet.track_id() != track_id {
+        if packet.track_id != track_id {
             continue;
         }
         let decoded = match decoder.decode(&packet) {
@@ -315,16 +318,10 @@ fn compute_peaks(
             Err(SymphoniaError::DecodeError(_)) => continue, //skip corrupt packets
             Err(_) => break,
         };
-        let channels = decoded.spec().channels.count().max(1);
-        if sample_buf.is_none() {
-            sample_buf = Some(SampleBuffer::new(
-                decoded.capacity() as u64,
-                *decoded.spec(),
-            ));
-        }
-        let buf = sample_buf.as_mut().unwrap();
-        buf.copy_interleaved_ref(decoded);
-        for frame in buf.samples().chunks(channels) {
+        let channels = decoded.spec().channels().count().max(1);
+        samples.resize(decoded.samples_interleaved(), 0.0);
+        decoded.copy_to_slice_interleaved(&mut samples);
+        for frame in samples.chunks(channels) {
             for sample in frame {
                 block_max = block_max.max(sample.abs());
             }
@@ -402,6 +399,44 @@ mod tests {
             peaks: vec![0.25, 1.0],
             duration: 2.5,
         }
+    }
+
+    #[test]
+    fn decodes_stereo_pcm_into_frame_based_duration_and_normalized_peaks() {
+        let directory = TestDir::new();
+        let path = directory.0.join("stereo.wav");
+        let mut pcm = Vec::new();
+        for frame in 0..2048 {
+            let (left, right): (i16, i16) = if frame < 1024 {
+                (8192, 16384)
+            } else {
+                (32767, 0)
+            };
+            pcm.extend_from_slice(&left.to_le_bytes());
+            pcm.extend_from_slice(&right.to_le_bytes());
+        }
+        let data_len = pcm.len() as u32;
+        let mut wav = Vec::new();
+        wav.extend_from_slice(b"RIFF");
+        wav.extend_from_slice(&(36 + data_len).to_le_bytes());
+        wav.extend_from_slice(b"WAVEfmt ");
+        wav.extend_from_slice(&16u32.to_le_bytes());
+        wav.extend_from_slice(&1u16.to_le_bytes()); // PCM
+        wav.extend_from_slice(&2u16.to_le_bytes()); // stereo
+        wav.extend_from_slice(&1024u32.to_le_bytes()); // sample rate
+        wav.extend_from_slice(&4096u32.to_le_bytes()); // bytes per second
+        wav.extend_from_slice(&4u16.to_le_bytes()); // bytes per frame
+        wav.extend_from_slice(&16u16.to_le_bytes()); // bits per sample
+        wav.extend_from_slice(b"data");
+        wav.extend_from_slice(&data_len.to_le_bytes());
+        wav.extend_from_slice(&pcm);
+        std::fs::write(&path, wav).unwrap();
+
+        let decoded = compute_peaks(path.to_str().unwrap(), 2).unwrap();
+        assert_eq!(decoded.duration, 2.0);
+        assert_eq!(decoded.peaks.len(), 2);
+        assert!((decoded.peaks[0] - 16384.0 / 32767.0).abs() < 0.0001);
+        assert_eq!(decoded.peaks[1], 1.0);
     }
 
     struct Gate(Mutex<bool>, Condvar);

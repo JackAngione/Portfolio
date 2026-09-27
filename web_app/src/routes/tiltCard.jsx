@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Link } from "react-router";
-import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 /*
   Portfolio card that tilts in 3D toward the cursor, with a glare

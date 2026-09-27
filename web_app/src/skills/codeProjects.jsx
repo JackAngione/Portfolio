@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import "./codeProjects.css";
 import CodeMarquee from "./CodeMarquee.jsx";
 import { website_address } from "../serverInfo.jsx";

@@ -1,4 +1,11 @@
-allowBuilds:
-  "@heroui/shared-utils": set this to true or false
-onlyBuiltDependencies:
-  - "@heroui/shared-utils"
+catalog:
+  vite: npm:@voidzero-dev/vite-plus-core@0.3.3
+  vite-plus: 0.3.3
+overrides:
+  vite@*: "catalog:"
+  vitest: 4.1.11
+peerDependencyRules:
+  allowAny:
+    - vite
+  allowedVersions:
+    vite: "*"

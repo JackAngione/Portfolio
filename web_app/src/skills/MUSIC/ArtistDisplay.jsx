@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { LazyLoadImage } from "react-lazy-load-image-component";
 import { backend_address } from "../../serverInfo.jsx";
 
 const ArtistDisplay = ({ artist, sendSelectedSong }) => {
@@ -48,7 +47,9 @@ const ArtistDisplay = ({ artist, sendSelectedSong }) => {
                 className="group flex! w-full flex-col items-center gap-2 rounded-xl! bg-transparent! p-0!"
                 onClick={() => handleSongClick(song)}
               >
-                <LazyLoadImage
+                <img
+                  loading="lazy"
+                  alt=""
                   className="aspect-square w-full rounded-xl object-cover shadow-md transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-xl"
                   src={backend_address + `/songs/${song.song_id}/artwork`}
                 />

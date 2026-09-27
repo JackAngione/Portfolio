@@ -7,7 +7,7 @@ import KineticHeadline from "./kineticHeadline.jsx";
 import TiltCard from "./tiltCard.jsx";
 import FpsCounter from "./fpsCounter.jsx";
 import { AuthContext, logout } from "../useAuth.jsx";
-import { motion, useMotionValue, useSpring } from "motion/react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import { backend_address } from "../serverInfo.jsx";
 import "./home.css";
 

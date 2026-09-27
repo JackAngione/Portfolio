@@ -1,7 +1,6 @@
 import { defineConfig } from "vite-plus";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import reactCompiler from "eslint-plugin-react-compiler";
 // https://vitejs.dev/config/
 export default defineConfig({
   fmt: {
@@ -17,13 +16,7 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
-  plugins: [
-    react({
-      "react-compiler": reactCompiler,
-      rules: { "react-compiler/react-compiler": "error" },
-    }),
-    tailwindcss(),
-  ],
+  plugins: [react(), tailwindcss()],
   server: {
     host: "0.0.0.0",
   },
