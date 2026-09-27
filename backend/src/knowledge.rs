@@ -1,19 +1,25 @@
 use crate::AxumState;
+use axum::Json;
 use axum::extract::{Path, Query, State};
 use axum::http::{HeaderMap, StatusCode};
-use axum::Json;
-use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use meilisearch_sdk::documents::DocumentsQuery;
-use mongodb::bson::{doc, DateTime, Document};
+use mongodb::bson::{DateTime, Document, doc};
 use mongodb::options::IndexOptions;
 use mongodb::{Collection, IndexModel};
-use rand::{rng, Rng};
+use rand::{Rng, rng};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sha2::{Digest, Sha256};
-use std::collections::HashSet;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio_stream::StreamExt;
+
+mod search_index;
+use search_index::{DocumentSource, IndexDocument, IndexPage, SearchIndex};
+
+// Serialize indexed writes with rebuilds. Otherwise a rebuild can classify a
+// tutorial created after its Mongo scan as stale and remove the new search hit.
+static REINDEX_MUTEX: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
 
 //THESE FUNCTIONS ARE THE KNOWLEDGE/PORTFOLIO API (tutorials, categories, auth),
 //merged in from the old express backend (backend/src/server.js)
@@ -250,6 +256,7 @@ pub(crate) async fn edit_category(
     if !verify_token(&state, &headers).await {
         return StatusCode::UNAUTHORIZED;
     }
+    let guard = REINDEX_MUTEX.lock().await;
     let categories: Collection<Document> = state.mongo_database.collection("categories");
     let update = doc! {
         "title": &category.title,
@@ -280,7 +287,7 @@ pub(crate) async fn edit_category(
         .await;
     //the bulk updates above bypass the per-tutorial handlers, so rebuild the
     //search index from mongo to pick up the renamed categories
-    if let Err(err) = reindex_meilisearch(&state).await {
+    if let Err(err) = reindex_locked(&state, &guard).await {
         println!("category edit saved but reindex failed: {err}");
         return StatusCode::INTERNAL_SERVER_ERROR;
     }
@@ -297,6 +304,7 @@ pub(crate) async fn delete_category(
         return StatusCode::UNAUTHORIZED;
     }
     println!("received category TO Delete: {:?}", title);
+    let guard = REINDEX_MUTEX.lock().await;
     let categories: Collection<Document> = state.mongo_database.collection("categories");
     let _ = categories.delete_one(doc! {"title": &title}).await;
     // Update documents where category is deleted
@@ -306,7 +314,7 @@ pub(crate) async fn delete_category(
         .await;
     //the bulk update above bypasses the per-tutorial handlers, so rebuild the
     //search index from mongo to clear the deleted category
-    if let Err(err) = reindex_meilisearch(&state).await {
+    if let Err(err) = reindex_locked(&state, &guard).await {
         println!("category delete saved but reindex failed: {err}");
         return StatusCode::INTERNAL_SERVER_ERROR;
     }
@@ -435,73 +443,98 @@ struct MeiliDocId {
     resource_id: String,
 }
 
+struct MongoTutorialSource {
+    cursor: mongodb::Cursor<Tutorial>,
+}
+
+impl DocumentSource for MongoTutorialSource {
+    async fn next_document(&mut self) -> Result<Option<IndexDocument>, String> {
+        self.cursor
+            .try_next()
+            .await
+            .map_err(|err| format!("mongo cursor failed: {err}"))
+            .map(|result| {
+                result.map(|tutorial| IndexDocument {
+                    id: tutorial.resource_id.clone(),
+                    title: tutorial.title.clone(),
+                    payload: meili_document(&tutorial),
+                })
+            })
+    }
+}
+
+struct MeiliSearchIndex<'a> {
+    state: &'a AxumState,
+}
+
+impl SearchIndex for MeiliSearchIndex<'_> {
+    async fn upload(&mut self, documents: &[serde_json::Value]) -> Result<(), String> {
+        if meili_add_and_wait(self.state, documents).await {
+            Ok(())
+        } else {
+            Err("meilisearch rejected the reindex upload".to_string())
+        }
+    }
+
+    async fn list(&mut self, offset: usize, limit: usize) -> Result<IndexPage, String> {
+        let index = self.state.search_client.index("resources");
+        let page = DocumentsQuery::new(&index)
+            .with_fields(["resource_id"])
+            .with_offset(offset)
+            .with_limit(limit)
+            .execute::<MeiliDocId>()
+            .await
+            .map_err(|err| format!("failed listing meilisearch documents: {err}"))?;
+        Ok(IndexPage {
+            ids: page
+                .results
+                .into_iter()
+                .map(|document| document.resource_id)
+                .collect(),
+        })
+    }
+
+    async fn delete(&mut self, ids: &[String]) -> Result<(), String> {
+        let task = self
+            .state
+            .search_client
+            .index("resources")
+            .delete_documents(ids)
+            .await
+            .map_err(|err| format!("failed deleting stale documents: {err}"))?;
+        let completed = task
+            .wait_for_completion(&self.state.search_client, None, None)
+            .await
+            .map_err(|err| format!("stale document deletion did not finish: {err}"))?;
+        if completed.is_success() {
+            Ok(())
+        } else {
+            Err("stale document deletion failed".to_string())
+        }
+    }
+}
+
 //rebuilds the search index from mongo, the source of truth: re-uploads every
 //tutorial, then removes index entries whose tutorial no longer exists in mongo.
 //the dual-writes in the handlers keep the index fresh; this heals any drift
 //(failed writes, category renames, meilisearch data loss)
 pub(crate) async fn reindex_meilisearch(state: &AxumState) -> Result<(), String> {
+    let guard = REINDEX_MUTEX.lock().await;
+    reindex_locked(state, &guard).await
+}
+
+async fn reindex_locked(
+    state: &AxumState,
+    _guard: &tokio::sync::MutexGuard<'_, ()>,
+) -> Result<(), String> {
     let tutorials: Collection<Tutorial> = state.mongo_database.collection("tutorials");
-    let mut cursor = tutorials
+    let cursor = tutorials
         .find(doc! {})
         .await
         .map_err(|err| format!("mongo find failed: {err}"))?;
-    let mut documents = vec![];
-    let mut live_ids = HashSet::new();
-    while let Some(tutorial) = cursor
-        .try_next()
-        .await
-        .map_err(|err| format!("mongo cursor failed: {err}"))?
-    {
-        //meilisearch rejects empty document ids, which would fail the whole batch
-        if tutorial.resource_id.is_empty() {
-            println!("skipping tutorial with no resource_id: {}", tutorial.title);
-            continue;
-        }
-        live_ids.insert(tutorial.resource_id.clone());
-        documents.push(meili_document(&tutorial));
-    }
-    if !meili_add_and_wait(state, &documents).await {
-        return Err("meilisearch rejected the reindex upload".to_string());
-    }
-    //collect ids that are in meilisearch but no longer in mongo
-    let index = state.search_client.index("resources");
-    let mut stale_ids: Vec<String> = vec![];
-    let mut offset = 0;
-    loop {
-        let page = DocumentsQuery::new(&index)
-            .with_fields(["resource_id"])
-            .with_offset(offset)
-            .with_limit(1000)
-            .execute::<MeiliDocId>()
-            .await
-            .map_err(|err| format!("failed listing meilisearch documents: {err}"))?;
-        let count = page.results.len();
-        stale_ids.extend(
-            page.results
-                .into_iter()
-                .map(|document| document.resource_id)
-                .filter(|id| !live_ids.contains(id)),
-        );
-        if count < 1000 {
-            break;
-        }
-        offset += count;
-    }
-    if !stale_ids.is_empty() {
-        println!("reindex removing stale documents: {:?}", stale_ids);
-        let task = index
-            .delete_documents(&stale_ids)
-            .await
-            .map_err(|err| format!("failed deleting stale documents: {err}"))?;
-        let completed = task
-            .wait_for_completion(&state.search_client, None, None)
-            .await
-            .map_err(|err| format!("stale document deletion did not finish: {err}"))?;
-        if !completed.is_success() {
-            return Err("stale document deletion failed".to_string());
-        }
-    }
-    Ok(())
+    let mut source = MongoTutorialSource { cursor };
+    let mut index = MeiliSearchIndex { state };
+    search_index::rebuild(&mut source, &mut index).await
 }
 
 //rebuild the search index from mongo on demand
@@ -531,6 +564,7 @@ pub(crate) async fn upload_tutorial(
         //send unauthorized if user not admin
         return StatusCode::UNAUTHORIZED;
     }
+    let _guard = REINDEX_MUTEX.lock().await;
     println!("received upload: {:?}", tutorial);
     let tutorials: Collection<Tutorial> = state.mongo_database.collection("tutorials");
     tutorial.resource_id = generate_resource_id(&tutorials).await;
@@ -567,6 +601,7 @@ pub(crate) async fn edit_tutorial(
     if !verify_token(&state, &headers).await {
         return StatusCode::UNAUTHORIZED;
     }
+    let _guard = REINDEX_MUTEX.lock().await;
     //the path is canonical; a mismatched body id must not relink the document
     tutorial.resource_id = resource_id;
     let tutorials: Collection<Tutorial> = state.mongo_database.collection("tutorials");
@@ -593,6 +628,7 @@ async fn delete_tutorial_inner(
     filter: Document,
     resource_id: Option<&str>,
 ) -> StatusCode {
+    let _guard = REINDEX_MUTEX.lock().await;
     let tutorials: Collection<Tutorial> = state.mongo_database.collection("tutorials");
     if tutorials.delete_one(filter).await.is_err() {
         return StatusCode::INTERNAL_SERVER_ERROR;

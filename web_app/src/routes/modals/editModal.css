@@ -1,4 +1,4 @@
-@import "../../main.css";
+@reference "../../main.css";
 
 .overlay {
   background-color: rgba(0, 0, 0, 0.8);

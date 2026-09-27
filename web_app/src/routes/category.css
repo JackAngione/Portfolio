@@ -1,5 +1,3 @@
-@import "tailwindcss";
-@import "../main.css";
 #confirmDelete label {
   padding-top: 20px;
   display: flex;

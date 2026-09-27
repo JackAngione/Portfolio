@@ -1,4 +1,11 @@
-import { useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import "./resourcePage.css";
 import EditModal from "./modals/editModal.jsx";
 import DeleteModal from "./modals/deleteModal.jsx";
@@ -22,8 +29,66 @@ import { AuthContext } from "../useAuth.jsx";
 const { searchClient } = instantMeiliSearch(
   search_server,
   meiliSearch_Search_Key,
-  { placeholderSearch: false },
+  { placeholderSearch: false, primaryKey: "resource_id" },
 );
+
+const ResourceActionsContext = createContext(null);
+
+// These component identities must remain stable while modal state changes.
+function ResourceModals({
+  openEditModal,
+  openDeleteModal,
+  tutorialToEdit,
+  closeEdit,
+  closeDelete,
+}) {
+  const { refresh } = useInstantSearch();
+  const refreshAfterDelete = () => {
+    // The delete endpoint queues a Meilisearch task before responding.
+    setTimeout(refresh, 300);
+  };
+  return (
+    <>
+      <EditModal
+        open={openEditModal}
+        tutorialData={tutorialToEdit}
+        onClose={closeEdit}
+        onEdited={refresh}
+      />
+      <DeleteModal
+        open={openDeleteModal}
+        tutorialData={tutorialToEdit}
+        onClose={closeDelete}
+        onDeleted={refreshAfterDelete}
+      />
+    </>
+  );
+}
+
+function ResourceHit({ hit }) {
+  const { authenticated, edit, remove } = useContext(ResourceActionsContext);
+  return (
+    <div className="mx-2 my-6 flex flex-col items-center">
+      <button
+        className="w-full max-w-[520px]"
+        onClick={() => window.open(`${hit.source}`)}
+      >
+        <h3>
+          <Highlight attribute="title" hit={hit} />
+        </h3>
+        <p className="text-sm">{`${hit.description}`}</p>
+      </button>
+      {authenticated && (
+        <div className="flex scale-75 justify-center gap-2">
+          <button onClick={() => edit(hit)}>EDIT</button>
+          <button onClick={() => remove(hit)}>
+            <img className="SVG_icon" src={trashIcon} alt="removeIcon" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ResourcesPage() {
   const authenticated = useContext(AuthContext).loggedIn;
@@ -32,6 +97,20 @@ function ResourcesPage() {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [tutorialToEdit, setTutorialToEdit] = useState({});
+  const edit = useCallback((hit) => {
+    setTutorialToEdit(hit);
+    setOpenEditModal(true);
+  }, []);
+  const remove = useCallback((hit) => {
+    setTutorialToEdit(hit);
+    setOpenDeleteModal(true);
+  }, []);
+  const closeEdit = useCallback(() => setOpenEditModal(false), []);
+  const closeDelete = useCallback(() => setOpenDeleteModal(false), []);
+  const hitActions = useMemo(
+    () => ({ authenticated, edit, remove }),
+    [authenticated, edit, remove],
+  );
 
   //typing anywhere on the page lands in the search bar: focus it before the
   //keystroke's default action so the character is inserted there
@@ -59,91 +138,18 @@ function ResourcesPage() {
       document.removeEventListener("keydown", redirectTypingToSearch);
   }, [openEditModal, openDeleteModal]);
 
-  //must render inside <InstantSearch> so useInstantSearch can refresh the hits
-  function Modals() {
-    const { refresh } = useInstantSearch();
-    return (
-      <>
-        <EditModal
-          open={openEditModal}
-          tutorialData={tutorialToEdit}
-          onClose={() => setOpenEditModal(!openEditModal)}
-        />
-        <DeleteModal
-          open={openDeleteModal}
-          tutorialData={tutorialToEdit}
-          onClose={() => setOpenDeleteModal(!openDeleteModal)}
-          onDeleted={() => {
-            //meilisearch applies deletes as an async task; give it a moment
-            //before re-querying so the removed hit doesn't come back stale
-            setTimeout(refresh, 300);
-          }}
-        />
-      </>
-    );
-  }
-
-  const Hit = ({ hit }) => {
-    //hit is basically a json object of the meilisearch document
-    return (
-      <div className="mx-2 my-6 flex flex-col items-center">
-        <button
-          className="w-full max-w-[520px]"
-          onClick={() => {
-            window.open(`${hit.source}`);
-          }}
-        >
-          <h3>
-            {" "}
-            <Highlight attribute="title" hit={hit} />{" "}
-          </h3>
-          <p className="text-sm">{`${hit.description}`}</p>
-        </button>
-        {
-          //EDIT and DELETE TUTORIAL BUTTON
-        }
-        {authenticated ? (
-          <div className="flex scale-75 justify-center gap-2">
-            <button
-              onClick={() => {
-                console.log("hit: " + hit);
-
-                setOpenEditModal(!openEditModal);
-                setTutorialToEdit(hit);
-              }}
-            >
-              EDIT
-            </button>
-            <button
-              onClick={() => {
-                setTutorialToEdit(hit);
-                setOpenDeleteModal(!openDeleteModal);
-              }}
-            >
-              <img className="SVG_icon" src={trashIcon} alt="removeIcon" />
-            </button>{" "}
-          </div>
-        ) : (
-          <></>
-        )}
-      </div>
-    );
-  };
-
   return (
     <>
       <h1 className="mb-14 text-center font-bold">RESOURCES</h1>
-      {/*{!loadingCategories ? (
-        <EditModal
-          open={true}
-          categories={categories}
-          tutorialData={tutorialToEdit}
-          onClose={() => setOpenEditModal(!openEditModal)}
-        />
-      ) : null}*/}
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 lg:flex-row lg:items-start lg:justify-center">
         <InstantSearch indexName="resources" searchClient={searchClient}>
-          <Modals />
+          <ResourceModals
+            openEditModal={openEditModal}
+            openDeleteModal={openDeleteModal}
+            tutorialToEdit={tutorialToEdit}
+            closeEdit={closeEdit}
+            closeDelete={closeDelete}
+          />
           <aside className="text-primary mx-auto w-full max-w-[600px] text-left lg:mx-0 lg:w-56 lg:shrink-0">
             <div className="flex flex-wrap gap-x-12 gap-y-6 lg:flex-col">
               <div>
@@ -168,7 +174,9 @@ function ResourcesPage() {
           </aside>
           <div className="searchResults mx-auto w-full max-w-[600px]">
             <SearchBox autoFocus={true} className="text-primary pb-4" />
-            <Hits hitComponent={Hit} />
+            <ResourceActionsContext.Provider value={hitActions}>
+              <Hits hitComponent={ResourceHit} />
+            </ResourceActionsContext.Provider>
           </div>
           {/* mirrors the sidebar's width so the results column (and the
               search bar) stays horizontally centered in the viewport */}

@@ -1,7 +1,7 @@
 //! Confirm both copies are flushed and byte-for-byte verified before acknowledging upload.
 use std::{
     fs::{self, File, OpenOptions},
-    io::{self, Write},
+    io::{self, Read, Write},
     path::{Path, PathBuf},
 };
 
@@ -27,6 +27,29 @@ impl Drop for PendingPair {
 fn storage_error(operation: &str, copy: &str, path: &Path, error: io::Error) -> io::Error {
     tracing::error!(operation, copy, ?path, raw_os_error = ?error.raw_os_error(), %error, "Photo storage operation failed");
     io::Error::new(error.kind(), format!("{operation} {copy}: {error}"))
+}
+
+// Compare the persisted file without allocating another full image-sized buffer.
+// A final read detects data appended after the expected bytes.
+fn persisted_matches(path: &Path, expected: &[u8]) -> io::Result<bool> {
+    const CHUNK_SIZE: usize = 64 * 1024;
+    let mut file = File::open(path)?;
+    let mut buffer = [0u8; CHUNK_SIZE];
+    for chunk in expected.chunks(CHUNK_SIZE) {
+        match file.read_exact(&mut buffer[..chunk.len()]) {
+            Ok(()) if &buffer[..chunk.len()] == chunk => {}
+            Ok(()) => return Ok(false),
+            Err(error) if error.kind() == io::ErrorKind::UnexpectedEof => return Ok(false),
+            Err(error) => return Err(error),
+        }
+    }
+    let mut extra = [0u8; 1];
+    loop {
+        match file.read(&mut extra) {
+            Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
+            result => return result.map(|bytes_read| bytes_read == 0),
+        }
+    }
 }
 
 pub(crate) fn save_pair(
@@ -61,9 +84,8 @@ pub(crate) fn save_pair(
         ("high-res file", high, high_bytes),
         ("low-res file", low, low_bytes),
     ] {
-        if fs::read(path)
+        if !persisted_matches(path, expected)
             .map_err(|error| storage_error("Could not read back", copy, path, error))?
-            != expected
         {
             return Err(storage_error(
                 "Could not verify",
@@ -152,5 +174,25 @@ mod tests {
         );
         assert_eq!(fs::read(dir.high()).unwrap(), b"existing original");
         assert_eq!(fs::read(dir.low()).unwrap(), b"existing preview");
+    }
+
+    #[test]
+    fn persisted_verification_handles_chunk_boundaries_and_mismatch() {
+        let dir = TestDir::new();
+        let mut expected = vec![0x5a; 64 * 1024 + 17];
+        fs::write(dir.high(), &expected).unwrap();
+        assert!(persisted_matches(&dir.high(), &expected).unwrap());
+
+        expected[64 * 1024] ^= 1;
+        assert!(!persisted_matches(&dir.high(), &expected).unwrap());
+    }
+
+    #[test]
+    fn persisted_verification_rejects_truncation_and_extra_data() {
+        let dir = TestDir::new();
+        fs::write(dir.high(), b"short").unwrap();
+        assert!(!persisted_matches(&dir.high(), b"shorter").unwrap());
+        assert!(!persisted_matches(&dir.high(), b"shor").unwrap());
+        assert!(persisted_matches(&dir.high(), b"short").unwrap());
     }
 }

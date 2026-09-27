@@ -1,5 +1,4 @@
-@import "tailwindcss";
-@import "../main.css";
+@reference "../main.css";
 
 .ais-RefinementList-count {
   @apply ml-2;
@@ -37,7 +36,7 @@
 /* quiet ghost button: only earns the gradient wash on hover, and fades
    out entirely when there is nothing to clear */
 .ais-ClearRefinements-button {
-  @apply rounded-lg border border-ink/25 px-4 py-1.5 text-xs font-bold tracking-widest uppercase;
+  @apply border-ink/25 rounded-lg border px-4 py-1.5 text-xs font-bold tracking-widest uppercase;
 }
 .ais-ClearRefinements-button::before {
   opacity: 0;

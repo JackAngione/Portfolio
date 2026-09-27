@@ -1,5 +1,4 @@
-@import "tailwindcss";
-@import "../main.css";
+@reference "../main.css";
 
 .logo {
   @apply mr-2 w-10;

@@ -26,4 +26,5 @@ backend/.DS_Store
 production/.env
 /Tools
 /backend/target
+__pycache__/
 /.pnpm-store

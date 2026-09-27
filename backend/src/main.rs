@@ -1,10 +1,10 @@
-use crate::mongoDB::Song;
+use crate::music::Song;
 use axum::extract::{ConnectInfo, DefaultBodyLimit};
-use axum::http::{header, Request};
+use axum::http::{Request, header};
 use axum::middleware::Next;
 use axum::response::Response;
 use axum::routing::{get, post, put};
-use axum::{debug_handler, middleware, Router};
+use axum::{Router, middleware};
 use dotenvy::dotenv;
 use mongodb::options::ClientOptions;
 use mongodb::{Client, Collection, Database};
@@ -13,15 +13,15 @@ use std::net::SocketAddr;
 use std::path::Path;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::ServeDir;
-use tower_http::trace::TraceLayer;
 // For request/response tracing
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-mod file_test;
+mod knowledge;
+mod media;
+mod music;
 mod photo_resize;
 mod photo_storage;
-mod knowledge;
-mod mongoDB;
+mod waveform;
 #[derive(Clone)]
 struct AxumState {
     mongo_database: Database,
@@ -29,7 +29,7 @@ struct AxumState {
     jwt_key: String,
     search_client: meilisearch_sdk::client::Client,
 }
-//set up the mongoDB client
+//set up the MongoDB client
 async fn init_mongo_client() -> AxumState {
     // APP_ENV=development loads the committed .env.development (local Docker
     // dev stack, see backend/README.md); otherwise the gitignored .env is used.
@@ -38,10 +38,10 @@ async fn init_mongo_client() -> AxumState {
     } else {
         dotenv().ok();
     }
-    let mongoDB_connection_string = env::var("MONGODB_CONNECTION_STRING");
+    let mongo_connection_string = env::var("MONGODB_CONNECTION_STRING");
 
     // Set up MongoDB client
-    let client_options = ClientOptions::parse(&mongoDB_connection_string.unwrap())
+    let client_options = ClientOptions::parse(&mongo_connection_string.unwrap())
         .await
         .expect("MongoDB connection string is invalid");
     let mongo_client = Client::with_options(client_options).unwrap();
@@ -80,6 +80,14 @@ async fn main() {
     //allows the mongo client or collection to be passed among route functions
     let state = init_mongo_client().await;
 
+    // Existing catalogs gain the lookup index without delaying HTTP startup.
+    let music_database = state.mongo_database.clone();
+    tokio::spawn(async move {
+        if let Err(error) = music::create_indexes(&music_database).await {
+            tracing::warn!(%error, "Could not create music catalog indexes");
+        }
+    });
+
     //mongo is the source of truth; rebuild the search index on startup so any
     //drift (failed dual-writes, meilisearch data loss) heals itself. runs in
     //the background so a slow or unreachable meilisearch can't block serving
@@ -93,7 +101,7 @@ async fn main() {
 
     //pre-generate any missing waveform caches in the background so no song
     //pays the decode cost on its first play
-    tokio::spawn(file_test::pregenerate_waveforms());
+    tokio::spawn(waveform::pregenerate_waveforms());
 
     //STATIC FILE SERVING PATHS
     let images_path = Path::new("./server_files/hdrImages");
@@ -114,32 +122,32 @@ async fn main() {
         ]);
     // Build our application with a route
     let app = Router::new()
-        .route("/songs", get(mongoDB::get_songs))
-        .route("/songs/{song_id}/artwork", get(file_test::get_artwork))
-        .route("/artists", get(mongoDB::get_artists))
-        .route("/artists/{artist_id}/songs", get(mongoDB::get_artist_songs))
+        .route("/songs", get(music::get_songs))
+        .route("/songs/{song_id}/artwork", get(media::get_artwork))
+        .route("/artists", get(music::get_artists))
+        .route("/artists/{artist_id}/songs", get(music::get_artist_songs))
         .route(
             "/artists/{artist_id}/songs/{song_id}/stream",
-            get(file_test::stream_song),
+            get(media::stream_song),
         )
         .route(
             "/artists/{artist_id}/songs/{song_id}/waveform",
-            get(file_test::get_waveform),
+            get(waveform::get_waveform),
         )
-        .route("/photo-categories", get(file_test::get_categories))
+        .route("/photo-categories", get(media::get_categories))
         .route(
             "/photo-categories/{category}/photos",
-            get(file_test::get_category_photos),
+            get(media::get_category_photos),
         )
         .route(
             "/photos",
-            post(file_test::upload_photo)
+            post(media::upload_photo)
                 //two full-quality images per request; default 2MB limit is far too small
                 .layer(DefaultBodyLimit::max(100 * 1024 * 1024)),
         )
-        .route("/album-covers", get(file_test::get_album_covers))
-        .route("/resume", get(file_test::get_resume))
-        .route("/f2q", get(file_test::get_f2q))
+        .route("/album-covers", get(media::get_album_covers))
+        .route("/resume", get(media::get_resume))
+        .route("/f2q", get(media::get_f2q))
         //KNOWLEDGE/PORTFOLIO API (merged in from the old express backend)
         //the JWT session is a resource: create = login, delete = logout
         .route(
@@ -177,8 +185,9 @@ async fn main() {
 
     // Bind all interfaces so the reverse proxy can reach this host at 192.168.0.2.
     // One unified backend: media and api routes share a single port.
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    println!("Server running on 0.0.0.0:3000");
+    let bind_address = env::var("BIND_ADDRESS").unwrap_or_else(|_| "0.0.0.0:3000".into());
+    let listener = tokio::net::TcpListener::bind(&bind_address).await.unwrap();
+    println!("Server running on {}", listener.local_addr().unwrap());
     axum::serve(
         listener,
         app.into_make_service_with_connect_info::<SocketAddr>(),

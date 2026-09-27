@@ -118,6 +118,7 @@ db.BLACKLISTED_TOKENS.createIndex(
   { expireAfterSeconds: 0 },
 );
 db.songs.createIndex({ song_id: 1 }, { unique: true });
+db.songs.createIndex({ artist_id: 1 });
 db.artists.createIndex({ artist_id: 1 }, { unique: true });
 
 // ---------------------------------------------------------------------------

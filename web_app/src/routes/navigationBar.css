@@ -1,5 +1,4 @@
-@import "tailwindcss";
-@import "../main.css";
+@reference "../main.css";
 
 .navigation {
   position: fixed;

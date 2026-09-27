@@ -82,14 +82,19 @@ function Category() {
       title: categoryTitleEdit,
       subCategories: editSubCategories.map((subCategory) => subCategory.value),
     };
-    fetch(backend_address + "/categories/" + encodeURIComponent(categoryToEdit.value), {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+    fetch(
+      backend_address +
+        "/categories/" +
+        encodeURIComponent(categoryToEdit.value),
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+        },
+        body: JSON.stringify(editCategoryFinal),
       },
-      body: JSON.stringify(editCategoryFinal),
-    })
+    )
       .then((response) => {
         if (!response.ok) throw new Error("edit category failed");
         return fetchCategories();
@@ -151,7 +156,7 @@ function Category() {
           Sub-Categories:
           <CreatableSelect
             className="react-select-container"
-          classNamePrefix="react-select"
+            classNamePrefix="react-select"
             components={components}
             inputValue={editInputValue}
             isClearable

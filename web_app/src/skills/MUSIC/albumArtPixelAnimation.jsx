@@ -1,22 +1,30 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { backend_address } from "../../serverInfo.jsx";
+
+function tileCounts() {
+  return {
+    width: Math.round(window.innerWidth / 100 + 1),
+    height: Math.round(window.innerHeight / 100 + 1),
+  };
+}
 
 function AlbumArtPixelAnimation() {
   const [albumCovers, setAlbumCovers] = useState([]);
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const [tileCount, setTileCount] = useState(tileCounts);
+  const tileCountRef = useRef(tileCount);
 
   useEffect(() => {
     const handleResize = () => {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
+      const next = tileCounts();
+      const previous = tileCountRef.current;
+      if (next.width === previous.width && next.height === previous.height)
+        return;
+      tileCountRef.current = next;
+      setTileCount(next);
     };
 
     window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
 
     async function getAlbumArt() {
       try {
@@ -29,14 +37,12 @@ function AlbumArtPixelAnimation() {
     getAlbumArt();
 
     // Clean up
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
   }, []);
 
-  //derived from the window size instead of stored in state
-  const tileCount = {
-    width: Math.round(windowSize.width / 100 + 1),
-    height: Math.round(windowSize.height / 100 + 1),
-  };
   const totalTileCount = tileCount.width * tileCount.height;
 
   return (

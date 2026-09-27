@@ -5,11 +5,23 @@ import trashIcon from "../../svgIcons/trashIcon.svg";
 import { AuthContext } from "../../useAuth.jsx";
 
 function DeleteModal({ open, tutorialData, onClose, onDeleted }) {
+  if (!open) return null;
+  return (
+    <DeleteConfirmation
+      key={
+        tutorialData.resource_id ||
+        `${tutorialData.title}:${tutorialData.source}`
+      }
+      tutorialData={tutorialData}
+      onClose={onClose}
+      onDeleted={onDeleted}
+    />
+  );
+}
+
+function DeleteConfirmation({ tutorialData, onClose, onDeleted }) {
   const [isChecked, setIsChecked] = useState(false);
   const { token } = useContext(AuthContext); //get token from auth
-  if (!open) {
-    return null;
-  }
 
   function deleteTutorial() {
     //legacy tutorials (from the schemaless express days) have no resource_id;

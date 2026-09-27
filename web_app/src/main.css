@@ -45,25 +45,24 @@
 @font-face {
   font-family: "BentonModDisp";
   font-weight: 700;
-  src: url("../public/fonts/BentonModDisp-Bold.otf") format("opentype");
+  src: url("/fonts/BentonModDisp-Bold.otf") format("opentype");
 }
 
 @font-face {
   font-family: "Emeritus";
   font-weight: 400;
-  src: url("../public/fonts/Emeritus-Trial-Display.otf") format("opentype");
+  src: url("/fonts/Emeritus-Trial-Display.otf") format("opentype");
 }
 
 @font-face {
   font-family: "Modak";
-  src: url("../public/fonts/Modak-Regular.ttf") format("truetype");
+  src: url("/fonts/Modak-Regular.ttf") format("truetype");
 }
 
 @font-face {
   font-family: "Surt";
   font-weight: 400;
-  src: url("../public/fonts/surt-trial/Surt-Normal-Regular-TRIAL.otf")
-    format("opentype");
+  src: url("/fonts/surt-trial/Surt-Normal-Regular-TRIAL.otf") format("opentype");
 }
 
 @font-face {
@@ -73,12 +72,12 @@
 @font-face {
   font-family: "Peste";
   font-weight: 800;
-  src: url("../public/fonts/PesteTRIAL-Regular.otf") format("opentype");
+  src: url("/fonts/PesteTRIAL-Regular.otf") format("opentype");
 }
 
 @font-face {
   font-family: "Sinoreta";
-  src: url("../public/fonts/Sinoreta_PERSONAL_USE_ONLY.otf") format("opentype");
+  src: url("/fonts/Sinoreta_PERSONAL_USE_ONLY.otf") format("opentype");
 }
 
 body {
@@ -129,7 +128,7 @@ button {
     transform 0.3s ease,
     box-shadow 0.3s ease,
     border-color 0.3s ease;
-  @apply text-primary rounded-2xl border border-ink/20 px-6 py-3 font-bold;
+  @apply text-primary border-ink/20 rounded-2xl border px-6 py-3 font-bold;
 }
 
 button::before {
@@ -139,7 +138,7 @@ button::before {
   z-index: -1;
   opacity: 0.88;
   transition: opacity 0.3s ease;
-  @apply bg-linear-to-br from-sunny via-bunny/80 to-sunny;
+  @apply from-sunny via-bunny/80 to-sunny bg-linear-to-br;
 }
 
 button:hover:not(:disabled) {
@@ -214,7 +213,11 @@ input:focus-visible {
 }
 
 .react-select-container .react-select__indicator-separator {
-  background-color: color-mix(in oklch, var(--color-secondary) 40%, transparent);
+  background-color: color-mix(
+    in oklch,
+    var(--color-secondary) 40%,
+    transparent
+  );
 }
 
 .react-select-container .react-select__indicator {

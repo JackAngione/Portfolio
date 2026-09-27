@@ -1,17 +1,17 @@
+//! Filesystem-backed media routes and photo uploads.
 use crate::AxumState;
 use axum::body::Body;
 use axum::extract::{Multipart, State};
-use axum::http::{header, HeaderMap};
+use axum::http::{HeaderMap, header};
 use axum::{
+    Json,
     extract::Path as axum_path,
     http::StatusCode,
     response::{IntoResponse, Response},
-    Json,
 };
 use mongodb::bson::doc;
 use rand::rng;
 use rand::seq::SliceRandom;
-use std::fs::exists;
 use std::path::Path;
 use tokio::io::BufReader;
 use tokio_util::io::ReaderStream;
@@ -22,7 +22,7 @@ use tower_http::services::ServeFile;
 
 //path params are interpolated into filesystem paths; reject anything that
 //could escape the intended directory (e.g. "..", "../..", encoded slashes)
-fn is_safe_segment(segment: &str) -> bool {
+pub(crate) fn is_safe_segment(segment: &str) -> bool {
     !segment.is_empty()
         && !segment.contains("..")
         && !segment.contains('/')
@@ -31,14 +31,17 @@ fn is_safe_segment(segment: &str) -> bool {
 }
 
 //given a base path with no extension, find the first extension that exists on disk
-fn find_with_extension(base: &str, extensions: &[&str]) -> Option<String> {
-    extensions
-        .iter()
-        .map(|ext| format!("{}{}", base, ext))
-        .find(|path| exists(path).unwrap_or(false))
+pub(crate) async fn find_with_extension(base: &str, extensions: &[&str]) -> Option<String> {
+    for extension in extensions {
+        let path = format!("{base}{extension}");
+        if tokio::fs::try_exists(&path).await.unwrap_or(false) {
+            return Some(path);
+        }
+    }
+    None
 }
 
-const AUDIO_EXTENSIONS: [&str; 6] = [".wav", ".mp3", ".aac", ".AAC", ".aiff", ".AIFF"];
+pub(crate) const AUDIO_EXTENSIONS: [&str; 6] = [".wav", ".mp3", ".aac", ".AAC", ".aiff", ".AIFF"];
 
 pub(crate) async fn get_artwork(
     State(state): State<AxumState>,
@@ -74,7 +77,7 @@ pub(crate) async fn get_artwork(
     };
 
     let extensions = [".png", ".jpg", ".jpeg", ".webp", ".avif"];
-    let Some(pathbuilder) = find_with_extension(&base, &extensions) else {
+    let Some(pathbuilder) = find_with_extension(&base, &extensions).await else {
         println!("Artwork file does not exist: {}", &base);
         return not_found();
     };
@@ -126,8 +129,9 @@ pub(crate) async fn stream_song(
         return Err(StatusCode::BAD_REQUEST);
     }
     let base = format!("server_files/artists/{}/{}", artist_id, song_id);
-    let pathbuilder =
-        find_with_extension(&base, &AUDIO_EXTENSIONS).ok_or(StatusCode::NOT_FOUND)?;
+    let pathbuilder = find_with_extension(&base, &AUDIO_EXTENSIONS)
+        .await
+        .ok_or(StatusCode::NOT_FOUND)?;
     let path = Path::new(&pathbuilder);
 
     // Use tower-http's ServeFile which handles range requests
@@ -138,199 +142,6 @@ pub(crate) async fn stream_song(
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }
-}
-
-#[derive(serde::Serialize, serde::Deserialize)]
-pub(crate) struct WaveformData {
-    peaks: Vec<f32>,
-    duration: f64,
-}
-
-//Returns pre-computed peaks for the full song so the client can draw the
-//waveform without downloading/decoding the audio file. Peaks are computed once
-//and cached as a .waveform.json file next to the audio file.
-pub(crate) async fn get_waveform(
-    axum_path((artist_id, song_id)): axum_path<(String, String)>,
-) -> Result<Json<WaveformData>, StatusCode> {
-    if !is_safe_segment(&artist_id) || !is_safe_segment(&song_id) {
-        return Err(StatusCode::BAD_REQUEST);
-    }
-    let base = format!("server_files/artists/{}/{}", artist_id, song_id);
-    let cache_path = format!("{}.waveform.json", base);
-
-    if let Ok(cached) = tokio::fs::read_to_string(&cache_path).await {
-        if let Ok(data) = serde_json::from_str::<WaveformData>(&cached) {
-            return Ok(Json(data));
-        }
-    }
-
-    let audio_path =
-        find_with_extension(&base, &AUDIO_EXTENSIONS).ok_or(StatusCode::NOT_FOUND)?;
-
-    //decoding the whole file is CPU-bound, keep it off the async runtime
-    let data = tokio::task::spawn_blocking(move || compute_peaks(&audio_path, 1500))
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-        .map_err(|err| {
-            println!("Failed to compute waveform for {}: {}", &base, err);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
-
-    if let Ok(json) = serde_json::to_string(&data) {
-        let _ = tokio::fs::write(&cache_path, json).await;
-    }
-    Ok(Json(data))
-}
-
-//scans every artist folder on startup and computes any missing waveform
-//caches, so no song pays the decode cost on its first play
-pub(crate) async fn pregenerate_waveforms() {
-    let mut artists = match tokio::fs::read_dir("server_files/artists").await {
-        Ok(dir) => dir,
-        Err(err) => {
-            println!("Waveform pre-generation skipped: {}", err);
-            return;
-        }
-    };
-    let mut generated = 0u32;
-    while let Ok(Some(artist)) = artists.next_entry().await {
-        let Ok(mut entries) = tokio::fs::read_dir(artist.path()).await else {
-            continue;
-        };
-        while let Ok(Some(entry)) = entries.next_entry().await {
-            let path = entry.path();
-            let is_audio = path
-                .extension()
-                .and_then(|ext| ext.to_str())
-                .is_some_and(|ext| {
-                    matches!(
-                        ext.to_ascii_lowercase().as_str(),
-                        "wav" | "mp3" | "aac" | "aiff"
-                    )
-                });
-            if !is_audio {
-                continue;
-            }
-            let cache_path = path.with_extension("waveform.json");
-            if tokio::fs::try_exists(&cache_path).await.unwrap_or(false) {
-                continue;
-            }
-            let audio_path = path.to_string_lossy().into_owned();
-            //decode one file at a time on a blocking thread to keep the
-            //async runtime responsive while the server is already serving
-            match tokio::task::spawn_blocking(move || compute_peaks(&audio_path, 1500)).await {
-                Ok(Ok(data)) => {
-                    if let Ok(json) = serde_json::to_string(&data) {
-                        let _ = tokio::fs::write(&cache_path, json).await;
-                        generated += 1;
-                    }
-                }
-                Ok(Err(err)) => {
-                    println!("Failed to pre-generate waveform for {}: {}", path.display(), err)
-                }
-                Err(err) => println!("Waveform pre-generation task panicked: {}", err),
-            }
-        }
-    }
-    println!("Waveform pre-generation done ({} new caches)", generated);
-}
-
-fn compute_peaks(
-    audio_path: &str,
-    target_peaks: usize,
-) -> Result<WaveformData, Box<dyn std::error::Error + Send + Sync>> {
-    use symphonia::core::audio::SampleBuffer;
-    use symphonia::core::errors::Error as SymphoniaError;
-    use symphonia::core::io::MediaSourceStream;
-    use symphonia::core::probe::Hint;
-
-    let file = std::fs::File::open(audio_path)?;
-    let mss = MediaSourceStream::new(Box::new(file), Default::default());
-    let mut hint = Hint::new();
-    if let Some(ext) = Path::new(audio_path).extension().and_then(|e| e.to_str()) {
-        hint.with_extension(ext);
-    }
-
-    let probed = symphonia::default::get_probe().format(
-        &hint,
-        mss,
-        &Default::default(),
-        &Default::default(),
-    )?;
-    let mut format = probed.format;
-    let track = format.default_track().ok_or("no audio track")?;
-    let track_id = track.id;
-    let sample_rate = track.codec_params.sample_rate.ok_or("unknown sample rate")? as f64;
-    let mut decoder =
-        symphonia::default::get_codecs().make(&track.codec_params, &Default::default())?;
-
-    //max absolute sample per fixed-size block of frames; reduced to target_peaks at the end
-    const FRAMES_PER_BLOCK: usize = 1024;
-    let mut block_peaks: Vec<f32> = Vec::new();
-    let mut block_max = 0f32;
-    let mut frames_in_block = 0usize;
-    let mut total_frames = 0u64;
-    let mut sample_buf: Option<SampleBuffer<f32>> = None;
-
-    loop {
-        let packet = match format.next_packet() {
-            Ok(packet) => packet,
-            Err(_) => break, //end of stream
-        };
-        if packet.track_id() != track_id {
-            continue;
-        }
-        let decoded = match decoder.decode(&packet) {
-            Ok(decoded) => decoded,
-            Err(SymphoniaError::DecodeError(_)) => continue, //skip corrupt packets
-            Err(_) => break,
-        };
-        let channels = decoded.spec().channels.count().max(1);
-        if sample_buf.is_none() {
-            sample_buf = Some(SampleBuffer::new(decoded.capacity() as u64, *decoded.spec()));
-        }
-        let buf = sample_buf.as_mut().unwrap();
-        buf.copy_interleaved_ref(decoded);
-        for frame in buf.samples().chunks(channels) {
-            for sample in frame {
-                block_max = block_max.max(sample.abs());
-            }
-            frames_in_block += 1;
-            total_frames += 1;
-            if frames_in_block == FRAMES_PER_BLOCK {
-                block_peaks.push(block_max);
-                block_max = 0.0;
-                frames_in_block = 0;
-            }
-        }
-    }
-    if frames_in_block > 0 {
-        block_peaks.push(block_max);
-    }
-    if block_peaks.is_empty() {
-        return Err("no audio data decoded".into());
-    }
-
-    //downsample the per-block maxima to the requested number of peaks
-    let peaks: Vec<f32> = if block_peaks.len() <= target_peaks {
-        block_peaks
-    } else {
-        (0..target_peaks)
-            .map(|i| {
-                let start = i * block_peaks.len() / target_peaks;
-                let end = (((i + 1) * block_peaks.len()) / target_peaks).max(start + 1);
-                block_peaks[start..end].iter().copied().fold(0f32, f32::max)
-            })
-            .collect()
-    };
-    //normalize so the loudest peak is 1.0
-    let loudest = peaks.iter().copied().fold(0f32, f32::max).max(f32::EPSILON);
-    let peaks = peaks.iter().map(|p| p / loudest).collect();
-
-    Ok(WaveformData {
-        peaks,
-        duration: total_frames as f64 / sample_rate,
-    })
 }
 
 pub(crate) async fn get_categories() -> Result<Json<Vec<String>>, StatusCode> {
@@ -484,7 +295,9 @@ pub(crate) async fn upload_photo(
             return Err(bad_request("provide lowRes or generateLowRes, not both"));
         }
         if !matches!(high_ext, "jpg" | "avif") {
-            return Err(bad_request("automatic resizing supports JPEG and AVIF only"));
+            return Err(bad_request(
+                "automatic resizing supports JPEG and AVIF only",
+            ));
         }
         crate::photo_resize::downscale(&high_bytes, high_ext)
             .await?
@@ -499,7 +312,9 @@ pub(crate) async fn upload_photo(
 
     let category_dir = format!("./server_files/hdrImages/{}", category);
     if low_ext != high_ext {
-        return Err(bad_request("highRes and lowRes must use the same image format so their filenames match"));
+        return Err(bad_request(
+            "highRes and lowRes must use the same image format so their filenames match",
+        ));
     }
     let low_dir = format!("{}/low", category_dir);
     let high_dir = format!("{}/high", category_dir);
@@ -528,14 +343,23 @@ pub(crate) async fn upload_photo(
     .await
     .map_err(|err| {
         tracing::error!(%err, "Photo save task failed");
-        (StatusCode::INTERNAL_SERVER_ERROR, "Could not confirm both photo copies were saved".to_string())
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Could not confirm both photo copies were saved".to_string(),
+        )
     })?
     .map_err(|err| {
         if err.kind() == std::io::ErrorKind::AlreadyExists {
-            (StatusCode::CONFLICT, format!("\"{}\" already exists in \"{}\"", stem, category))
+            (
+                StatusCode::CONFLICT,
+                format!("\"{}\" already exists in \"{}\"", stem, category),
+            )
         } else {
             tracing::error!(%err, "Photo pair save/verification failed");
-            (StatusCode::INTERNAL_SERVER_ERROR, format!("{err}. Neither photo copy was confirmed as uploaded."))
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("{err}. Neither photo copy was confirmed as uploaded."),
+            )
         }
     })?;
     Ok(StatusCode::CREATED)
@@ -645,5 +469,63 @@ mod photo_type_tests {
         assert_eq!(image_extension(b"GIF89a"), None);
         assert_eq!(image_extension(b"not an image.jpg"), None);
         assert_eq!(image_extension(b""), None);
+    }
+}
+
+#[cfg(test)]
+mod extension_lookup_tests {
+    use super::find_with_extension;
+    use std::path::PathBuf;
+
+    struct TestDir(PathBuf);
+    impl TestDir {
+        fn new() -> Self {
+            let path = std::env::temp_dir().join(format!(
+                "extension-lookup-test-{:032x}",
+                rand::random::<u128>()
+            ));
+            std::fs::create_dir(&path).unwrap();
+            Self(path)
+        }
+    }
+    impl Drop for TestDir {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
+    }
+
+    #[tokio::test]
+    async fn finds_first_existing_extension_in_priority_order() {
+        let dir = TestDir::new();
+        let base = dir.0.join("audio").to_string_lossy().into_owned();
+        tokio::fs::write(format!("{base}.mp3"), b"mp3")
+            .await
+            .unwrap();
+        tokio::fs::write(format!("{base}.wav"), b"wav")
+            .await
+            .unwrap();
+
+        assert_eq!(
+            find_with_extension(&base, &[".wav", ".mp3"]).await,
+            Some(format!("{base}.wav"))
+        );
+        assert_eq!(
+            find_with_extension(&base, &[".aac", ".mp3"]).await,
+            Some(format!("{base}.mp3"))
+        );
+    }
+
+    #[tokio::test]
+    async fn missing_files_and_directory_return_none() {
+        let dir = TestDir::new();
+        let missing = dir.0.join("missing").to_string_lossy().into_owned();
+        let missing_parent = dir
+            .0
+            .join("absent/folder/audio")
+            .to_string_lossy()
+            .into_owned();
+
+        assert_eq!(find_with_extension(&missing, &[".wav", ".mp3"]).await, None);
+        assert_eq!(find_with_extension(&missing_parent, &[".wav"]).await, None);
     }
 }

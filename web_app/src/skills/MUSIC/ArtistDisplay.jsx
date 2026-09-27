@@ -45,7 +45,7 @@ const ArtistDisplay = ({ artist, sendSelectedSong }) => {
               className="flex w-40 flex-col items-center xl:w-50"
             >
               <button
-                className="group bg-transparent! flex! w-full flex-col items-center gap-2 rounded-xl! p-0!"
+                className="group flex! w-full flex-col items-center gap-2 rounded-xl! bg-transparent! p-0!"
                 onClick={() => handleSongClick(song)}
               >
                 <LazyLoadImage

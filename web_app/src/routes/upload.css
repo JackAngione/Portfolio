@@ -1,5 +1,4 @@
-@import "tailwindcss";
-@import "../main.css";
+@reference "../main.css";
 #uploadForm input {
   display: block;
 }

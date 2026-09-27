@@ -5,6 +5,45 @@ photos) and the knowledge/portfolio API (tutorials, categories, auth) that
 used to live in the old express `backend/`. Talks to MongoDB (data) and
 Meilisearch (search).
 
+## Source layout
+
+- `main.rs`: application state, startup, and route registration.
+- `music.rs`: song/artist models and MongoDB catalog queries.
+- `media.rs`: media routes and photo upload handling.
+- `waveform.rs`: audio decoding, cache publication, and shared in-flight work.
+- `photo_storage.rs`: durable photo-pair writes, verification, and rollback.
+- `photo_resize.rs`: external encoder orchestration and preview generation.
+- `knowledge.rs`: authentication, categories, tutorials, and search-index sync.
+- `knowledge/search_index.rs`: streamed search-index batching policy.
+
+## Regression checks
+
+```sh
+cargo fmt --all -- --check
+cargo test --locked
+cargo test --locked -- --ignored
+python3 tests/local_api_smoke.py
+```
+
+The ignored tests require local MongoDB at `127.0.0.1:27017` plus the image
+encoders described below. The index test creates and drops its own database.
+The API smoke test requires Docker, Cargo, Python 3, and FFmpeg; it starts
+disposable MongoDB/Meilisearch containers on loopback ports and the backend in a
+temporary media directory, then removes them. It covers authentication, tutorial
+writes concurrent with rebuilds, multi-page search batches, empty index setup,
+waveforms, range streaming, and photo persistence. It does not use `.env` or the
+existing development database/media files.
+
+Search rebuilds upload/delete in batches of 500 and serialize with indexed
+mutations within this server process so startup cannot prune a concurrent new
+tutorial. The live/stale ID sets still grow with catalog size. Multiple backend
+instances would need shared write coordination before providing the same guarantee.
+
+Waveform requests and startup warming share one decode per active song; canceled
+requests do not abandon cache generation. Cache JSON is published by a sibling
+file rename. A non-unique `songs.artist_id` index is created in the background
+on startup (and in fresh development databases). No query sort was added.
+
 ## Running against production config
 
 ```bash
@@ -18,6 +57,9 @@ Reads env vars from the gitignored `.env`. Required vars:
 - `MEILISEARCH_HOST` — defaults to `http://0.0.0.0:7700/` if unset
 - `MEILISEARCH_MASTER_KEY` — used to sync tutorial uploads into the
   `resources` index
+
+`BIND_ADDRESS` optionally overrides the HTTP listener, which defaults to
+`0.0.0.0:3000`. Isolated tests use a loopback address and an available port.
 
 ## Deploying to production
 

@@ -5,132 +5,103 @@ import { backend_address } from "../../serverInfo.jsx";
 import "./editModal.css";
 import { AuthContext } from "../../useAuth.jsx";
 
-function EditModal({ open, tutorialData, onClose }) {
-  const [categories, setCategories] = useState([]);
-  //the JSON to be uploaded to database
-  const [inputTitle, setInputTitle] = useState("");
-  const [inputDesc, setInputDesc] = useState("");
-  const [inputSource, setInputSource] = useState("");
-  const [resource_id, setResource_id] = useState("");
-  //REACT SELECT KEYWORDS
-  const [inputValue, setInputValue] = useState("");
-  const [reactKeywords, setReactKeywords] = useState([]);
-  //
+const createOption = (label) => ({ label, value: label });
 
-  const [inputCategory, setInputCategory] = useState("");
-  const [subCategoriesValue, setSubCategoriesValue] = useState([]);
-  //LIST OF ALL CATEGORIES DERIVED FROM DATABASE (just the titles)
-  const [categoryTitles, setCategoryTitles] = useState([]);
-  const [subCategoryTitles, setSubCategoryTitles] = useState([]);
+// Keep category data while the dialog is closed. The form below mounts for each
+// opening so an abandoned draft cannot leak into another resource.
+function EditModal({ open, tutorialData, onClose, onEdited }) {
+  const [categories, setCategories] = useState(null);
+  const { token } = useContext(AuthContext);
 
-  const { token } = useContext(AuthContext); //get token from auth
   useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch(backend_address + "/categories");
-      const result = await response.json();
-      let tempCategoryTitle = [];
-      setCategories(result);
-      for (let i = 0; i < result.length; i++) {
-        tempCategoryTitle[i] = {
-          value: result[i].title.toLowerCase(),
-          label: result[i].title,
-          selected: false,
-        };
+    if (!open || categories !== null) return;
+    let active = true;
+    const controller = new AbortController();
+    async function fetchCategories() {
+      try {
+        const response = await fetch(backend_address + "/categories", {
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error("categories request failed");
+        const result = await response.json();
+        if (active) setCategories(result);
+      } catch (error) {
+        if (active) console.error("failed to load categories:", error);
       }
-      setCategoryTitles(tempCategoryTitle);
+    }
+    fetchCategories();
+    return () => {
+      active = false;
+      controller.abort();
     };
+  }, [open, categories]);
 
-    fetchData().then((r) => {});
-  }, []);
-  useEffect(() => {
-    if (tutorialData != null) {
-      setInputTitle(tutorialData.title);
-      setInputDesc(tutorialData.description);
-      setInputSource(tutorialData.source);
-      setInputCategory(tutorialData.category);
-      setResource_id(tutorialData.resource_id);
-      //init subcategories
-      let tempSubCategories = [];
-      if (
-        tutorialData.subCategories != null &&
-        tutorialData.subCategories.length > 0
-      ) {
-        for (let i = 0; i < tutorialData.subCategories.length; i++) {
-          tempSubCategories[i] = {
-            value: tutorialData.subCategories[i],
-            label: tutorialData.subCategories[i],
-            selected: true,
-          };
-        }
-        setSubCategoriesValue(tempSubCategories);
+  if (!open) return null;
+  return (
+    <EditForm
+      key={
+        tutorialData.resource_id ||
+        `${tutorialData.title}:${tutorialData.source}`
       }
-      //initializes the existing keywords into the selectable
-      if (tutorialData.keywords != null && tutorialData.keywords.length > 0) {
-        let tempKeywords = [];
-        for (let i = 0; i < tutorialData.keywords.length; i++) {
-          tempKeywords[i] = createOption(tutorialData.keywords[i]);
-        }
-        setReactKeywords(tempKeywords);
-      }
-    }
-    let tempCategoryTitle = [];
+      tutorialData={tutorialData}
+      categories={categories ?? []}
+      token={token}
+      onClose={onClose}
+      onEdited={onEdited}
+    />
+  );
+}
 
-    for (let i = 0; i < categories.length; i++) {
-      tempCategoryTitle[i] = {
-        value: categories[i].title.toLowerCase(),
-        label: categories[i].title,
-      };
-    }
-    setCategoryTitles(tempCategoryTitle);
-  }, [tutorialData]);
-
-  useEffect(() => {
-    let tempSubCategoryTitle = [];
-    for (let i = 0; i < categories.length; i++) {
-      console.log("FINDINGSUBCAT: " + categories[i].title);
-      if (categories[i].title === inputCategory) {
-        for (let j = 0; j < categories[i].subCategories.length; j++) {
-          tempSubCategoryTitle[j] = {
-            value: categories[i].subCategories[j],
-            label: categories[i].subCategories[j],
-          };
-        }
-        setSubCategoryTitles(tempSubCategoryTitle);
-        break;
-      }
-    }
-  }, [inputCategory]);
-  const createOption = (label) => ({
-    label,
-    value: label,
+function EditForm({ tutorialData, categories, token, onClose, onEdited }) {
+  const [inputTitle, setInputTitle] = useState(tutorialData.title ?? "");
+  const [inputDesc, setInputDesc] = useState(tutorialData.description ?? "");
+  const [inputSource, setInputSource] = useState(tutorialData.source ?? "");
+  const [inputCategory, setInputCategory] = useState(
+    tutorialData.category ?? "",
+  );
+  const [subCategoriesValue, setSubCategoriesValue] = useState(() =>
+    (tutorialData.subCategories ?? []).map(createOption),
+  );
+  const [reactKeywords, setReactKeywords] = useState(() => {
+    const keywords = tutorialData.keywords ?? [];
+    return (
+      Array.isArray(keywords) ? keywords : keywords.split(" ").filter(Boolean)
+    ).map(createOption);
   });
+  const [inputValue, setInputValue] = useState("");
+  const categoryTitles = categories.map(({ title }) => ({
+    value: title.toLowerCase(),
+    label: title,
+  }));
+  const subCategoryTitles =
+    categories
+      .find(({ title }) => title === inputCategory)
+      ?.subCategories?.map(createOption) ?? [];
 
-  //SEND the form to database
-  function submitUpload(e) {
-    e.preventDefault();
+  function submitUpload(event) {
+    event.preventDefault();
+    const resourceId = tutorialData.resource_id ?? "";
     const inputs = {
       title: inputTitle,
       description: inputDesc,
       source: inputSource,
       category: inputCategory,
-      //convert selects to standard array format
-      subCategories: subCategoriesValue.map((subCategory) => subCategory.value),
-      keywords: reactKeywords.map((keyword) => keyword.value),
-      resource_id: resource_id,
+      subCategories: subCategoriesValue.map(({ value }) => value),
+      keywords: reactKeywords.map(({ value }) => value),
+      resource_id: resourceId,
     };
-    fetch(backend_address + "/tutorials/" + encodeURIComponent(resource_id), {
+    fetch(backend_address + "/tutorials/" + encodeURIComponent(resourceId), {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        authorization: `Bearer ${token}`, // Pass JWT in Authorization header
+        authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(inputs),
     })
       .then((response) => {
-        if (!response.ok) {
-          throw new Error("edit failed");
-        }
+        if (!response.ok) throw new Error("edit failed");
         alert("Resource edited successfully!");
+        onEdited?.();
       })
       .catch((error) => {
         console.log(error);
@@ -139,128 +110,105 @@ function EditModal({ open, tutorialData, onClose }) {
     onClose();
   }
 
-  const handleKeyDown = (event) => {
+  function handleKeywordKeyDown(event) {
     if (!inputValue) return;
-    switch (event.key) {
-      case "Enter":
-      case "Tab":
-        setReactKeywords((prev) => [...prev, createOption(inputValue)]);
-        setInputValue("");
-        event.preventDefault();
+    if (event.key === "Enter" || event.key === "Tab") {
+      setReactKeywords((previous) => [...previous, createOption(inputValue)]);
+      setInputValue("");
+      event.preventDefault();
     }
-  };
-  //
-  if (!open) {
-    return null;
   }
 
   return (
-    <>
-      <div className="overlay">
-        <div className="modalContent">
-          <h1 id="editingTitle"> Edit Resource </h1>
-          <p>Resource_ID: {tutorialData.resource_id}</p>
-          <form onSubmit={submitUpload} className="editForm">
-            <label>
-              Enter Title:
-              <input
-                type="text"
-                name="title"
-                value={inputTitle || ""}
-                onChange={(e) => {
-                  setInputTitle(e.target.value);
-                }}
-                placeholder="Title"
-              />
-            </label>
-
-            <label>
-              Enter Description:
-              <textarea
-                type="text"
-                name="description"
-                value={inputDesc || ""}
-                onChange={(e) => {
-                  setInputDesc(e.target.value);
-                }}
-                placeholder="Description"
-              />
-            </label>
-
-            <label>
-              Enter Source Link:
-              <input
-                type="text"
-                name="source"
-                value={inputSource || ""}
-                onChange={(e) => {
-                  setInputSource(e.target.value);
-                }}
-                placeholder="Source"
-              />
-            </label>
-
-            <label>
-              Select Category:
-              <Select
-                className="react-select-container"
-                classNamePrefix="react-select"
-                /*className="react-select-container"*/
-                defaultValue={createOption(tutorialData.category)}
-                onChange={(e) => {
-                  setInputCategory(e.label);
-                  setSubCategoriesValue([]);
-                }}
-                options={categoryTitles}
-              />
-            </label>
-
-            <label>
-              Select Sub-Category:
-              <Select
-                className="react-select-container"
-                classNamePrefix="react-select"
-                isMulti
-                isSearchable={false}
-                name="sub-categories"
-                options={subCategoryTitles}
-                onChange={(event) => {
-                  setSubCategoriesValue(event);
-                }}
-                value={subCategoriesValue}
-              />
-            </label>
-
-            <label>
-              Keywords:
-              <CreatableSelect
-                className="react-select-container"
-                classNamePrefix="react-select"
-                components={{ DropdownIndicator: null }}
-                inputValue={inputValue}
-                isClearable
-                isMulti
-                menuIsOpen={false}
-                onChange={(newValue) => setReactKeywords(newValue)}
-                onInputChange={(newValue) => setInputValue(newValue)}
-                onKeyDown={handleKeyDown}
-                placeholder="Enter Keywords Here"
-                value={reactKeywords}
-              />
-            </label>
-            <div className="modalButtons">
-              <button className="m-4" type="submit">
-                Update Tutorial{" "}
-              </button>
-
-              <button type="button" onClick={onClose}>
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
+    <div className="overlay">
+      <div className="modalContent">
+        <h1 id="editingTitle"> Edit Resource </h1>
+        <p>Resource_ID: {tutorialData.resource_id}</p>
+        <form onSubmit={submitUpload} className="editForm">
+          <label>
+            Enter Title:
+            <input
+              type="text"
+              name="title"
+              value={inputTitle}
+              onChange={(event) => setInputTitle(event.target.value)}
+              placeholder="Title"
+            />
+          </label>
+          <label>
+            Enter Description:
+            <textarea
+              type="text"
+              name="description"
+              value={inputDesc}
+              onChange={(event) => setInputDesc(event.target.value)}
+              placeholder="Description"
+            />
+          </label>
+          <label>
+            Enter Source Link:
+            <input
+              type="text"
+              name="source"
+              value={inputSource}
+              onChange={(event) => setInputSource(event.target.value)}
+              placeholder="Source"
+            />
+          </label>
+          <label>
+            Select Category:
+            <Select
+              className="react-select-container"
+              classNamePrefix="react-select"
+              value={inputCategory ? createOption(inputCategory) : null}
+              onChange={(option) => {
+                setInputCategory(option?.label ?? "");
+                setSubCategoriesValue([]);
+              }}
+              options={categoryTitles}
+            />
+          </label>
+          <label>
+            Select Sub-Category:
+            <Select
+              className="react-select-container"
+              classNamePrefix="react-select"
+              isMulti
+              isSearchable={false}
+              name="sub-categories"
+              options={subCategoryTitles}
+              onChange={(values) => setSubCategoriesValue(values ?? [])}
+              value={subCategoriesValue}
+            />
+          </label>
+          <label>
+            Keywords:
+            <CreatableSelect
+              className="react-select-container"
+              classNamePrefix="react-select"
+              components={{ DropdownIndicator: null }}
+              inputValue={inputValue}
+              isClearable
+              isMulti
+              menuIsOpen={false}
+              onChange={(values) => setReactKeywords(values ?? [])}
+              onInputChange={(value) => setInputValue(value)}
+              onKeyDown={handleKeywordKeyDown}
+              placeholder="Enter Keywords Here"
+              value={reactKeywords}
+            />
+          </label>
+          <div className="modalButtons">
+            <button className="m-4" type="submit">
+              Update Tutorial{" "}
+            </button>
+            <button type="button" onClick={onClose}>
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
-    </>
+    </div>
   );
 }
 

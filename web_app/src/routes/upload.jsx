@@ -98,14 +98,17 @@ function Upload() {
     );
     if (!category) return;
     setStatus(null);
-    fetch(backend_address + "/categories/" + encodeURIComponent(category.title), {
-      method: "PUT",
-      headers: authHeaders,
-      body: JSON.stringify({
-        title: category.title,
-        subCategories: [...category.subCategories, subTitle],
-      }),
-    })
+    fetch(
+      backend_address + "/categories/" + encodeURIComponent(category.title),
+      {
+        method: "PUT",
+        headers: authHeaders,
+        body: JSON.stringify({
+          title: category.title,
+          subCategories: [...category.subCategories, subTitle],
+        }),
+      },
+    )
       .then((response) => {
         if (!response.ok) throw new Error("edit category failed");
         return fetchCategories();
@@ -174,7 +177,10 @@ function Upload() {
         setStatus({ ok: true, message: `"${inputs.title}" uploaded.` });
       })
       .catch(() => {
-        setStatus({ ok: false, message: `Upload of "${inputs.title}" failed.` });
+        setStatus({
+          ok: false,
+          message: `Upload of "${inputs.title}" failed.`,
+        });
       })
       .finally(() => setSubmitting(false));
   }
@@ -213,7 +219,7 @@ function Upload() {
         <label>
           Enter Source Link:
           <input
-            className="border-secondary rounded-[2px] border-1 focus:border-ink"
+            className="border-secondary focus:border-ink rounded-[2px] border-1"
             type="text"
             name="source"
             value={inputSource}
@@ -227,7 +233,7 @@ function Upload() {
           Category (type to create a new one):
           <CreatableSelect
             className="react-select-container"
-          classNamePrefix="react-select"
+            classNamePrefix="react-select"
             isSearchable={true}
             name="category"
             options={categoryOptions}
@@ -244,16 +250,14 @@ function Upload() {
           Sub-Categories (optional, type to create new ones):
           <CreatableSelect
             className="react-select-container"
-          classNamePrefix="react-select"
+            classNamePrefix="react-select"
             isMulti
             isSearchable={true}
             name="subCategories"
             options={subCategoryOptions}
             value={selectedSubCategories}
             placeholder="Select or create sub-categories"
-            isDisabled={
-              !selectedCategory || selectedCategory.value === "None"
-            }
+            isDisabled={!selectedCategory || selectedCategory.value === "None"}
             onChange={(options) => {
               setSelectedSubCategories(options ?? []);
             }}
