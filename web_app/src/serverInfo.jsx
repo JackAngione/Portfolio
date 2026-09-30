@@ -1,6 +1,5 @@
 const isDev = import.meta.env.MODE === "development";
-// Use the hostname the page was loaded from (not a hardcoded 0.0.0.0) so
-// this also works when accessing the dev server from another device on the LAN.
+// Development services bind to loopback; use the local hostname of the page.
 const devHost = isDev ? window.location.hostname : null;
 export const website_address = isDev
   ? `http://${devHost}:5173`

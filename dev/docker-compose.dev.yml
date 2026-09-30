@@ -5,7 +5,7 @@ services:
     image: mongo:7
     container_name: knowledge-dev-mongo
     ports:
-      - "27017:27017"
+      - "127.0.0.1:27017:27017"
     volumes:
       - mongo_data:/data/db
       # Scripts in here only run the first time the container starts with an
@@ -21,7 +21,7 @@ services:
     image: getmeili/meilisearch:v1.15
     container_name: knowledge-dev-meilisearch
     ports:
-      - "7700:7700"
+      - "127.0.0.1:7700:7700"
     environment:
       MEILI_MASTER_KEY: dev_master_key
       MEILI_ENV: development

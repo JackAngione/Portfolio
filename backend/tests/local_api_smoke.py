@@ -57,13 +57,20 @@ def wait_until(check, timeout=30):
 
 
 def test_api(api, search, files, mongo):
+    legacy = "d0cc333979497e7263f6288c1aacd6f2cdc659e9efad861265095b7db9060e6a"
+    command("docker", "exec", mongo, "mongosh", "KNOWLEDGE", "--quiet", "--eval",
+            'db.users.updateOne({username:"admin"},{$set:{password:"' + legacy + '"}})')
     status, _, _ = request(api + "/session")
     assert status == 401
     status, _, _ = request(api + "/session", "POST", {"username": "admin", "password": "wrong"})
     assert status == 401
+    assert command("docker", "exec", mongo, "mongosh", "KNOWLEDGE", "--quiet", "--eval", 'db.users.findOne({username:"admin"}).password') == legacy
     status, body, _ = request(api + "/session", "POST", {"username": "admin", "password": "devpassword"})
     assert status == 200, body
     token = json.loads(body)["token"]
+    upgraded = command("docker", "exec", mongo, "mongosh", "KNOWLEDGE", "--quiet", "--eval", 'db.users.findOne({username:"admin"}).password')
+    assert upgraded.startswith("$argon2id$v=19$m=19456,t=2,p=1$")
+    assert request(api + "/session", "POST", {"username": "admin", "password": "devpassword"})[0] == 200
     assert request(api + "/session", token=token)[0] == 200
 
     for path in ("/artists", "/songs", "/categories"):
@@ -87,6 +94,13 @@ def test_api(api, search, files, mongo):
         return json.loads(body).get("title") if status == 200 else None
 
     wait_until(lambda: indexed_title() == "Audit fixture")
+    for source in ["javascript:alert(1)", " JaVaScRiPt:alert(1)", "java\nscript:alert(1)", "data:text/html,test", "//example.com", "/relative"]:
+        unsafe = {**tutorial, "source": source}
+        assert request(api + "/tutorials", "POST", unsafe, token)[0] == 400
+        assert request(api + "/tutorials/" + resource_id, "PUT", unsafe, token)[0] == 400
+    unchanged = json.loads(request(api + "/tutorials?searchQuery=auditfixture")[1])
+    assert len(unchanged) == 1 and unchanged[0]["source"] == tutorial["source"]
+    assert indexed_title() == "Audit fixture"
     tutorial["title"] = "Audit edited"
     tutorial["subCategories"] = []
     tutorial["keywords"] = []
@@ -180,10 +194,48 @@ def test_api(api, search, files, mongo):
     assert request(api + "/session", token=token)[0] == 401
 
 
+def test_login_limits(api, second_api, mongo):
+    def db(script):
+        return command("docker", "exec", mongo, "mongosh", "KNOWLEDGE", "--quiet", "--eval", script)
+
+    db('db.LOGIN_ATTEMPTS.deleteMany({}); db.users.insertOne({username:"other",password:db.users.findOne({username:"admin"}).password})')
+    credentials = {"username": "admin", "password": "wrong"}
+    # Two backend processes and varying trusted client IPs share one account limit.
+    for i in range(5):
+        target = api if i % 2 == 0 else second_api
+        assert request(target + "/session", "POST", credentials, headers={"X-Real-IP": f"198.51.100.{i}"})[0] == 401
+    expires = db('db.LOGIN_ATTEMPTS.findOne({_id:/^account:/}).expires.valueOf()')
+    for password in ["wrong", "devpassword"]:
+        assert request(second_api + "/session", "POST", {**credentials, "password": password}, headers={"X-Real-IP": "198.51.100.99"})[0] == 429
+    assert db('db.LOGIN_ATTEMPTS.findOne({_id:/^account:/}).expires.valueOf()') == expires
+    assert request(second_api + "/session", "POST", {"username": "other", "password": "devpassword"}, headers={"X-Real-IP": "198.51.100.100"})[0] == 200
+    # TTL deletion may be delayed. Expired rows must reset in the atomic update itself.
+    db('db.LOGIN_ATTEMPTS.updateMany({},{$set:{expires:new Date(0)}})')
+    assert request(api + "/session", "POST", {**credentials, "password": "devpassword"})[0] == 200
+    db('db.LOGIN_ATTEMPTS.deleteMany({})')
+    for i in range(5):
+        assert request(second_api + "/session", "POST", {"username": "missing", "password": "wrong"}, headers={"X-Real-IP": f"203.0.113.{i}"})[0] == 401
+    assert request(api + "/session", "POST", {"username": "missing", "password": "wrong"})[0] == 429
+    # Forged headers on a direct, untrusted connection do not create new source buckets.
+    db('db.LOGIN_ATTEMPTS.deleteMany({})')
+    for i in range(30):
+        assert request(api + "/session", "POST", {"username": f"unknown-{i}", "password": "wrong"}, headers={"X-Real-IP": f"192.0.2.{i}", "X-Forwarded-For": f"192.0.2.{i}"})[0] == 401
+    assert request(api + "/session", "POST", {"username": "admin", "password": "devpassword"}, headers={"X-Real-IP": "192.0.2.99"})[0] == 429
+    assert db('db.LOGIN_ATTEMPTS.countDocuments({_id:/^client:/})') == "1"
+    # Parallel admission must reserve before verifying passwords.
+    db('db.LOGIN_ATTEMPTS.deleteMany({})')
+    with concurrent.futures.ThreadPoolExecutor(max_workers=12) as pool:
+        statuses = list(pool.map(lambda i: request(second_api + "/session", "POST", credentials, headers={"X-Real-IP": f"198.51.100.{i}"})[0], range(12)))
+    assert statuses.count(429) == 7, statuses
+    assert all(status in (401, 429, 503) for status in statuses), statuses
+    print("PASS: legacy password migration, shared account/client limits, unknown users, forged headers, expiry recovery, concurrent admission")
+
+
 def main():
     subprocess.run(["cargo", "build", "--locked"], cwd=BACKEND, check=True)
     containers = []
     process = None
+    second_process = None
     with tempfile.TemporaryDirectory(prefix="knowledge-api-test-") as directory:
         scratch = Path(directory)
         log_path = scratch / "backend.log"
@@ -212,12 +264,45 @@ def main():
             api = f"http://127.0.0.1:{api_port}"
             wait_until(lambda: request(api + "/artists")[0] == 200)
             test_api(api, search_url, scratch / "server_files", mongo)
+            with socket.socket() as listener:
+                listener.bind(("127.0.0.1", 0))
+                second_port = listener.getsockname()[1]
+            second_env = {**env, "APP_ENV": "development", "BIND_ADDRESS": f"127.0.0.1:{second_port}", "TRUSTED_PROXY_IPS": "127.0.0.1"}
+            with log_path.open("a") as log:
+                second_process = subprocess.Popen([str(BACKEND / "target/debug/backend")], cwd=scratch, env=second_env, stdout=log, stderr=log)
+            second_api = f"http://127.0.0.1:{second_port}"
+            wait_until(lambda: request(second_api + "/artists")[0] == 200)
+            assert json.loads(request(second_api + "/photo-categories")[1]) == []
+            assert request(second_api + "/photo/Audit/low/photo.jpg")[0] == 404
+            status, body, _ = request(second_api + "/session", "POST", {"username": "admin", "password": "devpassword"}, headers={"X-Real-IP": "198.51.100.200"})
+            assert status == 200
+            token = json.loads(body)["token"]
+            jpeg = (scratch / "photo.jpg").read_bytes()
+            boundary = "isolated-development-photo"
+            fields = []
+            for name, filename, value in [("category", None, b"DevOnly"), ("highRes", "dev.jpg", jpeg), ("lowRes", "dev.jpg", jpeg)]:
+                disposition = f'Content-Disposition: form-data; name="{name}"'
+                if filename:
+                    disposition += f'; filename="{filename}"\r\nContent-Type: image/jpeg'
+                fields.append(f"--{boundary}\r\n{disposition}\r\n\r\n".encode() + value + b"\r\n")
+            payload = b"".join(fields) + f"--{boundary}--\r\n".encode()
+            assert request(second_api + "/photos", "POST", payload, token, {"Content-Type": f"multipart/form-data; boundary={boundary}"})[0] == 201
+            assert (scratch / "dev_server_files/hdrImages/DevOnly/high/dev.jpg").read_bytes() == jpeg
+            assert not (scratch / "server_files/hdrImages/DevOnly").exists()
+            assert request(second_api + "/photo/DevOnly/low/dev.jpg")[1] == jpeg
+            denied = subprocess.run([str(BACKEND / "target/debug/backend")], cwd=scratch, env={**second_env, "BIND_ADDRESS": "0.0.0.0:0"}, capture_output=True, text=True, timeout=15)
+            assert denied.returncode != 0 and "requires a loopback BIND_ADDRESS" in denied.stderr
+            print("PASS: development rejects network binds and isolates photo reads/writes, including an empty gallery")
+            test_login_limits(api, second_api, mongo)
             print("PASS: auth, catalog, tutorial CRUD/search/reindex, concurrent writes/rebuilds, multi-page search batches, empty index initialization, concurrent waveform/cache, range streaming, photo persistence/conflicts, logout")
         except Exception:
             if log_path.exists():
                 print(log_path.read_text())
             raise
         finally:
+            if second_process is not None:
+                second_process.terminate()
+                second_process.wait(timeout=10)
             if process is not None:
                 process.terminate()
                 try:

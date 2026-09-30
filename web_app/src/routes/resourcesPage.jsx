@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import "./resourcePage.css";
+import { openResource, resourceUrl } from "../security.js";
 import EditModal from "./modals/editModal.jsx";
 import DeleteModal from "./modals/deleteModal.jsx";
 import trashIcon from "../svgIcons/trashIcon.svg";
@@ -71,7 +72,8 @@ function ResourceHit({ hit }) {
     <div className="mx-2 my-6 flex flex-col items-center">
       <button
         className="w-full max-w-[520px]"
-        onClick={() => window.open(`${hit.source}`)}
+        disabled={!resourceUrl(hit.source)}
+        onClick={() => openResource(hit.source)}
       >
         <h3>
           <Highlight attribute="title" hit={hit} />

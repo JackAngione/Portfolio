@@ -28,3 +28,5 @@ production/.env
 /backend/target
 __pycache__/
 /.pnpm-store
+
+/backend/dev_server_files

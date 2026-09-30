@@ -47,7 +47,7 @@ db.createCollection("users", {
       required: ["username", "password"],
       properties: {
         username: { bsonType: "string" },
-        // sha256 hex digest — see login() in backend/src/knowledge.rs
+        // Argon2id PHC string — legacy SHA-256 records migrate on successful login
         password: { bsonType: "string" },
       },
     },
@@ -125,10 +125,10 @@ db.artists.createIndex({ artist_id: 1 }, { unique: true });
 // Seed data
 // ---------------------------------------------------------------------------
 
-// Dev login: admin / devpassword (sha256 hex, matching login() hashing)
+// Dev login: admin / devpassword (Argon2id, development only)
 db.users.insertOne({
   username: "admin",
-  password: "d0cc333979497e7263f6288c1aacd6f2cdc659e9efad861265095b7db9060e6a",
+  password: "$argon2id$v=19$m=19456,t=2,p=1$LQz5gP8tpSTffOSvdx8tlg$CFALE7nOBAIe7kTmaLmaqRQjkt5dy3pmcihSksAXHN0",
 });
 
 db.categories.insertMany([

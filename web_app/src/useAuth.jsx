@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import { backend_address } from "./serverInfo.jsx";
 import Cookies from "js-cookie";
+import { sessionCookieOptions } from "./security.js";
 
 export const AuthContext = createContext({ loggedIn: false, token: "" });
 
@@ -14,7 +15,10 @@ export async function login(username, password) {
   });
   if (response.status === 200) {
     const response_json = await response.json();
-    Cookies.set("LoginToken", response_json.token, { expires: 1 }); // Expires after 1 day
+    Cookies.set("LoginToken", response_json.token, {
+      ...sessionCookieOptions(),
+      expires: 1,
+    }); // Expires after 1 day
     loginStatus = "login successful";
     window.location.reload();
   } else {
@@ -35,7 +39,7 @@ export async function logout() {
     console.log("response recieved");
     if (response.status === 200 || response.status === 401) {
       //401: token was invalid, so logout anyways
-      Cookies.remove("LoginToken"); // Expires after 1 day
+      Cookies.remove("LoginToken", sessionCookieOptions()); // Expires after 1 day
       window.location.reload();
     } else {
       console.log("Logout Failed");

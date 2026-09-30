@@ -1,6 +1,6 @@
 use crate::AxumState;
 use axum::Json;
-use axum::extract::{Path, Query, State};
+use axum::extract::{ConnectInfo, Path, Query, State};
 use axum::http::{HeaderMap, StatusCode};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use meilisearch_sdk::documents::DocumentsQuery;
@@ -10,7 +10,6 @@ use mongodb::{Collection, IndexModel};
 use rand::{RngExt, rng};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use sha2::{Digest, Sha256};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio_stream::StreamExt;
 
@@ -102,10 +101,6 @@ pub(crate) async fn create_blacklist_ttl_index(database: &mongodb::Database) {
     }
 }
 
-fn sha256_hash(input: &str) -> String {
-    hex::encode(Sha256::digest(input.as_bytes()))
-}
-
 fn bearer_token(headers: &HeaderMap) -> Option<&str> {
     headers
         .get("authorization")?
@@ -145,21 +140,24 @@ pub(crate) async fn auth(State(state): State<AxumState>, headers: HeaderMap) -> 
 //login user
 pub(crate) async fn login(
     State(state): State<AxumState>,
+    ConnectInfo(peer): ConnectInfo<std::net::SocketAddr>,
+    headers: HeaderMap,
     Json(credentials): Json<LoginInfo>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    println!("hit login");
-    let users: Collection<Document> = state.mongo_database.collection("users");
-    let user = users
-        .find_one(doc! {
-            "username": &credentials.username,
-            "password": sha256_hash(&credentials.password),
-        })
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    if user.is_none() {
-        println!("login failed");
-        return Err(StatusCode::UNAUTHORIZED);
+    if credentials.username.is_empty()
+        || credentials.username.len() > 256
+        || credentials.password.len() > 1024
+    {
+        return Err(StatusCode::BAD_REQUEST);
     }
+    let client = crate::auth_security::client_ip(peer.ip(), &headers, &state.trusted_proxies)?;
+    crate::auth_security::admit_login(&state.mongo_database, &credentials.username, client).await?;
+    crate::auth_security::authenticate(
+        &state.mongo_database,
+        &credentials.username,
+        credentials.password,
+    )
+    .await?;
     let expiration = SystemTime::now() + Duration::from_secs(24 * 60 * 60);
     let claims = Claims {
         username: credentials.username,
@@ -564,6 +562,9 @@ pub(crate) async fn upload_tutorial(
         //send unauthorized if user not admin
         return StatusCode::UNAUTHORIZED;
     }
+    if !crate::auth_security::valid_resource_url(&tutorial.source) {
+        return StatusCode::BAD_REQUEST;
+    }
     let _guard = REINDEX_MUTEX.lock().await;
     println!("received upload: {:?}", tutorial);
     let tutorials: Collection<Tutorial> = state.mongo_database.collection("tutorials");
@@ -600,6 +601,9 @@ pub(crate) async fn edit_tutorial(
 ) -> StatusCode {
     if !verify_token(&state, &headers).await {
         return StatusCode::UNAUTHORIZED;
+    }
+    if !crate::auth_security::valid_resource_url(&tutorial.source) {
+        return StatusCode::BAD_REQUEST;
     }
     let _guard = REINDEX_MUTEX.lock().await;
     //the path is canonical; a mismatched body id must not relink the document

@@ -145,7 +145,7 @@ pub(crate) async fn stream_song(
 }
 
 pub(crate) async fn get_categories() -> Result<Json<Vec<String>>, StatusCode> {
-    let path = Path::new("./server_files/hdrImages");
+    let path = crate::dev_config::photo_root();
     let mut hdr_images_folder = tokio::fs::read_dir(path)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -310,7 +310,7 @@ pub(crate) async fn upload_photo(
     let low_ext = image_extension(&low_bytes)
         .ok_or_else(|| bad_request("lowRes is not a supported image (JPEG or AVIF only)"))?;
 
-    let category_dir = format!("./server_files/hdrImages/{}", category);
+    let category_dir = format!("{}/{}", crate::dev_config::photo_root().display(), category);
     if low_ext != high_ext {
         return Err(bad_request(
             "highRes and lowRes must use the same image format so their filenames match",
@@ -371,7 +371,11 @@ pub(crate) async fn get_category_photos(
     if !is_safe_segment(&category) {
         return Err(StatusCode::BAD_REQUEST);
     }
-    let pathbuilder = format!("./server_files/hdrImages/{}/low", category);
+    let pathbuilder = format!(
+        "{}/{}/low",
+        crate::dev_config::photo_root().display(),
+        category
+    );
     let photo_files = list_dir_shuffled(Path::new(&pathbuilder)).await?;
     Ok(Json(photo_files))
 }

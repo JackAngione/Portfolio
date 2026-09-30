@@ -1,3 +1,11 @@
+# Only login POSTs consume the trusted edge limiter; client identity comes from
+# nginx's socket peer, never a caller-supplied forwarding header.
+map "$request_method:$uri" $session_limit_key {
+    default "";
+    "POST:/api/session" $binary_remote_addr;
+}
+limit_req_zone $session_limit_key zone=session_logins:10m rate=30r/m;
+
 upstream apiUpstream {
     # the unified axum backend (media + api on one port)
     server 192.168.0.2:3000;
@@ -17,6 +25,8 @@ server {
 	}
 	# Proxy requests to Backend API
 	  location /api/ {
+        limit_req zone=session_logins burst=5 nodelay;
+        limit_req_status 429;
     	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Real-IP $remote_addr;
     	proxy_set_header Host $http_host;
@@ -49,6 +59,7 @@ server {
       
     listen [::]:443 ssl ipv6only=on; # managed by Certbot
     listen 443 ssl; # managed by Certbot
+    add_header Strict-Transport-Security "max-age=31536000" always;
     ssl_certificate /etc/letsencrypt/live/jackangione.com/fullchain.pem; # managed by Certbot
     ssl_certificate_key /etc/letsencrypt/live/jackangione.com/privkey.pem; # managed by Certbot
     include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot

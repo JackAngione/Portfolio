@@ -11,6 +11,7 @@ import { AuthContext } from "../src/useAuth.jsx";
 import ResourcesPage from "../src/routes/resourcesPage.jsx";
 
 const state = vi.hoisted(() => ({
+  source: "https://example.com/first",
   highlightsMounted: 0,
   highlightsUnmounted: 0,
   refresh: vi.fn(),
@@ -40,7 +41,9 @@ vi.mock("react-instantsearch", async () => {
   };
   return {
     InstantSearch: ({ children }) => <>{children}</>,
-    Hits: ({ hitComponent: Hit }) => <Hit hit={hit} />,
+    Hits: ({ hitComponent: Hit }) => (
+      <Hit hit={{ ...hit, source: state.source }} />
+    ),
     Highlight: ({ hit }) => {
       React.useEffect(() => {
         state.highlightsMounted += 1;
@@ -68,6 +71,7 @@ vi.mock("react-instantsearch", async () => {
 });
 
 beforeEach(() => {
+  state.source = "https://example.com/first";
   state.highlightsMounted = 0;
   state.highlightsUnmounted = 0;
   state.refresh.mockClear();
@@ -131,4 +135,27 @@ it("keeps search hits and search input mounted while opening and closing edit, t
   expect(
     fetch.mock.calls.filter(([, options]) => options?.method === "PUT"),
   ).toHaveLength(1);
+});
+
+it("isolates external resource windows and disables unsafe stored links", () => {
+  const open = vi.spyOn(window, "open").mockImplementation(() => null);
+  const view = render(<ResourcesPage />);
+  fireEvent.click(
+    screen.getByRole("button", { name: "First resource Description" }),
+  );
+  expect(open).toHaveBeenCalledWith(
+    "https://example.com/first",
+    "_blank",
+    "noopener,noreferrer",
+  );
+  open.mockClear();
+  state.source = " JaVaScRiPt:alert(1)";
+  view.rerender(<ResourcesPage />);
+  const resource = screen.getByRole("button", {
+    name: "First resource Description",
+  });
+  expect(resource.disabled).toBe(true);
+  fireEvent.click(resource);
+  expect(open).not.toHaveBeenCalled();
+  open.mockRestore();
 });

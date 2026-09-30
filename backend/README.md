@@ -23,6 +23,7 @@ cargo fmt --all -- --check
 cargo test --locked
 cargo test --locked -- --ignored
 python3 tests/local_api_smoke.py
+python3 tests/security_config.py
 ```
 
 The ignored tests require local MongoDB at `127.0.0.1:27017` plus the image
@@ -59,7 +60,37 @@ Reads env vars from the gitignored `.env`. Required vars:
   `resources` index
 
 `BIND_ADDRESS` optionally overrides the HTTP listener, which defaults to
-`0.0.0.0:3000`. Isolated tests use a loopback address and an available port.
+`0.0.0.0:3000` outside development. `APP_ENV=development` defaults to
+`127.0.0.1:3000` and rejects non-loopback overrides. Isolated tests use a
+loopback address and an available port.
+
+### Login security
+
+Passwords use salted Argon2id PHC strings (19 MiB, two passes, one lane).
+Existing SHA-256 records are upgraded atomically on successful login; incorrect
+passwords never migrate them. Dormant legacy accounts need a password reset to
+remove their old verifiers. Hash work runs outside the async request executor,
+with at most four concurrent password jobs per process.
+
+Login admission uses atomic MongoDB counters shared by backend instances:
+five attempts per exact username and 30 per client address in a 60-second
+window, including successful attempts and unknown users. Limits apply before
+password verification and return 429; denied attempts do not extend the window.
+MongoDB TTL cleanup removes expired counters. If counter storage is unavailable,
+login fails closed with 503. The reverse proxy also limits login POSTs by its
+socket client address. Failed credentials and throttling events are logged
+without passwords or tokens.
+
+For a reverse proxy, set `TRUSTED_PROXY_IPS` to the comma-separated, exact IP
+addresses that connect to the backend. The supplied nginx configuration
+**overwrites** `X-Real-IP`. Only these configured peers may supply that header;
+`X-Forwarded-For` is never used. Leave the list empty for direct clients. Without
+proxy configuration, proxied clients share the proxy's 30-attempt budget.
+Restrict backend network access to the intended proxies when deploying this
+configuration. No environment on the production server is changed by this repo.
+
+Resource create/edit accepts only absolute HTTP(S) URLs. Unsafe legacy resources
+remain editable/deletable, but the frontend disables opening their destinations.
 
 ## Deploying to production
 
@@ -108,7 +139,7 @@ spin up a disposable MongoDB + Meilisearch stack in Docker instead. Requires
 
 `dev.sh` will:
 
-1. Start a local MongoDB (port `27017`) and Meilisearch (port `7700`) via
+1. Start loopback-only MongoDB (port `27017`) and Meilisearch (port `7700`) via
    [`dev/docker-compose.dev.yml`](../dev/docker-compose.dev.yml).
 2. On the **first** start, automatically create the `KNOWLEDGE` database with
    schema validators, unique indexes, and seed data
@@ -116,6 +147,12 @@ spin up a disposable MongoDB + Meilisearch stack in Docker instead. Requires
 3. Run the server with `APP_ENV=development`, which loads the committed
    `.env.development` (points at the local containers). Your real `.env`
    (production) is not touched and is still used by a plain `cargo run`.
+
+Development API, frontend, MongoDB and Meilisearch listeners are local-only.
+Shared/LAN development with the committed credentials is intentionally unsupported.
+Photo listing, serving and uploads use `backend/dev_server_files/hdrImages` in
+development, separate from `backend/server_files/hdrImages`. Existing photos are
+not copied or modified. Production and isolated API tests retain their usual roots.
 
 ### Dev login
 

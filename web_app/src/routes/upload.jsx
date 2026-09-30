@@ -1,3 +1,4 @@
+import { resourceUrl } from "../security.js";
 import { useContext, useEffect, useMemo, useState } from "react";
 import "./upload.css";
 import CreatableSelect from "react-select/creatable";
@@ -148,6 +149,13 @@ function Upload() {
   //SEND the form to database
   function submitUpload(e) {
     e.preventDefault();
+    if (!resourceUrl(inputSource)) {
+      setStatus({
+        ok: false,
+        message: "Enter an absolute HTTP or HTTPS resource URL.",
+      });
+      return;
+    }
     setSubmitting(true);
     setStatus(null);
     const inputs = {

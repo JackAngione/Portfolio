@@ -1,3 +1,4 @@
+import { resourceUrl } from "../../security.js";
 import { useContext, useEffect, useState } from "react";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
@@ -80,6 +81,10 @@ function EditForm({ tutorialData, categories, token, onClose, onEdited }) {
 
   function submitUpload(event) {
     event.preventDefault();
+    if (!resourceUrl(inputSource)) {
+      window.alert("Enter an absolute HTTP or HTTPS resource URL.");
+      return;
+    }
     const resourceId = tutorialData.resource_id ?? "";
     const inputs = {
       title: inputTitle,

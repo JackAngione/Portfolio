@@ -16,6 +16,8 @@ use tower_http::services::ServeDir;
 // For request/response tracing
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
+mod auth_security;
+mod dev_config;
 mod knowledge;
 mod media;
 mod music;
@@ -27,6 +29,7 @@ struct AxumState {
     mongo_database: Database,
     song_collection: Collection<Song>,
     jwt_key: String,
+    trusted_proxies: Vec<std::net::IpAddr>,
     search_client: meilisearch_sdk::client::Client,
 }
 //set up the MongoDB client
@@ -51,6 +54,9 @@ async fn init_mongo_client() -> AxumState {
 
     // auto-delete blacklisted tokens once their expiration Date passes
     knowledge::create_blacklist_ttl_index(&mongo_database).await;
+    auth_security::create_indexes(&mongo_database)
+        .await
+        .expect("login throttle index must be available");
 
     let jwt_key = env::var("JWT_KEY").expect("JWT_KEY must be set");
     let search_client = meilisearch_sdk::client::Client::new(
@@ -63,6 +69,7 @@ async fn init_mongo_client() -> AxumState {
         mongo_database,
         song_collection,
         jwt_key,
+        trusted_proxies: auth_security::trusted_proxies().expect("invalid TRUSTED_PROXY_IPS"),
         search_client,
     }
 }
@@ -79,6 +86,7 @@ async fn main() {
 
     //allows the mongo client or collection to be passed among route functions
     let state = init_mongo_client().await;
+    let bind_address = dev_config::bind_address().expect("unsafe development listener");
 
     // Existing catalogs gain the lookup index without delaying HTTP startup.
     let music_database = state.mongo_database.clone();
@@ -104,7 +112,11 @@ async fn main() {
     tokio::spawn(waveform::pregenerate_waveforms());
 
     //STATIC FILE SERVING PATHS
-    let images_path = Path::new("./server_files/hdrImages");
+    let images_path = dev_config::photo_root();
+    if env::var("APP_ENV").is_ok_and(|value| value == "development") {
+        std::fs::create_dir_all(&images_path)
+            .expect("could not initialize development photo storage");
+    }
     let serve_images = ServeDir::new(images_path);
 
     let album_covers = Path::new("./server_files/fav_album_covers");
@@ -183,9 +195,7 @@ async fn main() {
         .layer(cors)
         .with_state(state);
 
-    // Bind all interfaces so the reverse proxy can reach this host at 192.168.0.2.
-    // One unified backend: media and api routes share a single port.
-    let bind_address = env::var("BIND_ADDRESS").unwrap_or_else(|_| "0.0.0.0:3000".into());
+    // Development stays on loopback; other environments preserve proxy access.
     let listener = tokio::net::TcpListener::bind(&bind_address).await.unwrap();
     println!("Server running on {}", listener.local_addr().unwrap());
     axum::serve(
